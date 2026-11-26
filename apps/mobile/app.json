@@ -34,6 +34,11 @@
     "experiments": {
       "typedRoutes": true
     },
-    "owner": "paperstreetappllc"
+    "owner": "paperstreetappllc",
+    "extra": {
+      "eas": {
+        "projectId": "e7663367-c007-4f5d-a3ab-0a129a9111f7"
+      }
+    }
   }
 }
