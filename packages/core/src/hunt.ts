@@ -1,6 +1,7 @@
 import { aimFromPull } from "./aim";
 import { noticesDraw } from "./animals";
 import { launchArrow } from "./arrow";
+import { timeScale } from "./juice";
 import { createRoller } from "./rng";
 import { openingAnimals, rollSpawnDelay } from "./spawn";
 import { TUNING } from "./tuning";
@@ -62,7 +63,7 @@ function advance(state: HuntState, dtMs: number): HuntState {
   if (state.phase.kind === "over") {
     return state;
   }
-  let elapsedMs = state.elapsedMs + dtMs;
+  let elapsedMs = state.elapsedMs + dtMs * timeScale(state);
   let next = state;
   for (let index = stepIndexAt(state.elapsedMs) + 1; index <= stepIndexAt(elapsedMs); index++) {
     next = stepAt(next, index);

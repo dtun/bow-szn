@@ -50,6 +50,17 @@ export const TUNING = {
     maxLive: 5,
     everyMs: [6000, 12000],
   },
+  juice: {
+    hitStopMs: 120,
+    slowMoFrom: 0.7,
+    slowMoRate: 0.3,
+    shakePx: 4,
+    shakeMs: 300,
+    glintMinPoints: 8,
+    glintEveryMs: 3000,
+    glintMs: 150,
+    glintStaggerMs: 977,
+  },
   prep: {
     needed: 3,
     markerBarsPerSec: 1,

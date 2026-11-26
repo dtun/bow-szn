@@ -5,6 +5,7 @@ export { SPOTS } from "./spots";
 export { aimFromPull, currentAim } from "./aim";
 export { arrowAt, previewPath } from "./arrow";
 export { createHunt, huntReducer } from "./hunt";
+export { flightOutcome, isGlinting, shotWillHit, timeScale } from "./juice";
 export { createPrep, isPrepDone, prepReducer } from "./prep";
 export {
   canMount,
