@@ -1,0 +1,68 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "copyright": "2026 Paper Street App LLC",
+    "categories": [["GAMES", "GAMES_SPORTS", "GAMES_CASUAL"]],
+    "info": {
+      "en-US": {
+        "title": "Bow Season",
+        "subtitle": "8-bit bow hunting at dawn",
+        "description": "Pull back, aim, and let it fly. Bow Season is an 8-bit bow hunt you play with one thumb.\n\nClimb into the tree stand at first light. Drag down to draw the bow, read the wind on the dotted arc, and let go before your arms start to shake. Lead a walking deer, because the arrow takes a moment to land.\n\nHunt four spots in Pine Knob County: Cedar Hollow, Miller Bottoms, Cattail Marsh, and High Ridge. Chase whitetail, elk, rabbits, and the rare turkey through the early season, the rut, and the late season.\n\nBucks are the boss fight. They are rare, wary, and quick to bolt. Land one and the game freezes for a beat, the arrow slows to a crawl, and the confetti flies. Does and spikes fill the freezer, so every morning puts something on the table.\n\nA miss is funny, never a punishment. WHIFF! SO CLOSE! THAT DEER SAW YOU. Hunt again is one tap away.\n\nEvery harvest goes in your journal with its weight, its points, and the spot and time of the shot. Mount your best bucks in the trophy room and share them with friends.\n\nNo accounts, no ads, no purchases, and no tracking. Your journal stays on your phone.",
+        "keywords": [
+          "deer",
+          "buck",
+          "archery",
+          "arrow",
+          "elk",
+          "whitetail",
+          "rabbit",
+          "turkey",
+          "pixel",
+          "retro",
+          "trophy",
+          "antler",
+          "rut",
+          "arcade",
+          "outdoor"
+        ],
+        "promoText": "Bucks are the boss fight. Read the wind, lead your shot, and let it fly. Land one for confetti, a fanfare, and a spot on your trophy wall.",
+        "releaseNotes": "Opening day. Climb into the stand, draw your bow, and start your journal.",
+        "marketingUrl": "https://dtun.github.io/bow-szn/",
+        "supportUrl": "https://dtun.github.io/bow-szn/support.html",
+        "privacyPolicyUrl": "https://dtun.github.io/bow-szn/privacy.html"
+      }
+    },
+    "advisory": {
+      "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+      "contests": "NONE",
+      "gamblingSimulated": "NONE",
+      "horrorOrFearThemes": "NONE",
+      "matureOrSuggestiveThemes": "NONE",
+      "medicalOrTreatmentInformation": "NONE",
+      "profanityOrCrudeHumor": "NONE",
+      "sexualContentGraphicAndNudity": "NONE",
+      "sexualContentOrNudity": "NONE",
+      "violenceCartoonOrFantasy": "INFREQUENT_OR_MILD",
+      "violenceRealistic": "NONE",
+      "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+      "gunsOrOtherWeapons": "INFREQUENT_OR_MILD",
+      "gambling": false,
+      "lootBox": false,
+      "unrestrictedWebAccess": false,
+      "advertising": false,
+      "ageAssurance": false,
+      "healthOrWellnessTopics": false,
+      "messagingAndChat": false,
+      "parentalControls": false,
+      "userGeneratedContent": false,
+      "kidsAgeBand": null,
+      "ageRatingOverride": "NONE",
+      "ageRatingOverrideV2": "NONE",
+      "koreaAgeRatingOverride": "NONE"
+    },
+    "review": {
+      "demoRequired": false,
+      "notes": "To shoot, touch the lower half of the hunt screen and drag down to draw the bow, and the arrow aims opposite your drag along the dotted arc. Lift your finger to fire, or slide back to where you started before lifting to cancel."
+    }
+  }
+}
