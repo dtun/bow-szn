@@ -1,7 +1,7 @@
 import { isPrepDone } from "@bow-szn/core";
 import { router } from "expo-router";
 import { memo, useEffect, useMemo, useState } from "react";
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { PixelRatio, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { SceneLayer } from "@/art/scene";
@@ -13,12 +13,12 @@ import { SignArrow } from "@/ui/sign-arrow";
 import { ACCENT, BACKGROUND, FONT_PIXEL, FOREGROUND, PRIMARY } from "@/ui/theme";
 
 import { stuckArrows } from "./landings";
+import { sightCell } from "./prep-layout";
 import { prepMessage } from "./prep-message";
 import { baleScene, pinScene, SIGHT_COLS, SIGHT_ROWS } from "./sight-scene";
 import { usePrep } from "./use-prep";
 
 const SCREEN_MARGIN = 16;
-const MIN_CELL = 3;
 const DIALED_IN_BEAT_MS = 500;
 const MESSAGE_COLORS = { none: FOREGROUND, hit: ACCENT, slip: PRIMARY };
 
@@ -45,7 +45,7 @@ export function PrepScreen() {
   let [seed] = useState(() => Date.now());
   let { state, landings, tap } = usePrep(choice.difficulty, seed);
 
-  let cell = Math.max(MIN_CELL, Math.floor((width - SCREEN_MARGIN * 2) / SIGHT_COLS));
+  let cell = sightCell(width, PixelRatio.get());
   let arrows = stuckArrows(landings).length;
   let done = isPrepDone(state);
   let bale = useMemo(

@@ -115,6 +115,14 @@ test("opens on the straw bale with no arrows in it yet", () => {
   expect(screen.getByLabelText("0 arrows in the bale")).toBeOnTheScreen();
 });
 
+test("the bale spans the screen in whole device pixels", () => {
+  startPrep();
+
+  expect(StyleSheet.flatten(screen.getByTestId("prepBale").props.style)).toMatchObject({
+    width: 720,
+  });
+});
+
 test("the whole screen is one big button for the tap", () => {
   startPrep();
 
