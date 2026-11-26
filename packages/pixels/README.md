@@ -28,6 +28,7 @@ Props are sprites for the menus and the sighting-in range. They follow the same 
 - `bale-arrow` is a practice arrow stuck in the bale. Its bottom-center pixel is where it entered.
 - `pushpin` and `pushpin-picked` mark a spot on the plat map. Their needle tip is the bottom-center pixel. `pencil-ring` circles the picked spot. The `pencil-*` clump, tree, peak, reeds, and house sketch a county in graphite and blue pencil.
 - `sign-point-left` and `sign-point-right` are 13-pixel-tall arrow tips for a wooden trail sign. The board's body is drawn beside them. `sign-nail` and `sign-knot` dress a board.
+- `stamp-frame` is the inked double border of a rubber stamp, 30 by 16, with notched corners and a little wear. The screen sets text inside it.
 - `sight-pin` is the swaying aim dot. Its center pixel is red and is the point that counts.
 
 ## Conventions

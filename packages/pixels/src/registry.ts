@@ -20,6 +20,8 @@ import { RABBIT_SPRITES } from "./sprites/rabbit.ts";
 import type { RabbitSpriteId } from "./sprites/rabbit.ts";
 import { SIGHT_IN_SPRITES } from "./sprites/sight-in.ts";
 import type { SightInSpriteId } from "./sprites/sight-in.ts";
+import { STAMP_SPRITES } from "./sprites/stamp.ts";
+import type { StampSpriteId } from "./sprites/stamp.ts";
 import { TERRAIN_SPRITES } from "./sprites/terrain.ts";
 import type { TerrainSpriteId } from "./sprites/terrain.ts";
 import { TRAIL_SIGN_SPRITES } from "./sprites/trail-sign.ts";
@@ -38,6 +40,7 @@ export type SpriteId =
   | SightInSpriteId
   | PlatMapSpriteId
   | TrailSignSpriteId
+  | StampSpriteId
   | FxSpriteId
   | IconSpriteId
   | MountSpriteId
@@ -54,6 +57,7 @@ export const SPRITES: Record<SpriteId, Sprite> = {
   ...SIGHT_IN_SPRITES,
   ...PLAT_MAP_SPRITES,
   ...TRAIL_SIGN_SPRITES,
+  ...STAMP_SPRITES,
   ...FX_SPRITES,
   ...ICON_SPRITES,
   ...MOUNT_SPRITES,

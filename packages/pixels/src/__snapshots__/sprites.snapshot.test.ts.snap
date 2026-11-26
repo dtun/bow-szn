@@ -1787,6 +1787,27 @@ exports[`sprite art spike-walk-2 1`] = `
 "
 `;
 
+exports[`sprite art stamp-frame 1`] = `
+"
+.MMMMMMMMMMMMMMMMMMMMMM.MMMMM.
+M............................M
+M..MMMMMMMMMMMM.MMMMMMMMMMM..M
+M.M........................M.M
+M.M........................M.M
+M.M........................M.M
+M.M........................M.M
+M.M........................M.M
+M.M........................M.M
+M.M........................M.M
+M.M........................M.M
+M.M........................M.M
+M.M........................M.M
+M..MMMMMMMMMMM.MMMMM.MMMMMM..M
+M............................M
+.MMMMMMMMMMMMMMMMMMMMMMMMMMMM.
+"
+`;
+
 exports[`sprite art stump 1`] = `
 "
 ...tttttt...
