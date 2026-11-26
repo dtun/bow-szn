@@ -1,6 +1,10 @@
-import { aimFromPull, HUNTER_POS, TUNING, type Wind } from "./index";
+import { aimFromPull, HUNTER_POS, TUNING, type HuntState } from "./index";
 
-const CALM: { wind: Wind } = { wind: { dir: 1, strength: 0 } };
+const CALM: Pick<HuntState, "wind" | "phase" | "elapsedMs"> = {
+  wind: { dir: 1, strength: 0 },
+  phase: { kind: "ready" },
+  elapsedMs: 0,
+};
 const FULL_RANGE_PX = 140;
 
 describe("aimFromPull", () => {
@@ -29,10 +33,13 @@ describe("aimFromPull", () => {
   });
 
   test("wind drifts the landing point sideways in proportion to range", () => {
-    let full = aimFromPull({ x: 0, y: TUNING.aim.maxPullPx }, { wind: { dir: -1, strength: 2 } });
+    let full = aimFromPull(
+      { x: 0, y: TUNING.aim.maxPullPx },
+      { ...CALM, wind: { dir: -1, strength: 2 } }
+    );
     let half = aimFromPull(
       { x: 0, y: TUNING.aim.maxPullPx / 2 },
-      { wind: { dir: -1, strength: 2 } }
+      { ...CALM, wind: { dir: -1, strength: 2 } }
     );
     let drift = 2 * TUNING.wind.driftPerStrength;
     expect(full?.target.x).toBeCloseTo(HUNTER_POS.x - drift * FULL_RANGE_PX);

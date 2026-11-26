@@ -28,7 +28,10 @@ describe("arrowAt", () => {
 
 describe("previewPath", () => {
   test("lifts the ground track from the hunter to the reticle by the arc height", () => {
-    let aim = aimFromPull({ x: 0, y: TUNING.aim.maxPullPx }, { wind: { dir: 1, strength: 0 } });
+    let aim = aimFromPull(
+      { x: 0, y: TUNING.aim.maxPullPx },
+      { wind: { dir: 1, strength: 0 }, phase: { kind: "ready" }, elapsedMs: 0 }
+    );
     let peak = 140 * TUNING.arrow.arcHeightPerPx;
     let path = aim === null ? [] : previewPath(aim, 3);
     expect(path).toEqual([HUNTER_POS, { x: HUNTER_POS.x, y: HUNTER_POS.y - 70 - peak }, TARGET]);

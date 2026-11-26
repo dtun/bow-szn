@@ -8,6 +8,14 @@ export const TUNING = {
     deadZonePx: 8,
     maxPullPx: 60,
     maxRangePx: 140,
+    fullDrawPower: 0.95,
+  },
+  sway: {
+    onsetMs: 2500,
+    growthPxPerSec: 2,
+    maxPx: 8,
+    periodMs: 1300,
+    liftScale: 0.5,
   },
   arrow: {
     baseFlightMs: 150,
@@ -15,6 +23,7 @@ export const TUNING = {
     arcHeightPerPx: 0.25,
   },
   wind: {
+    maxStrength: 3,
     driftPerStrength: 0.03,
   },
   hit: {

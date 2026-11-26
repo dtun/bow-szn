@@ -1,4 +1,4 @@
-import { aimFromPull } from "./aim";
+import { aimFromPull, isFullDraw } from "./aim";
 import { noticesDraw, stepAnimal } from "./animals";
 import { launchArrow } from "./arrow";
 import { createRoller } from "./rng";
@@ -13,6 +13,7 @@ import {
   type HuntPhase,
   type HuntState,
   type Vec2,
+  type Wind,
 } from "./types";
 import { ZERO } from "./vec";
 
@@ -24,13 +25,17 @@ export function createHunt(config: HuntConfig): HuntState {
   let roller = createRoller(config.seed);
   let animals = openingAnimals(config, roller);
   let spawnInMs = rollSpawnDelay(roller);
+  let wind: Wind = {
+    dir: roller.chance(0.5) ? 1 : -1,
+    strength: roller.int(0, TUNING.wind.maxStrength),
+  };
   return {
     config,
     rng: roller.state(),
     elapsedMs: 0,
     clockMin: TUNING.clock.startMin,
     arrows: TUNING.difficulty[config.difficulty].arrows,
-    wind: { dir: 1, strength: 0 },
+    wind,
     animals,
     nextAnimalId: animals.length + 1,
     spawnInMs,
@@ -49,6 +54,11 @@ function stepWorld(state: HuntState, nowMs: number): HuntState {
 }
 
 function stepPhase(state: HuntState): HuntState {
+  if (state.phase.kind === "drawing") {
+    return isFullDraw(state.phase.pull)
+      ? { ...state, phase: { ...state.phase, heldMs: state.phase.heldMs + STEP_MS } }
+      : state;
+  }
   if (state.phase.kind !== "flight") {
     return state;
   }
