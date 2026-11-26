@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
 import { router } from "expo-router";
+import { StyleSheet } from "react-native";
 
 import { readPreferences, updatePreferences } from "@/platform/preferences";
 
@@ -17,6 +18,16 @@ test("is headed PINE KNOB COUNTY and names the county's towns", () => {
   for (let town of ["ELDER", "MASON FORK", "BRYCE", "OAKLEY"]) {
     expect(screen.getByText(town)).toBeOnTheScreen();
   }
+});
+
+test("prints every word at 12 points or bigger", () => {
+  render(<MapScreen />);
+
+  let smallest = Math.min(
+    ...screen.getAllByText(/./).map((text) => StyleSheet.flatten(text.props.style)?.fontSize ?? 0)
+  );
+
+  expect(smallest).toBeGreaterThanOrEqual(12);
 });
 
 test.each(["cedar-hollow", "miller-bottoms", "cattail-marsh", "high-ridge"])(
@@ -129,7 +140,7 @@ describe("BACK", () => {
   });
 });
 
-describe("season", () => {
+describe("the SEASON stamp", () => {
   test("cycles early, rut, late, then back to early", () => {
     render(<MapScreen />);
 
@@ -163,7 +174,7 @@ describe("season", () => {
 });
 
 describe("HUNT!", () => {
-  test("heads to the prep bench", () => {
+  test("heads to sighting in", () => {
     let push = jest.spyOn(router, "push").mockImplementation(() => undefined);
     render(<MapScreen />);
 

@@ -4,15 +4,17 @@ import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { nextSeason, updatePreferences, usePreferences } from "@/platform/preferences";
-import { PixelButton } from "@/ui/pixel-button";
+import { SignArrow } from "@/ui/sign-arrow";
+import { StampButton } from "@/ui/stamp-button";
 import { ACCENT, BACKGROUND, FONT_PIXEL } from "@/ui/theme";
 
-import { countyCell } from "./county-map";
+import { COUNTY_COLS, COUNTY_ROWS, countyCell } from "./county-map";
 import { CountyMapView } from "./county-map-view";
 import { SpotSign } from "./spot-sign";
 
 const SCREEN_MARGIN = 16;
-const CHROME_HEIGHT = 360;
+const CHROME_HEIGHT = 336;
+const STAMP_INSET = 8;
 
 function leaveMap() {
   if (router.canGoBack()) {
@@ -40,38 +42,33 @@ export function MapScreen() {
       <Text accessibilityRole="header" style={styles.heading}>
         PINE KNOB COUNTY
       </Text>
-      <CountyMapView
-        cell={cell}
-        selected={selected}
-        onSelect={(next) => updatePreferences({ spot: next })}
-      />
-      <SpotSign spot={spot} season={season} />
-      <View style={styles.buttons}>
-        <PixelButton
-          label="BACK"
-          testID="mapBackBtn"
-          tone="navy"
-          size="small"
-          onPress={leaveMap}
-          style={styles.back}
+      <View style={{ width: COUNTY_COLS * cell, height: COUNTY_ROWS * cell }}>
+        <CountyMapView
+          cell={cell}
+          selected={selected}
+          onSelect={(next) => updatePreferences({ spot: next })}
         />
-        <PixelButton
-          label={`SEASON: ${season.toUpperCase()}`}
+        <StampButton
+          label="SEASON:"
+          value={season.toUpperCase()}
           accessibilityLabel={`Season, ${season}`}
           accessibilityHint="Switches to the next season"
           testID="mapSeasonBtn"
-          tone="brown"
-          size="small"
           onPress={() => updatePreferences({ season: nextSeason(season) })}
-          style={styles.season}
+          style={styles.stamp}
         />
       </View>
-      <PixelButton
-        label="HUNT!"
-        testID="huntBtn"
-        onPress={() => router.push("/prep")}
-        style={styles.hunt}
-      />
+      <SpotSign spot={spot} season={season} />
+      <View style={styles.signs}>
+        <SignArrow label="BACK" direction="left" testID="mapBackBtn" onPress={leaveMap} />
+        <SignArrow
+          label="HUNT!"
+          direction="right"
+          emphasis="primary"
+          testID="huntBtn"
+          onPress={() => router.push("/prep")}
+        />
+      </View>
     </View>
   );
 }
@@ -85,8 +82,11 @@ const styles = StyleSheet.create({
     backgroundColor: BACKGROUND,
   },
   heading: { fontFamily: FONT_PIXEL, fontSize: 14, color: ACCENT },
-  buttons: { alignSelf: "stretch", flexDirection: "row", gap: 10 },
-  back: { flex: 1 },
-  season: { flex: 2 },
-  hunt: { alignSelf: "stretch" },
+  stamp: { position: "absolute", right: STAMP_INSET, bottom: STAMP_INSET },
+  signs: {
+    alignSelf: "stretch",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
 });
