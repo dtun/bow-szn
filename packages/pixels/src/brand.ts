@@ -1,4 +1,4 @@
-import { blank, hstack, overlay, shadowed, sprite } from "./compose.ts";
+import { blank, disc, hstack, overlay, shadowed, sprite } from "./compose.ts";
 import { SPRITES } from "./registry.ts";
 import type { Sprite } from "./types.ts";
 
@@ -43,17 +43,6 @@ function dawnSky(name: string, size: number, bands: readonly SkyBand[]): Sprite 
     }
   }
   return sprite(name, rows);
-}
-
-function disc(name: string, size: number, cx: number, cy: number, r: number, char: string): Sprite {
-  return sprite(
-    name,
-    Array.from({ length: size }, (_, y) =>
-      Array.from({ length: size }, (_, x) => (Math.hypot(x - cx, y - cy) <= r ? char : ".")).join(
-        ""
-      )
-    )
-  );
 }
 
 function dawnBackground(name: string): Sprite {

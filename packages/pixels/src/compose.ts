@@ -31,6 +31,24 @@ export function recolor(name: string, source: Sprite, char: string): Sprite {
   );
 }
 
+export function disc(
+  name: string,
+  size: number,
+  cx: number,
+  cy: number,
+  r: number,
+  char: string
+): Sprite {
+  return sprite(
+    name,
+    Array.from({ length: size }, (_, y) =>
+      Array.from({ length: size }, (_, x) =>
+        Math.hypot(x - cx, y - cy) <= r ? char : TRANSPARENT
+      ).join("")
+    )
+  );
+}
+
 export function erase(name: string, source: Sprite, char: string): Sprite {
   return sprite(
     name,
