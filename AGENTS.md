@@ -38,13 +38,14 @@ Every kind of code has one home. Create a folder when you first put a file in it
 | `apps/mobile/src/features/<feature>/` | One folder per feature: `title`, `map`, `prep`, `hunt`, `journal`. |
 | `apps/mobile/src/ui/`                 | Shared UI primitives and the theme.                                |
 | `apps/mobile/src/art/`                | Pixel art and sprites.                                             |
-| `apps/mobile/src/platform/`           | Device adapters: storage, haptics, audio.                          |
+| `apps/mobile/src/platform/`           | Device adapters: storage, haptics, audio, Game Center.             |
 | `apps/mobile/src/__integration__/`    | Multi-screen flows through the real router.                        |
 | `apps/mobile/__mocks__/`              | Jest manual mocks for packages.                                    |
+| `apps/mobile/modules/<module>/`       | Local native modules. `game-center` is Swift, iOS only.            |
 
 The `@/*` alias maps to `apps/mobile/src/*`. Import with `@/features/title/title-screen`, not a relative path out of a folder.
 
-The journal is the one feature others call. Import `JournalProvider` and `useJournal` from `@/features/journal`. `useJournal()` returns `{ journal, record(harvest), mount(harvestId) }`: the hunt calls `record` when a harvest happens and `mount` from the harvest card. Both are idempotent and save to the device.
+The journal is the one feature others call. Import `JournalProvider` and `useJournal` from `@/features/journal`. `useJournal()` returns `{ journal, record(harvest), mount(harvestId), showLeaderboards() }`: the hunt calls `record` when a harvest happens and `mount` from the harvest card. Both are idempotent and save to the device. `showLeaderboards()` opens Game Center's leaderboards and resolves with the player's sign-in status.
 
 ### Dependency direction
 
@@ -106,6 +107,27 @@ Simulator sound plays through the Mac's speakers. Start Metro with `EXPO_PUBLIC_
 To run the e2e flow: `npm run sim:prepare <udid>` (hides Expo Go's tools button, which covers the top-right corner, and skips its first-run sheet), start Metro with `EXPO_PUBLIC_SFX=off`, then `JAVA_HOME=$(brew --prefix openjdk) maestro --device <udid> test -e METRO_URL=exp://127.0.0.1:<port> e2e/hunt.yaml` from `apps/mobile`.
 
 npm 12 blocks dependency install scripts until they are approved, and the install script of `@shopify/react-native-skia` is blocked on a fresh `npm install`. Approve it with `npm install-scripts approve @shopify/react-native-skia` so it runs before a native build.
+
+### Game Center leaderboards
+
+The journal provider signs in to Game Center once when the app starts. After every change to the journal it posts two scores, and it posts the kept journal when the player signs in. Game Center keeps each player's best score, so posting the same score again changes nothing. LEADERBOARDS on the journal opens Game Center's leaderboards. A player who is not signed in gets a toast that says to sign in to Game Center in Settings. The game never shows the floating Game Center access point.
+
+| Leaderboard id            | Display name | Score                                                          |
+| ------------------------- | ------------ | -------------------------------------------------------------- |
+| `bowseason.best_buck`     | BIGGEST BUCK | The best `trophyScore` over every rack harvest, mounted or not |
+| `bowseason.freezer_total` | FREEZER (LB) | Lifetime pounds of meat, `freezerLb`                           |
+
+The ids live in `LEADERBOARDS` in `packages/core/src/leaderboards.ts`, and App Store Connect must use the same ids. Both are classic leaderboards with integer scores, sorted high to low. A board the journal has not earned yet gets no score, so a player with no buck posts nothing to BIGGEST BUCK.
+
+The native side is the local module in `apps/mobile/modules/game-center/`, and only `src/platform/game-center.ts` imports it. Features get Game Center from the journal provider, which takes a `gameCenter` adapter. Tests pass `createFakeGameCenter(status)`, which records every call. Expo Go and Jest have no native module, so there the adapter signs in as unavailable and posts nothing, and LEADERBOARDS shows the sign-in toast. Everything else runs in Expo Go as before.
+
+Leaderboards work only in a native build: a simulator dev build or a TestFlight build. To make a simulator dev build, run this from `apps/mobile`:
+
+```bash
+EXPO_PUBLIC_SFX=off npx expo run:ios --device <udid>
+```
+
+That generates `ios/`, installs the pods, builds the app, installs it on the simulator, and starts Metro. The build needs the Skia binaries, so approve the Skia install script first (see above). Add `--port <port>` when another Metro already holds 8081. A simulator with no Game Center account fails sign-in, and LEADERBOARDS then shows the sign-in toast. To see the leaderboards themselves, sign in to Game Center in the simulator's Settings app. Game Center also needs the app's leaderboards set up in App Store Connect.
 
 ### Store listing and screenshots
 
