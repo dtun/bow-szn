@@ -23,8 +23,8 @@ function risingCrossings(samples: number[]): number {
   return count;
 }
 
-function expectCycles(samples: number[], cycles: number): void {
-  expect(Math.abs(risingCrossings(samples) - cycles)).toBeLessThanOrEqual(1);
+function cycleError(samples: number[], cycles: number): number {
+  return Math.abs(risingCrossings(samples) - cycles);
 }
 
 function mean(samples: number[]): number {
@@ -68,13 +68,13 @@ describe("square oscillator", () => {
   it("completes one cycle per period", () => {
     let samples = run({ kind: "square", duty: 0.5 }, 440, SAMPLE_RATE);
 
-    expectCycles(samples, 440);
+    expect(cycleError(samples, 440)).toBeLessThanOrEqual(1);
   });
 });
 
 describe("saw oscillator", () => {
   it("completes one cycle per period", () => {
-    expectCycles(run({ kind: "saw" }, 440, SAMPLE_RATE), 440);
+    expect(cycleError(run({ kind: "saw" }, 440, SAMPLE_RATE), 440)).toBeLessThanOrEqual(1);
   });
 
   it("has no DC offset", () => {
@@ -91,7 +91,7 @@ describe("saw oscillator", () => {
 
 describe("triangle oscillator", () => {
   it("completes one cycle per period", () => {
-    expectCycles(run({ kind: "triangle" }, 440, SAMPLE_RATE), 440);
+    expect(cycleError(run({ kind: "triangle" }, 440, SAMPLE_RATE), 440)).toBeLessThanOrEqual(1);
   });
 
   it("steps through exactly sixteen levels, the way a 4-bit wave channel does", () => {
