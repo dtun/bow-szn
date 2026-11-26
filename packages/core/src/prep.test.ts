@@ -24,7 +24,7 @@ function width(state: PrepState): number {
   return state.zone[1] - state.zone[0];
 }
 
-describe("wax the string", () => {
+describe("sighting in", () => {
   test("the marker sweeps the bar and bounces off the far end", () => {
     let prep = createPrep("medium", 7);
     let speed = TUNING.prep.markerBarsPerSec;
@@ -40,7 +40,7 @@ describe("wax the string", () => {
     expect(slipped.hits).toBe(0);
   });
 
-  test("a tap in the green counts a hit and moves the zone away from the marker", () => {
+  test("a tap in the zone counts a hit and moves the zone away from the marker", () => {
     let ready = sweepIntoZone(createPrep("medium", 7));
     let hit = tap(ready);
     expect(hit.lastTap).toBe("hit");
