@@ -1,5 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
 
+import { updatePreferences } from "@/platform/preferences";
+
 import { TitleScreen } from "./title-screen";
 
 function measure(testID: string, width: number, height: number) {
@@ -36,4 +38,89 @@ test("paints the dawn once the screen knows how big its sky is", () => {
   measure("titleScene", 390, 450);
 
   expect(screen.getByTestId("dawnScene")).toBeOnTheScreen();
+});
+
+describe("level", () => {
+  test("starts on easy and cycles medium, hard, then back to easy", () => {
+    render(<TitleScreen />);
+
+    expect(screen.getByTestId("levelBtn")).toHaveTextContent("LEVEL: EASY");
+
+    fireEvent.press(screen.getByTestId("levelBtn"));
+    expect(screen.getByTestId("levelBtn")).toHaveTextContent("LEVEL: MEDIUM");
+
+    fireEvent.press(screen.getByTestId("levelBtn"));
+    expect(screen.getByTestId("levelBtn")).toHaveTextContent("LEVEL: HARD");
+
+    fireEvent.press(screen.getByTestId("levelBtn"));
+    expect(screen.getByTestId("levelBtn")).toHaveTextContent("LEVEL: EASY");
+  });
+
+  test("is remembered the next time the title opens", () => {
+    let first = render(<TitleScreen />);
+    fireEvent.press(screen.getByTestId("levelBtn"));
+    fireEvent.press(screen.getByTestId("levelBtn"));
+    first.unmount();
+
+    render(<TitleScreen />);
+
+    expect(screen.getByTestId("levelBtn")).toHaveTextContent("LEVEL: HARD");
+  });
+
+  test("is read aloud with its current value", () => {
+    render(<TitleScreen />);
+
+    expect(screen.getByRole("button", { name: "Level, easy" })).toBeOnTheScreen();
+  });
+});
+
+describe("season", () => {
+  test("starts early and cycles rut, late, then back to early", () => {
+    render(<TitleScreen />);
+
+    expect(screen.getByTestId("seasonBtn")).toHaveTextContent("SEASON: EARLY");
+
+    fireEvent.press(screen.getByTestId("seasonBtn"));
+    expect(screen.getByTestId("seasonBtn")).toHaveTextContent("SEASON: RUT");
+
+    fireEvent.press(screen.getByTestId("seasonBtn"));
+    expect(screen.getByTestId("seasonBtn")).toHaveTextContent("SEASON: LATE");
+
+    fireEvent.press(screen.getByTestId("seasonBtn"));
+    expect(screen.getByTestId("seasonBtn")).toHaveTextContent("SEASON: EARLY");
+  });
+
+  test("is remembered the next time the title opens", () => {
+    let first = render(<TitleScreen />);
+    fireEvent.press(screen.getByTestId("seasonBtn"));
+    first.unmount();
+
+    render(<TitleScreen />);
+
+    expect(screen.getByTestId("seasonBtn")).toHaveTextContent("SEASON: RUT");
+  });
+});
+
+describe("footer", () => {
+  test("names the first spot and season on a fresh install", () => {
+    render(<TitleScreen />);
+
+    expect(screen.getByTestId("lastHuntLabel")).toHaveTextContent("CEDAR HOLLOW - EARLY");
+  });
+
+  test("names the spot and season of the last hunt", () => {
+    updatePreferences({ spot: "high-ridge", season: "late" });
+
+    render(<TitleScreen />);
+
+    expect(screen.getByTestId("lastHuntLabel")).toHaveTextContent("HIGH RIDGE - LATE");
+  });
+
+  test("follows the season button", () => {
+    render(<TitleScreen />);
+
+    fireEvent.press(screen.getByTestId("seasonBtn"));
+
+    expect(screen.getByTestId("lastHuntLabel")).toHaveTextContent("CEDAR HOLLOW - RUT");
+  });
 });

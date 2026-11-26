@@ -1,3 +1,4 @@
+import { SPOTS } from "@bow-szn/core";
 import { SPRITES } from "@bow-szn/pixels";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
@@ -5,6 +6,12 @@ import { StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } f
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PixelSprite } from "@/art/pixel-sprite";
+import {
+  nextDifficulty,
+  nextSeason,
+  updatePreferences,
+  usePreferences,
+} from "@/platform/preferences";
 import { preloadSfx } from "@/platform/sfx";
 import { PixelButton } from "@/ui/pixel-button";
 import { BACKGROUND, FONT_PIXEL, FOREGROUND, PRIMARY, PRIMARY_DARK } from "@/ui/theme";
@@ -21,6 +28,7 @@ type Size = { width: number; height: number };
 export function TitleScreen() {
   let insets = useSafeAreaInsets();
   let { width } = useWindowDimensions();
+  let { difficulty, season, spot } = usePreferences();
   let [sceneSize, setSceneSize] = useState<Size | null>(null);
 
   useEffect(() => {
@@ -60,6 +68,27 @@ export function TitleScreen() {
           onPress={() => router.push("/hunt")}
           style={styles.wide}
         />
+        <PixelButton
+          label={`LEVEL: ${difficulty.toUpperCase()}`}
+          accessibilityLabel={`Level, ${difficulty}`}
+          accessibilityHint="Switches to the next level"
+          testID="levelBtn"
+          tone="navy"
+          onPress={() => updatePreferences({ difficulty: nextDifficulty(difficulty) })}
+          style={styles.wide}
+        />
+        <PixelButton
+          label={`SEASON: ${season.toUpperCase()}`}
+          accessibilityLabel={`Season, ${season}`}
+          accessibilityHint="Switches to the next season"
+          testID="seasonBtn"
+          tone="brown"
+          onPress={() => updatePreferences({ season: nextSeason(season) })}
+          style={styles.wide}
+        />
+        <Text testID="lastHuntLabel" style={styles.footer}>
+          {`${SPOTS[spot].name} - ${season.toUpperCase()}`}
+        </Text>
       </View>
     </View>
   );
@@ -79,4 +108,11 @@ const styles = StyleSheet.create({
   ribbonText: { fontFamily: FONT_PIXEL, fontSize: 10, color: FOREGROUND },
   menu: { paddingHorizontal: SCREEN_MARGIN, paddingTop: 16, gap: 12 },
   wide: { alignSelf: "stretch" },
+  footer: {
+    fontFamily: FONT_PIXEL,
+    fontSize: 8,
+    color: FOREGROUND,
+    textAlign: "center",
+    opacity: 0.7,
+  },
 });
