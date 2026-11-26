@@ -8,6 +8,8 @@ import { HUNTER_SPRITES } from "./sprites/hunter.ts";
 import type { HunterSpriteId } from "./sprites/hunter.ts";
 import { ICON_SPRITES } from "./sprites/icons.ts";
 import type { IconSpriteId } from "./sprites/icons.ts";
+import { MOUNT_SPRITES } from "./sprites/mounts.ts";
+import type { MountSpriteId } from "./sprites/mounts.ts";
 import { RABBIT_SPRITES } from "./sprites/rabbit.ts";
 import type { RabbitSpriteId } from "./sprites/rabbit.ts";
 import { TERRAIN_SPRITES } from "./sprites/terrain.ts";
@@ -24,7 +26,8 @@ export type SpriteId =
   | RabbitSpriteId
   | TerrainSpriteId
   | FxSpriteId
-  | IconSpriteId;
+  | IconSpriteId
+  | MountSpriteId;
 
 export const SPRITES: Record<SpriteId, Sprite> = {
   ...HUNTER_SPRITES,
@@ -35,4 +38,5 @@ export const SPRITES: Record<SpriteId, Sprite> = {
   ...TERRAIN_SPRITES,
   ...FX_SPRITES,
   ...ICON_SPRITES,
+  ...MOUNT_SPRITES,
 };

@@ -23,6 +23,15 @@ export const WIND_FLAG_FRAMES: readonly [SpriteId, SpriteId, SpriteId] = [
   "icon-wind-strong",
 ];
 
+export type MountableKind = "buck-small" | "buck-medium" | "buck-large" | "elk-bull";
+
+export const MOUNT_FRAMES: Record<MountableKind, SpriteId> = {
+  "buck-small": "mount-buck-small",
+  "buck-medium": "mount-buck-medium",
+  "buck-large": "mount-buck-large",
+  "elk-bull": "mount-elk-bull",
+};
+
 export type AnimalKind = DeerKind | ElkKind | "turkey" | "rabbit";
 
 export type AnimalFrames = {
