@@ -289,6 +289,38 @@ exports[`sprite art buck-small-walk-2 1`] = `
 "
 `;
 
+exports[`sprite art bush 1`] = `
+"
+......GGG.....
+....GggGGD....
+..GGggGGDDFG..
+.GgGgGGDDDDDD.
+.ggGGGDRDDFDDF
+GgGGGDDDDFFDDF
+GGGDRDDDFFFRDF
+GGDDDDDFFRDDFF
+.DDDDDFFFDDFF.
+..DDDFFFDDFFF.
+"
+`;
+
+exports[`sprite art cattails 1`] = `
+"
+......E.....
+..E...UU..E.
+..UU..UU..UE
+..UU..UU..UU
+..UG..UG..UG
+..G...G...G.
+.GD..GD..GD.
+.GD..GD..GD.
+..G...G...G.
+..G..GG...G.
+.GG..GG..GG.
+..G...G...G.
+"
+`;
+
 exports[`sprite art doe-flee 1`] = `
 "
 .............U.U..
@@ -558,6 +590,24 @@ exports[`sprite art elk-cow-walk-2 1`] = `
 "
 `;
 
+exports[`sprite art grass-tuft-1 1`] = `
+"
+G...G.G
+GD.GD.G
+GDGDGDG
+DDDDDDD
+"
+`;
+
+exports[`sprite art grass-tuft-2 1`] = `
+"
+G..G..
+GD.GD.
+GDGDGG
+DDDDDD
+"
+`;
+
 exports[`sprite art hunter-draw 1`] = `
 "
 ............h...........
@@ -679,6 +729,32 @@ exports[`sprite art rabbit-walk-2 1`] = `
 "
 `;
 
+exports[`sprite art rock-1 1`] = `
+"
+...HHHH...
+..HWHHHHh.
+.HWHHHHHhh
+HHHHHHHhhh
+HHHHHHhhhh
+.hhhhhhhh.
+..hhhhhh..
+"
+`;
+
+exports[`sprite art rock-2 1`] = `
+"
+.....gggg.....
+...ggGHHHHh...
+..gHWHHHHHHh..
+.HHWHHHHHHHhh.
+HHHHHHHHHHhhhh
+HHHHHHHHHhhhhh
+.hHHHHHhhhhhh.
+..hhhhhhhhhh..
+...hhhhhhhh...
+"
+`;
+
 exports[`sprite art spike-flee 1`] = `
 "
 ..........a...A...
@@ -759,6 +835,46 @@ exports[`sprite art spike-walk-2 1`] = `
 .U...B..B...U.....
 .U...B..B...U.....
 .E...E..E...E.....
+"
+`;
+
+exports[`sprite art stump 1`] = `
+"
+...tttttt...
+..tTTTTTTt..
+.tTTttttTTt.
+.tTTtbbtTTt.
+..tTTttTTt..
+..UUTTTTUU..
+..UBUUUUBU..
+.UUBUUUUBUU.
+.UEEUUUUEEU.
+"
+`;
+
+exports[`sprite art tree-canopy 1`] = `
+"
+............GGGGG.......
+.....GGGGGGGggGGDDG.....
+....GggGGDGggGGDDDFD....
+...GggGGDDGgGGDDDDFDD...
+...GgGGDDDGGGDDDDDFDDF..
+...GGGDDDDGGDDDDDFFDDF..
+...GGDDDDDGDDDDDFFFDDD..
+..GGDDDDDFFDDDDFFFFDDFF.
+...GGGGDFFFGFFFFFDFDFF..
+...ggGGDFFGDDDDDDDFFFF..
+..GgGGDDFGDDDDDDDFFFFF..
+..GGGDDDFDDDDDDDFFFFFDF.
+..GGDDDFFDDDDDDFFFFFDDF.
+..GDDDFFDDDDDDFFFFFDDFF.
+..GGFFFDDDDDDFFFFDDDFFF.
+..GGDDDDFDDDFFFFDDDFFFF.
+...DDDDDDFFFFFFDDDFFFF..
+....DDDDDFFFFDDDDFFFFF..
+.....FFDFFFFDDDDFFFFF...
+........F..FFDDFFFFF....
+.............FFFFF......
 "
 `;
 

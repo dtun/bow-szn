@@ -6,6 +6,8 @@ import { HUNTER_SPRITES } from "./sprites/hunter.ts";
 import type { HunterSpriteId } from "./sprites/hunter.ts";
 import { RABBIT_SPRITES } from "./sprites/rabbit.ts";
 import type { RabbitSpriteId } from "./sprites/rabbit.ts";
+import { TERRAIN_SPRITES } from "./sprites/terrain.ts";
+import type { TerrainSpriteId } from "./sprites/terrain.ts";
 import { TURKEY_SPRITES } from "./sprites/turkey.ts";
 import type { TurkeySpriteId } from "./sprites/turkey.ts";
 import type { Sprite } from "./types.ts";
@@ -15,7 +17,8 @@ export type SpriteId =
   | DeerSpriteId
   | ElkSpriteId
   | TurkeySpriteId
-  | RabbitSpriteId;
+  | RabbitSpriteId
+  | TerrainSpriteId;
 
 export const SPRITES: Record<SpriteId, Sprite> = {
   ...HUNTER_SPRITES,
@@ -23,4 +26,5 @@ export const SPRITES: Record<SpriteId, Sprite> = {
   ...ELK_SPRITES,
   ...TURKEY_SPRITES,
   ...RABBIT_SPRITES,
+  ...TERRAIN_SPRITES,
 };
