@@ -18,7 +18,7 @@ runs:
           node_modules
           apps/*/node_modules
           packages/*/node_modules
-        key: node-modules-coldprobe1-${{ runner.os }}-${{ runner.arch }}-node-${{ steps.node.outputs.node-version }}-${{ hashFiles('package-lock.json') }}
+        key: node-modules-bump1-${{ runner.os }}-${{ runner.arch }}-node-${{ steps.node.outputs.node-version }}-${{ hashFiles('package-lock.json') }}
 
     - name: Install dependencies
       if: steps.modules.outputs.cache-hit != 'true'
