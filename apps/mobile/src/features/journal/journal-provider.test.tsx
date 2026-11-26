@@ -1,6 +1,7 @@
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import { Pressable, Text } from "react-native";
 
+import { createFakeGameCenter, type GameCenter } from "@/platform/game-center";
 import { createMemoryJournalStore } from "@/platform/journal-store";
 
 import { JournalProvider, useJournal } from "./journal-provider";
@@ -21,9 +22,9 @@ function Probe() {
   );
 }
 
-function renderProbe(store = createMemoryJournalStore(EMPTY_JOURNAL)) {
+function renderProbe(store = createMemoryJournalStore(EMPTY_JOURNAL), gameCenter?: GameCenter) {
   render(
-    <JournalProvider store={store}>
+    <JournalProvider store={store} gameCenter={gameCenter}>
       <Probe />
     </JournalProvider>
   );
@@ -102,4 +103,50 @@ test("useJournal outside a provider says what is missing", () => {
   jest.spyOn(console, "error").mockImplementation(() => {});
 
   expect(() => render(<Probe />)).toThrow("useJournal needs a JournalProvider above it.");
+});
+
+async function settle() {
+  await act(async () => {});
+}
+
+describe("Game Center", () => {
+  test("recording a buck posts its rack and its meat once", async () => {
+    let gameCenter = createFakeGameCenter("signed-in");
+    renderProbe(createMemoryJournalStore(EMPTY_JOURNAL), gameCenter);
+    await settle();
+
+    fireEvent.press(screen.getByTestId("recordBuckBtn"));
+    fireEvent.press(screen.getByTestId("recordBuckBtn"));
+    await settle();
+
+    expect(gameCenter.calls).toEqual([
+      { kind: "authenticate" },
+      {
+        kind: "submit",
+        scores: { "bowseason.best_buck": 10 * 10 + 20, "bowseason.freezer_total": 90 },
+      },
+    ]);
+  });
+
+  test("a journal kept from before is posted once the player signs in", async () => {
+    let gameCenter = createFakeGameCenter("signed-in");
+    renderProbe(createMemoryJournalStore(SEEDED_JOURNAL), gameCenter);
+    await settle();
+
+    expect(gameCenter.calls).toEqual([
+      { kind: "authenticate" },
+      {
+        kind: "submit",
+        scores: { "bowseason.best_buck": 14 * 10 + 60, "bowseason.freezer_total": 564 },
+      },
+    ]);
+  });
+
+  test("a signed-out player's kept journal is not posted at sign-in", async () => {
+    let gameCenter = createFakeGameCenter("signed-out");
+    renderProbe(createMemoryJournalStore(SEEDED_JOURNAL), gameCenter);
+    await settle();
+
+    expect(gameCenter.calls).toEqual([{ kind: "authenticate" }]);
+  });
 });
