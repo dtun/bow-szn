@@ -103,6 +103,8 @@ From `apps/mobile`:
 
 Simulator sound plays through the Mac's speakers. Start Metro with `EXPO_PUBLIC_SFX=off npx expo start` for any simulator or Maestro run on a shared machine. The sound-effects adapter then skips every playback, and the switch is read when Metro bundles, so restart Metro to change it.
 
+To run the e2e flow: `npm run sim:prepare <udid>` (hides Expo Go's tools button, which covers the top-right corner, and skips its first-run sheet), start Metro with `EXPO_PUBLIC_SFX=off`, then `JAVA_HOME=$(brew --prefix openjdk) maestro --device <udid> test -e METRO_URL=exp://127.0.0.1:<port> e2e/hunt.yaml` from `apps/mobile`.
+
 npm 12 blocks dependency install scripts until they are approved, and the install script of `@shopify/react-native-skia` is blocked on a fresh `npm install`. Approve it with `npm install-scripts approve @shopify/react-native-skia` so it runs before a native build.
 
 ### Testing
@@ -111,13 +113,13 @@ This project uses **Jest** as the testing framework (not Vitest). Rationale for 
 
 The file suffix picks the tier.
 
-| Tier        | Suffix                                      | Location                                         | Asserts                                                      | Must not                                          |
-| ----------- | ------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------- |
-| unit        | `*.test.ts`                                 | Next to the code                                 | Pure logic: state out for events in                          | Render, or touch the router                       |
-| ui          | `*.test.tsx`                                | Next to the component                            | One screen or component, driven like a user                  | Cross screens, or use a snapshot                  |
-| integration | `*.integration.test.tsx`                    | `apps/mobile/src/__integration__/`               | Flows through the real router via `renderRouter`             | Use a snapshot, or reach into component internals |
-| snapshot    | `*.snapshot.test.ts`, `*.snapshot.test.tsx` | Next to the code, with a `__snapshots__/` folder | Visual regressions: sprite pixel grids, generated assets     | Stand in for a ui or integration test             |
-| e2e         | Maestro `*.yaml`                            | `apps/mobile/e2e/`                               | Flows against a simulator build. No flows yet; a later wave. | Run in Jest                                       |
+| Tier        | Suffix                                      | Location                                         | Asserts                                                                                      | Must not                                          |
+| ----------- | ------------------------------------------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| unit        | `*.test.ts`                                 | Next to the code                                 | Pure logic: state out for events in                                                          | Render, or touch the router                       |
+| ui          | `*.test.tsx`                                | Next to the component                            | One screen or component, driven like a user                                                  | Cross screens, or use a snapshot                  |
+| integration | `*.integration.test.tsx`                    | `apps/mobile/src/__integration__/`               | Flows through the real router via `renderRouter`                                             | Use a snapshot, or reach into component internals |
+| snapshot    | `*.snapshot.test.ts`, `*.snapshot.test.tsx` | Next to the code, with a `__snapshots__/` folder | Visual regressions: sprite pixel grids, generated assets                                     | Stand in for a ui or integration test             |
+| e2e         | Maestro `*.yaml`                            | `apps/mobile/e2e/`                               | Flows against Expo Go on a simulator: `hunt.yaml` walks title, map, prep, one shot, and MAP. | Run in Jest                                       |
 
 - `packages/core` runs Jest with `ts-jest`. Its tests are all unit tier.
 - `apps/mobile` runs Jest `projects` named `unit`, `ui`, `integration`, and `snapshot` from `apps/mobile/jest.config.js`, using the `jest-expo` preset and `@testing-library/react-native`. Setup lives in `apps/mobile/jest.setup.js`.
