@@ -1,0 +1,36 @@
+import type { Palette } from "./types.ts";
+
+export const TRANSPARENT = ".";
+
+export const PALETTE: Palette = {
+  K: "#1b1530",
+  N: "#13214a",
+  S: "#0b0f1a",
+  n: "#2b6cd9",
+  l: "#8cc4f4",
+  Z: "#4aa8e0",
+  O: "#f08a4b",
+  P: "#f9bb7c",
+  Y: "#f7d44a",
+  y: "#d9a73a",
+  R: "#e23b3b",
+  M: "#8f2438",
+  V: "#f4a0a0",
+  G: "#3e8e2f",
+  g: "#5fae3a",
+  D: "#2d6b24",
+  F: "#1d4a22",
+  T: "#c9a36b",
+  t: "#9c7a45",
+  C: "#f4efe1",
+  W: "#ffffff",
+  L: "#e6d3a3",
+  B: "#8b5a2f",
+  b: "#b8854a",
+  U: "#5a3a1e",
+  E: "#3a2414",
+  A: "#ecdca8",
+  a: "#c9b27a",
+  H: "#8f8ba3",
+  h: "#5b5772",
+};
