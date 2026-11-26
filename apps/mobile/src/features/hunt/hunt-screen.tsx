@@ -1,11 +1,11 @@
 import { WORLD_H, WORLD_W } from "@bow-szn/core";
-import { Canvas, Group, Rect } from "@shopify/react-native-skia";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { GestureDetector } from "react-native-gesture-handler";
 
 import { BACKGROUND, FONT_PIXEL, FOREGROUND, NAVY } from "@/ui/theme";
 
+import { FieldCanvas } from "./field-canvas";
 import { huntConfigFor, type HuntParams } from "./hunt-config";
 import { sceneFor } from "./hunt-scene";
 import { useHunt } from "./use-hunt";
@@ -29,20 +29,7 @@ export function HuntScreen(params: HuntParams) {
       <GestureDetector gesture={pull}>
         <View style={styles.letterbox}>
           <View style={[styles.inert, { width: WORLD_W * scale, height: WORLD_H * scale }]}>
-            <Canvas style={StyleSheet.absoluteFill}>
-              <Group transform={[{ scale }]}>
-                {scene.rects.map((rect) => (
-                  <Rect
-                    key={rect.key}
-                    x={rect.x}
-                    y={rect.y}
-                    width={rect.width}
-                    height={rect.height}
-                    color={rect.color}
-                  />
-                ))}
-              </Group>
-            </Canvas>
+            <FieldCanvas scene={scene} scale={scale} />
             {scene.powerLabel === null ? null : (
               <Text
                 style={[
