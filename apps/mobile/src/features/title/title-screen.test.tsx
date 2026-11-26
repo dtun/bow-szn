@@ -1,8 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
 import { router } from "expo-router";
 
-import { updatePreferences } from "@/platform/preferences";
-
 import { TitleScreen } from "./title-screen";
 
 jest.mock("expo-router", () => ({
@@ -144,26 +142,45 @@ describe("season", () => {
   });
 });
 
-describe("footer", () => {
-  test("names the first spot and season on a fresh install", () => {
+describe("hunting license", () => {
+  test("is a license with a heading printed at 12 points", () => {
     render(<TitleScreen />);
 
-    expect(screen.getByTestId("lastHuntLabel")).toHaveTextContent("CEDAR HOLLOW - EARLY");
+    expect(screen.getByTestId("huntingLicense")).toBeOnTheScreen();
+    expect(screen.getByText("HUNTING LICENSE")).toHaveStyle({ fontSize: 12 });
   });
 
-  test("names the spot and season of the last hunt", () => {
-    updatePreferences({ spot: "high-ridge", season: "late" });
-
+  test("carries the level and the season as stamps, and GO HUNTING as a tag, all inside it", () => {
     render(<TitleScreen />);
+    let license = screen.getByTestId("huntingLicense");
 
-    expect(screen.getByTestId("lastHuntLabel")).toHaveTextContent("HIGH RIDGE - LATE");
+    expect(license).toContainElement(screen.getByTestId("levelBtn"));
+    expect(license).toContainElement(screen.getByTestId("seasonBtn"));
+    expect(license).toContainElement(screen.getByTestId("goHuntingBtn"));
+    expect(screen.getByTestId("levelBtn")).toHaveTextContent("LEVEL: EASY");
+    expect(screen.getByTestId("seasonBtn")).toHaveTextContent("SEASON: EARLY");
   });
 
-  test("follows the season button", () => {
+  test("prints the tag's words at 12 points or bigger", () => {
     render(<TitleScreen />);
 
-    fireEvent.press(screen.getByTestId("seasonBtn"));
+    expect(screen.getByText("GO HUNTING")).toHaveStyle({ fontSize: 14 });
+  });
 
-    expect(screen.getByTestId("lastHuntLabel")).toHaveTextContent("CEDAR HOLLOW - RUT");
+  test("hangs the journal as a smaller tag under the license, not on it", () => {
+    render(<TitleScreen />);
+
+    expect(screen.getByTestId("huntingLicense")).not.toContainElement(
+      screen.getByTestId("journalBtn")
+    );
+    expect(screen.getByTestId("journalBtn")).toHaveTextContent("JOURNAL");
+    expect(screen.getByText("JOURNAL")).toHaveStyle({ fontSize: 12 });
+  });
+
+  test("has no footer line", () => {
+    render(<TitleScreen />);
+
+    expect(screen.queryByTestId("lastHuntLabel")).not.toBeOnTheScreen();
+    expect(screen.queryByText(/CEDAR HOLLOW/)).not.toBeOnTheScreen();
   });
 });
