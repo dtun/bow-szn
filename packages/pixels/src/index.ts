@@ -4,4 +4,7 @@ export { rasterize } from "./rasterize.ts";
 export type { Raster } from "./rasterize.ts";
 export { SPRITES } from "./registry.ts";
 export type { SpriteId } from "./registry.ts";
-export { HUNTER_FRAMES } from "./frames.ts";
+export { ANIMAL_FRAMES, HUNTER_FRAMES } from "./frames.ts";
+export type { AnimalFrames, AnimalKind } from "./frames.ts";
+export { whitetailKind } from "./whitetail-kind.ts";
+export type { AntlerShape } from "./whitetail-kind.ts";
