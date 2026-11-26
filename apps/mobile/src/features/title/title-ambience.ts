@@ -16,8 +16,8 @@ export type TitleAmbience = {
 export const DOE_HOME_ACROSS = 0.6;
 
 const CLOUD_LANES: readonly { across: number; down: number; cellsPerSecond: number }[] = [
-  { across: 0.06, down: 0.36, cellsPerSecond: 0.9 },
-  { across: 0.52, down: 0.5, cellsPerSecond: 0.6 },
+  { across: 0.06, down: 0.1, cellsPerSecond: 0.9 },
+  { across: 0.52, down: 0.62, cellsPerSecond: 0.6 },
 ];
 
 const DOE_FRAMES = ANIMAL_FRAMES.doe;

@@ -43,10 +43,10 @@ function withoutRepeats<T>(items: T[]): T[] {
 }
 
 describe("clouds", () => {
-  test("start where the still dawn paints them, on their own rows of sky", () => {
+  test("start where the still dawn paints them, each on its own lane of sky", () => {
     expect(titleAmbience(0, 1, PHONE_COLS).clouds).toEqual([
-      { x: 6, down: 0.36 },
-      { x: 51, down: 0.5 },
+      { x: 6, down: 0.1 },
+      { x: 51, down: 0.62 },
     ]);
   });
 

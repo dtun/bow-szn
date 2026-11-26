@@ -150,7 +150,7 @@ function standLayer(cols: number, horizon: number): SceneLayer {
   };
 }
 
-export function dawnScene(cols: number, rows: number): DawnScene {
+export function dawnScene(cols: number, rows: number, skyTopRow: number = 0): DawnScene {
   let horizonRow = Math.round(rows * HORIZON_AT);
   let tufts = TUFT_SPOTS.map(({ across, below }) => ({
     sprite: SPRITES["grass-tuft-1"],
@@ -172,7 +172,7 @@ export function dawnScene(cols: number, rows: number): DawnScene {
     horizonRow,
     layers: [backdrop, standLayer(cols, horizonRow)],
     ambient(ambience) {
-      return ambientLayer(ambience, { rows, horizonRow });
+      return ambientLayer(ambience, { rows, horizonRow, skyTopRow });
     },
   };
 }

@@ -4,13 +4,16 @@ import { ambientLayer } from "./ambient-layer";
 import { CLOUD } from "./dawn-cloud";
 import type { TitleAmbience } from "./title-ambience";
 
-const PHONE = { rows: 113, horizonRow: 68 };
-const SMALL_PHONE = { rows: 80, horizonRow: 48 };
+const PHONE = { rows: 113, horizonRow: 68, skyTopRow: 30 };
+const SMALL_PHONE = { rows: 80, horizonRow: 48, skyTopRow: 22 };
+const TALL_PHONE = { rows: 213, horizonRow: 101, skyTopRow: 42 };
+const SHORT_PHONE = { rows: 167, horizonRow: 100, skyTopRow: 40 };
+const CLOUD_HEIGHT = 3;
 
 const AT_REST: TitleAmbience = {
   clouds: [
-    { x: 6, down: 0.36 },
-    { x: 51, down: 0.5 },
+    { x: 6, down: 0.1 },
+    { x: 51, down: 0.62 },
   ],
   doe: { frame: "doe-graze", x: 59, facing: 1 },
   rabbit: null,
@@ -20,11 +23,33 @@ function mirrorOf(rows: readonly string[]): string[] {
   return rows.map((row) => [...row].reverse().join(""));
 }
 
-test("paints each cloud on its own row of sky, one row above the cloud's middle", () => {
+test("paints each cloud at its place in the clear sky, between the tagline and the sun", () => {
   let { sprites } = ambientLayer(AT_REST, PHONE);
 
-  expect(sprites[0]).toEqual({ sprite: CLOUD, x: 6, y: 23 });
-  expect(sprites[1]).toEqual({ sprite: CLOUD, x: 51, y: 33 });
+  expect(sprites[0]).toEqual({ sprite: CLOUD, x: 6, y: 33 });
+  expect(sprites[1]).toEqual({ sprite: CLOUD, x: 51, y: 38 });
+});
+
+test.each([PHONE, SHORT_PHONE, TALL_PHONE])(
+  "keeps a cloud at any place in the sky below the tagline and clear of the sun, on a $rows row picture",
+  (geometry) => {
+    let places = [0, 0.25, 0.5, 0.75, 1].map((down) => {
+      let layer = ambientLayer({ ...AT_REST, clouds: [{ x: 10, down }] }, geometry);
+      return layer.sprites[0].y;
+    });
+
+    for (let top of places) {
+      expect(top).toBeGreaterThanOrEqual(geometry.skyTopRow + 2);
+      expect(top + CLOUD_HEIGHT).toBeLessThanOrEqual(geometry.horizonRow - 24);
+    }
+  }
+);
+
+test("a cloud drifts along one row of sky, so only its column changes", () => {
+  let first = ambientLayer({ ...AT_REST, clouds: [{ x: 10, down: 0.62 }] }, TALL_PHONE);
+  let later = ambientLayer({ ...AT_REST, clouds: [{ x: 40, down: 0.62 }] }, TALL_PHONE);
+
+  expect(later.sprites[0].y).toBe(first.sprites[0].y);
 });
 
 test("a doe facing right is the sprite as drawn, standing with her hooves 14 rows under the horizon", () => {

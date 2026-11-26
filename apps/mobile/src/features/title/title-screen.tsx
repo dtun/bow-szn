@@ -18,6 +18,7 @@ export function TitleScreen() {
   let insets = useSafeAreaInsets();
   let { width } = useWindowDimensions();
   let [sceneSize, setSceneSize] = useState<Size | null>(null);
+  let [brandBottom, setBrandBottom] = useState(0);
   let [seed] = useState(() => Date.now());
 
   useEffect(() => {
@@ -28,6 +29,11 @@ export function TitleScreen() {
     setSceneSize(event.nativeEvent.layout);
   }
 
+  function measureBrand(event: LayoutChangeEvent) {
+    let { y, height } = event.nativeEvent.layout;
+    setBrandBottom(y + height);
+  }
+
   let logoScale = Math.max(2, Math.floor((width - SCREEN_MARGIN * 2) / LOGO.w));
   let grid = sceneSize ? sceneGrid(sceneSize) : null;
 
@@ -35,9 +41,19 @@ export function TitleScreen() {
     <View testID="titleScreen" style={styles.screen}>
       <View testID="titleScene" style={styles.scene} onLayout={measureScene}>
         {grid ? (
-          <DawnSceneView cols={grid.cols} rows={grid.rows} cell={grid.cell} seed={seed} />
+          <DawnSceneView
+            cols={grid.cols}
+            rows={grid.rows}
+            cell={grid.cell}
+            seed={seed}
+            skyTopRow={Math.ceil(brandBottom / grid.cell)}
+          />
         ) : null}
-        <View style={[styles.brand, { paddingTop: insets.top + 20 }]}>
+        <View
+          testID="titleBrand"
+          style={[styles.brand, { paddingTop: insets.top + 20 }]}
+          onLayout={measureBrand}
+        >
           <View accessible accessibilityRole="header" accessibilityLabel="BOW SEASON">
             <PixelSprite sprite={LOGO} scale={logoScale} testID="titleLogo" />
           </View>

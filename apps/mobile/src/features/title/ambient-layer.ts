@@ -5,10 +5,12 @@ import type { SceneLayer, SceneSprite } from "@/art/scene";
 import { CLOUD } from "./dawn-cloud";
 import type { Facing, TitleAmbience } from "./title-ambience";
 
-export type AmbientGeometry = { rows: number; horizonRow: number };
+export type AmbientGeometry = { rows: number; horizonRow: number; skyTopRow: number };
 
 const DOE_FEET_BELOW_HORIZON = 14;
 const RABBIT_FEET_DEPTH = 0.8;
+const CLOUD_TOP_MARGIN = 2;
+const SUN_AND_HILLS_CLEARANCE = 24;
 
 let mirroredSprites = new Map<SpriteId, Sprite>();
 
@@ -29,14 +31,21 @@ function facing(id: SpriteId, direction: Facing): Sprite {
   return mirrored;
 }
 
+function cloudRow(down: number, { horizonRow, skyTopRow }: AmbientGeometry): number {
+  let top = skyTopRow + CLOUD_TOP_MARGIN;
+  let bottom = horizonRow - SUN_AND_HILLS_CLEARANCE - CLOUD.h;
+  return top + Math.round(down * Math.max(0, bottom - top));
+}
+
 export function ambientLayer(
   { clouds, doe, rabbit }: TitleAmbience,
-  { rows, horizonRow }: AmbientGeometry
+  geometry: AmbientGeometry
 ): SceneLayer {
+  let { rows, horizonRow } = geometry;
   let sprites: SceneSprite[] = clouds.map(({ x, down }) => ({
     sprite: CLOUD,
     x,
-    y: Math.round(horizonRow * down) - 1,
+    y: cloudRow(down, geometry),
   }));
 
   let doeSprite = facing(doe.frame, doe.facing);

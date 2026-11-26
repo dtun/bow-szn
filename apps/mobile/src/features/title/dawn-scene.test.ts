@@ -53,6 +53,18 @@ test("the hunter stands on the stand's plank", () => {
   expect(planks.map((plank) => plank.y)).toContain((hunter?.y ?? 0) + (hunter?.sprite.h ?? 0));
 });
 
+test("the clouds keep below the logo and the tagline once the scene knows where they end", () => {
+  let scene = dawnScene(PHONE.cols, PHONE.rows, 36);
+  let clouds = scene
+    .ambient(titleAmbience(0, 1, PHONE.cols))
+    .sprites.filter((placed) => placed.sprite.name === "title-cloud");
+
+  expect(clouds).toHaveLength(2);
+  for (let cloud of clouds) {
+    expect(cloud.y).toBeGreaterThanOrEqual(36);
+  }
+});
+
 test.each([PHONE, SMALL_PHONE])("every flat shape fits inside a $cols by $rows picture", (size) => {
   let scene = dawnScene(size.cols, size.rows);
   let rects = scene.layers.flatMap((layer) => layer.rects);
