@@ -123,7 +123,7 @@ module.exports = defineConfig([
     },
   },
   {
-    files: ["**/*.test.ts", "**/*.test.tsx", "**/jest.setup.js"],
+    files: ["**/*.test.ts", "**/*.test.tsx", "**/jest.setup.js", "**/jest.*.setup.js"],
     plugins: {
       jest: jestPlugin,
     },
