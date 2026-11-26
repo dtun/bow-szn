@@ -1,7 +1,12 @@
 import { defineSprites } from "../compose.ts";
 import type { Sprite } from "../types.ts";
 
-export type BrandSpriteId = "brand-bow" | "brand-bow-mini" | "brand-deer" | "brand-treeline";
+export type BrandSpriteId =
+  | "brand-bow"
+  | "brand-bow-compact"
+  | "brand-bow-mini"
+  | "brand-deer"
+  | "brand-treeline";
 
 export const BRAND_SPRITES: Record<BrandSpriteId, Sprite> = defineSprites({
   "brand-bow": [
@@ -30,6 +35,27 @@ export const BRAND_SPRITES: Record<BrandSpriteId, Sprite> = defineSprites({
     ".........bEEEEE.......",
     "..........E...........",
     "...........EE.........",
+  ],
+  "brand-bow-compact": [
+    ".........EE.......",
+    "........EEE.......",
+    "........CbEEEE....",
+    ".......C...bEEE...",
+    "......C.....bEEE..",
+    ".....C.......bEE..",
+    ".....C.......bEE..",
+    "....C........MRR..",
+    "...RRRM......MRHh.",
+    "..CCCCCCCCCCCCCHHW",
+    "...RRRM......MRHh.",
+    "....C........MRR..",
+    ".....C.......bEE..",
+    ".....C.......bEE..",
+    "......C.....bEEE..",
+    ".......C...bEEE...",
+    "........CbEEEE....",
+    "........EEE.......",
+    ".........EE.......",
   ],
   "brand-bow-mini": [
     "....bEEEE..",
