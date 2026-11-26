@@ -58,6 +58,8 @@ app -> features -> ui, art, platform -> @bow-szn/core
 - `ui`, `art`, and `platform` never import a feature. ESLint enforces this with `no-restricted-imports`.
 - `@bow-szn/core` imports nothing from the app, React, React Native, Expo, or Skia. ESLint enforces this with `no-restricted-imports`.
 
+EAS does not turn on the Game Center capability from the `com.apple.developer.game-center` entitlement (its capability sync reports "No updates"). The App ID `com.paperstreetapp.bowseason` had Game Center enabled by hand on 2026-11-26. For any new App ID, or any new capability EAS does not map, enable it on the App ID first, then delete the provisioning profile in `eas credentials` so the next build generates one that includes it.
+
 ## Development Workflow
 
 ### Code Quality Checks
