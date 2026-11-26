@@ -1,7 +1,9 @@
 import { WORLD_W } from "@bow-szn/core";
 import { Canvas, Rect } from "@shopify/react-native-skia";
+import { router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
+import { PixelButton } from "@/ui/pixel-button";
 import { ACCENT, BACKGROUND, FONT_PIXEL, FOREGROUND } from "@/ui/theme";
 
 const BAR_H = 8;
@@ -13,6 +15,7 @@ export function TitleScreen() {
       <Canvas style={styles.bar}>
         <Rect x={0} y={0} width={WORLD_W} height={BAR_H} color={ACCENT} />
       </Canvas>
+      <PixelButton label="GO HUNTING" testID="goHuntingBtn" onPress={() => router.push("/hunt")} />
     </View>
   );
 }
