@@ -16,6 +16,7 @@ import {
   fieldLayout,
   groundBlocks,
   groundColor,
+  skyBlocks,
   type FieldLayout,
 } from "./field-layout";
 import type { Mark, Scene } from "./hunt-scene";
@@ -76,6 +77,7 @@ export function FieldCanvas({ scene }: { scene: Scene }) {
     return layout;
   }
   let ground = layerImage("ground", key, bounds, () => groundBlocks(laidOut()));
+  let sky = layerImage("sky", key, bounds, () => skyBlocks(laidOut()));
   let canopy = layerImage("canopy", key, bounds, () => canopyBlocks(laidOut()));
 
   return (
@@ -85,6 +87,10 @@ export function FieldCanvas({ scene }: { scene: Scene }) {
         <Group transform={[{ translateX: scene.shake.x }, { translateY: scene.shake.y }]}>
           <LayerView image={ground} bounds={bounds} />
           {scene.ground.map((mark) => (
+            <MarkView key={mark.key} mark={mark} />
+          ))}
+          <LayerView image={sky} bounds={bounds} />
+          {scene.sky.map((mark) => (
             <MarkView key={mark.key} mark={mark} />
           ))}
           <LayerView image={canopy} bounds={bounds} />

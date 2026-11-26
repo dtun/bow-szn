@@ -96,7 +96,7 @@ const PROP_MUTE = 0.45;
 const SPECKLE_MUTE = 0.4;
 const STAND_FLOOR = WORLD_H - 2;
 const LADDER_RUNG_STEP = 4;
-const HORIZON = -14;
+export const HORIZON = -14;
 const SKY_BANDS: readonly { until: number; color: string }[] = [
   { until: 0.22, color: PALETTE.n },
   { until: 0.42, color: PALETTE.Z },
@@ -104,7 +104,6 @@ const SKY_BANDS: readonly { until: number; color: string }[] = [
   { until: 0.8, color: PALETTE.P },
   { until: 1, color: PALETTE.O },
 ];
-const SUN = { x: 128, y: HORIZON - 12, radius: 7 };
 
 export const OPEN_MIDDLE: Box = {
   left: MEADOW.minX,
@@ -259,18 +258,8 @@ function skyBands(bounds: Bounds): Block[] {
   return blocks;
 }
 
-function sun(): Block[] {
-  let blocks: Block[] = [];
-  for (let row = -SUN.radius; row <= SUN.radius; row++) {
-    let half = Math.floor(Math.sqrt(SUN.radius ** 2 - row ** 2));
-    let y = SUN.y + row;
-    blocks.push({ x: SUN.x - half, y, width: half * 2 + 1, height: 1, color: PALETTE.Y });
-  }
-  return blocks;
-}
-
 function sky(bounds: Bounds): Block[] {
-  return bounds.top < HORIZON ? [...skyBands(bounds), ...sun()] : [];
+  return bounds.top < HORIZON ? skyBands(bounds) : [];
 }
 
 function farTreeline(bounds: Bounds, roller: Roller): Decor[] {
@@ -374,6 +363,10 @@ export function groundBlocks(layout: FieldLayout): Block[] {
   return [...layout.ground, ...props];
 }
 
+export function skyBlocks(layout: FieldLayout): Block[] {
+  return layout.sky;
+}
+
 export function canopyBlocks(layout: FieldLayout): Block[] {
-  return [...layout.sky, ...decorBlocks(layout.canopy)];
+  return decorBlocks(layout.canopy);
 }

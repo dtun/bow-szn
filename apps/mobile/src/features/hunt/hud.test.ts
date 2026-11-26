@@ -1,6 +1,6 @@
 import { createHunt, type Harvest, type HuntState, type Wind } from "@bow-szn/core";
 
-import { clockLabel, hudFor } from "./hud";
+import { hudFor, hudRow } from "./hud";
 import { huntView } from "./hunt-view";
 import type { Mark } from "./scene-marks";
 
@@ -31,22 +31,22 @@ function windFlag(wind: Wind): Mark | undefined {
   return hudFor(hunt({ wind }), VIEW).marks.find((mark) => mark.key === "wind-flag");
 }
 
-test.each([
-  [360, "6:00 AM"],
-  [363, "6:03 AM"],
-  [363.9, "6:03 AM"],
-  [419, "6:59 AM"],
-  [600, "10:00 AM"],
-  [720, "12:00 PM"],
-])("%p minutes after midnight reads %p", (clockMin, text) => {
-  expect(clockLabel(clockMin)).toBe(text);
+test("the hunt opens with the spot's name, which clears after a moment", () => {
+  expect(labelText(hunt({ elapsedMs: 0 }), "spot")).toBe("HIGH RIDGE");
+  expect(labelText(hunt({ elapsedMs: 2400 }), "spot")).toBe("HIGH RIDGE");
+  expect(labelText(hunt({ elapsedMs: 2600 }), "spot")).toBe(undefined);
 });
 
-test("the top bar shows the spot, the clock, and the tags filled", () => {
-  let state = hunt({ clockMin: 363, harvests: [DOE, { ...DOE, id: "1-4" }] });
+test("there is no top bar and no digital clock", () => {
+  let hud = hudFor(hunt({ clockMin: 363 }), VIEW);
 
-  expect(labelText(state, "spot")).toBe("HIGH RIDGE");
-  expect(labelText(state, "clock")).toBe("6:03 AM");
+  expect(hud.marks.filter((mark) => mark.key.startsWith("hud-bar"))).toEqual([]);
+  expect(hud.labels.map((each) => each.key)).not.toContain("clock");
+});
+
+test("the tags filled show in the row", () => {
+  let state = hunt({ harvests: [DOE, { ...DOE, id: "1-4" }] });
+
   expect(labelText(state, "tags")).toBe("TAGS 2");
 });
 
@@ -62,14 +62,12 @@ test("the quiver shows one pixel arrow per arrow left", () => {
   expect(quiver(0)).toHaveLength(0);
 });
 
-test("the top bar sits just under the top safe area", () => {
-  let bar = hudFor(hunt(), VIEW).marks.find((mark) => mark.key === "hud-bar");
-
-  expect(bar).toMatchObject({ x: -7, y: VIEW.safeTop, width: 195 });
+test("the HUD row sits just under the top safe area", () => {
+  expect(hudRow(VIEW)).toEqual({ top: VIEW.safeTop + 3, bottom: VIEW.safeTop + 15, windLeft: 153 });
 });
 
 test("MAP sits at the left of the row under the bar", () => {
-  expect(hudFor(hunt(), VIEW).mapButton).toEqual({ x: -4, y: -47, width: 26, height: 12 });
+  expect(hudFor(hunt(), VIEW).mapButton).toEqual({ x: -4, y: -58, width: 26, height: 12 });
 });
 
 test.each([

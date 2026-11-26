@@ -1,25 +1,13 @@
-import { SPOTS, type HuntState, type Wind } from "@bow-szn/core";
+import { SPOTS, TUNING, type HuntState, type Wind } from "@bow-szn/core";
 import { WIND_FLAG_FRAMES, type SpriteId } from "@bow-szn/pixels";
 
 import type { HuntView } from "./hunt-view";
-import {
-  CREAM,
-  INK,
-  label,
-  NAVY,
-  rect,
-  sprite,
-  YELLOW,
-  type Label,
-  type Mark,
-} from "./scene-marks";
+import { CREAM, label, rect, sprite, YELLOW, type Label, type Mark } from "./scene-marks";
 
 export type Box = { x: number; y: number; width: number; height: number };
 
 export type Hud = { marks: Mark[]; labels: Label[]; mapButton: Box; quiver: Box };
 
-const BAR_H = 12;
-const ROW_GAP = 2;
 const ROW_H = 12;
 const EDGE = 3;
 const TEXT = 6;
@@ -27,14 +15,19 @@ const MAP_W = 26;
 const ARROW_STEP = 6;
 const WIND_W = 32;
 const TAGS_GAP = 4;
+const TITLE = 8;
+const TITLE_DROP = 6;
 const PILL = "rgba(19,33,74,0.82)";
 
-export function clockLabel(clockMin: number): string {
-  let minutes = Math.floor(clockMin);
-  let hour = Math.floor(minutes / 60);
-  let hour12 = hour % 12 === 0 ? 12 : hour % 12;
-  let minute = String(minutes % 60).padStart(2, "0");
-  return `${hour12}:${minute} ${hour < 12 ? "AM" : "PM"}`;
+export type HudRow = { top: number; bottom: number; windLeft: number };
+
+export function hudRow(view: HuntView): HudRow {
+  let top = view.safeTop + EDGE;
+  return { top, bottom: top + ROW_H, windLeft: view.bounds.right - EDGE - WIND_W };
+}
+
+export function hudRowBottom(view: HuntView): number {
+  return hudRow(view).bottom;
 }
 
 function windFlag(wind: Wind): SpriteId {
@@ -54,10 +47,8 @@ function quiverMarks(arrows: number, box: Box): Mark[] {
 }
 
 export function hudFor(hunt: HuntState, view: HuntView): Hud {
-  let { left, right } = view.bounds;
-  let top = view.safeTop;
-  let row = top + BAR_H + ROW_GAP;
-  let textY = top + (BAR_H - TEXT) / 2;
+  let { left } = view.bounds;
+  let { top: row, bottom, windLeft } = hudRow(view);
   let mapButton: Box = { x: left + EDGE, y: row, width: MAP_W, height: ROW_H };
   let quiver: Box = {
     x: mapButton.x + MAP_W + EDGE + 1,
@@ -65,10 +56,8 @@ export function hudFor(hunt: HuntState, view: HuntView): Hud {
     width: 3 + Math.max(1, hunt.arrows) * ARROW_STEP,
     height: ROW_H,
   };
-  let wind: Box = { x: right - EDGE - WIND_W, y: row, width: WIND_W, height: ROW_H };
+  let wind: Box = { x: windLeft, y: row, width: WIND_W, height: ROW_H };
   let marks: Mark[] = [
-    rect("hud-bar", left, top, right - left, BAR_H, NAVY),
-    rect("hud-bar-edge", left, top + BAR_H, right - left, 1, INK),
     ...quiverMarks(hunt.arrows, quiver),
     rect("wind", wind.x, wind.y, wind.width, wind.height, PILL),
     sprite(
@@ -80,9 +69,21 @@ export function hudFor(hunt: HuntState, view: HuntView): Hud {
       }
     ),
   ];
+  let title =
+    hunt.elapsedMs < TUNING.hud.spotTitleMs
+      ? [
+          label(
+            "spot",
+            SPOTS[hunt.config.spot].name,
+            { x: 90, y: bottom + TITLE_DROP },
+            TITLE,
+            YELLOW,
+            "center"
+          ),
+        ]
+      : [];
   let labels: Label[] = [
-    label("spot", SPOTS[hunt.config.spot].name, { x: left + EDGE, y: textY }, TEXT, CREAM),
-    label("clock", clockLabel(hunt.clockMin), { x: right - EDGE, y: textY }, TEXT, YELLOW, "right"),
+    ...title,
     label(
       "tags",
       `TAGS ${hunt.harvests.length}`,

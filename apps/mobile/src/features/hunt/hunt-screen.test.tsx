@@ -75,12 +75,12 @@ test("opens ready to draw, with no shot result", () => {
   expect(screen.queryByTestId("powerPanel")).not.toBeOnTheScreen();
 });
 
-test("the top bar opens on the spot, first light, and no tags", () => {
+test("the hunt opens on the spot's name and no tags, with no AM clock", () => {
   renderHunt();
 
   expect(screen.getByText("CEDAR HOLLOW")).toBeOnTheScreen();
-  expect(screen.getByText("6:00 AM")).toBeOnTheScreen();
   expect(screen.getByText("TAGS 0")).toBeOnTheScreen();
+  expect(screen.queryByText("6:00 AM")).not.toBeOnTheScreen();
 });
 
 test("shows the power while the bow is drawn and clears it on release", () => {

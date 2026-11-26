@@ -95,16 +95,6 @@ test("a tall phone's overscan holds a dawn sky, blue at the top and orange at th
   expect(horizon).toBeLessThan(0);
 });
 
-test("a low yellow sun sits in the dawn sky", () => {
-  let { sky } = fieldLayout("hardwoods", 3, PRO_MAX);
-  let horizon = Math.max(...sky.map((block) => block.y + block.height));
-  let sun = sky.filter((block) => block.color === "#f7d44a");
-
-  expect(sun.length).toBeGreaterThan(0);
-  expect(Math.max(...sun.map((block) => block.y + block.height))).toBeLessThanOrEqual(horizon);
-  expect(Math.min(...sun.map((block) => block.y))).toBeGreaterThan(horizon - 30);
-});
-
 test("a thin treeline stands along the horizon in front of the sky", () => {
   let layout = fieldLayout("hardwoods", 3, PRO_MAX);
   let horizon = Math.max(...layout.sky.map((block) => block.y + block.height));

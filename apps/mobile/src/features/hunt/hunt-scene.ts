@@ -24,6 +24,7 @@ import { huntView, type Bounds, type HuntView, type Screen } from "./hunt-view";
 import { burstMarks, popLabel, shakeOffset } from "./juice-marks";
 import { powerFor, type PowerMeter } from "./power-meter";
 import { resultFor, type ResultView } from "./result-view";
+import { sunArc } from "./sun-arc";
 import {
   centeredRect,
   INK,
@@ -42,6 +43,7 @@ export type Scene = {
   shake: Vec2;
   field: { terrain: Terrain; seed: number };
   ground: Mark[];
+  sky: Mark[];
   air: Mark[];
   labels: Label[];
   hud: Hud;
@@ -223,6 +225,8 @@ export function sceneFor(state: HuntState, juice: Juice, screen: Screen): Scene 
   let confetti = bursts.filter((mark) => mark.key.startsWith("confetti-"));
   let result = resultFor(state, juice);
   let pop = result.kind === "card" ? null : popLabel(state, juice);
+  let sun = sunArc(state.clockMin, view);
+  let hud = hudFor(state, view);
   return {
     view,
     shake: shakeOffset(juice),
@@ -232,6 +236,7 @@ export function sceneFor(state: HuntState, juice: Juice, screen: Screen): Scene 
       ...bursts.filter((mark) => !mark.key.startsWith("confetti-")),
       ...animals.flatMap((animal) => animalMarks(animal, state.elapsedMs, juice)),
     ],
+    sky: sun.marks,
     air: [
       ...animals.flatMap((animal) => glintMarks(animal, state.elapsedMs)),
       ...hunterMarks(state),
@@ -246,7 +251,7 @@ export function sceneFor(state: HuntState, juice: Juice, screen: Screen): Scene 
       ...(aim?.labels ?? []),
       ...alertLabels(animals, state.elapsedMs),
     ]),
-    hud: hudFor(state, view),
+    hud: { ...hud, labels: [...hud.labels, ...sun.labels] },
     power: powerFor(state, view),
     result,
   };
