@@ -15,6 +15,13 @@ export function defineSprites<Id extends string>(
   return sprites;
 }
 
+export function blank(name: string, w: number, h: number, fill: string = TRANSPARENT): Sprite {
+  return sprite(
+    name,
+    Array.from({ length: h }, () => fill.repeat(w))
+  );
+}
+
 export function recolor(name: string, source: Sprite, char: string): Sprite {
   return sprite(
     name,

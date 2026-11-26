@@ -1,4 +1,4 @@
-import { defineSprites, hstack, overlay, recolor, shadowed, sprite } from "./compose.ts";
+import { blank, defineSprites, hstack, overlay, recolor, shadowed, sprite } from "./compose.ts";
 
 describe("sprite", () => {
   it("measures the grid from its rows", () => {
@@ -51,6 +51,16 @@ describe("overlay", () => {
     let result = overlay("long", base, sprite("tip", ["B"]), 4, 0);
 
     expect(result.rows).toEqual(["AAA.B", "AAA..", "AAA.."]);
+  });
+});
+
+describe("blank", () => {
+  it("fills a w by h canvas with transparency by default", () => {
+    expect(blank("empty", 3, 2)).toEqual({ name: "empty", w: 3, h: 2, rows: ["...", "..."] });
+  });
+
+  it("fills the canvas with the given color", () => {
+    expect(blank("wall", 2, 2, "S").rows).toEqual(["SS", "SS"]);
   });
 });
 
