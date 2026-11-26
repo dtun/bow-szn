@@ -2,14 +2,38 @@ import type { Roller } from "./rng";
 import { SPECIES } from "./species";
 import { TUNING } from "./tuning";
 import { WORLD_H, WORLD_W, type Animal, type HuntConfig, type Vec2 } from "./types";
-import { add, magnitude, scale, sub } from "./vec";
+import { add, distance, magnitude, normalize, scale, sub } from "./vec";
 
 export function isLive(animal: Animal): boolean {
   return animal.mode.kind !== "down" && animal.mode.kind !== "gone";
 }
 
-export function hitRadius(animal: Animal): number {
-  return SPECIES[animal.species].hitRadius;
+export function hitRadius(animal: Animal, config: HuntConfig): number {
+  let buck = animal.antlers.kind === "rack" ? TUNING.hit.buckZoneScale : 1;
+  return (
+    SPECIES[animal.species].hitRadius * TUNING.difficulty[config.difficulty].hitZoneScale * buck
+  );
+}
+
+function spookRadius(animal: Animal, config: HuntConfig): number {
+  let buck = animal.antlers.kind === "rack" ? TUNING.animals.buckWariness : 1;
+  return SPECIES[animal.species].spookRadius * TUNING.difficulty[config.difficulty].wariness * buck;
+}
+
+export function isSpookedBy(animal: Animal, source: Vec2, config: HuntConfig): boolean {
+  return isLive(animal) && distance(animal.pos, source) <= spookRadius(animal, config);
+}
+
+export function fleeFrom(animal: Animal, source: Vec2): Animal {
+  let away = normalize(sub(animal.pos, source));
+  let dir = magnitude(away) === 0 ? { x: 0, y: -1 } : away;
+  return { ...animal, mode: { kind: "flee", dir } };
+}
+
+export function noticesDraw(animal: Animal, hunter: Vec2, config: HuntConfig): boolean {
+  let calm = animal.mode.kind === "graze" || animal.mode.kind === "walk";
+  let reach = spookRadius(animal, config) * TUNING.animals.drawSpookScale;
+  return calm && distance(animal.pos, hunter) <= reach;
 }
 
 export type AnimalKind = Pick<Animal, "species" | "antlers">;

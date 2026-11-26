@@ -1,11 +1,19 @@
 import { aimFromPull } from "./aim";
-import { stepAnimal } from "./animals";
+import { noticesDraw, stepAnimal } from "./animals";
 import { launchArrow } from "./arrow";
 import { createRoller } from "./rng";
 import { landArrow } from "./shot";
 import { openingAnimals, rollSpawnDelay, stepSpawner } from "./spawn";
 import { TUNING } from "./tuning";
-import type { HuntConfig, HuntEvent, HuntPhase, HuntState, Vec2 } from "./types";
+import {
+  HUNTER_POS,
+  type Animal,
+  type HuntConfig,
+  type HuntEvent,
+  type HuntPhase,
+  type HuntState,
+  type Vec2,
+} from "./types";
 import { ZERO } from "./vec";
 
 const STEP_MS = 5;
@@ -66,7 +74,14 @@ function startDraw(state: HuntState): HuntState {
   if (state.phase.kind !== "ready" || state.arrows === 0) {
     return state;
   }
-  return { ...state, phase: { kind: "drawing", pull: ZERO, heldMs: 0 } };
+  let untilMs = state.elapsedMs + TUNING.animals.alertMs;
+  let animals = state.animals.map(
+    (animal): Animal =>
+      noticesDraw(animal, HUNTER_POS, state.config)
+        ? { ...animal, mode: { kind: "alert", untilMs } }
+        : animal
+  );
+  return { ...state, animals, phase: { kind: "drawing", pull: ZERO, heldMs: 0 } };
 }
 
 function movePull(state: HuntState, pull: Vec2): HuntState {

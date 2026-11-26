@@ -1,20 +1,22 @@
-import { hitRadius, isLive } from "./animals";
+import { fleeFrom, hitRadius, isLive, isSpookedBy } from "./animals";
 import { buildHarvest } from "./harvest";
 import { createRoller } from "./rng";
 import { TUNING } from "./tuning";
-import type { Animal, HuntState, Vec2 } from "./types";
+import type { Animal, HuntConfig, HuntState, ShotOutcome, Vec2 } from "./types";
 import { distance } from "./vec";
 
 function closestWithin(
   animals: Animal[],
   landing: Vec2,
-  radiusOf: (animal: Animal) => number
+  config: HuntConfig,
+  zoneScale: number
 ): Animal | null {
   let best: Animal | null = null;
   let bestDistance = Infinity;
   for (let animal of animals) {
     let away = distance(animal.pos, landing);
-    if (isLive(animal) && away <= radiusOf(animal) && away < bestDistance) {
+    let reach = hitRadius(animal, config) * zoneScale;
+    if (isLive(animal) && away <= reach && away < bestDistance) {
       best = animal;
       bestDistance = away;
     }
@@ -23,24 +25,30 @@ function closestWithin(
 }
 
 export function landArrow(state: HuntState, landing: Vec2): HuntState {
-  let struck = closestWithin(state.animals, landing, hitRadius);
+  let struck = closestWithin(state.animals, landing, state.config, 1);
+  let near =
+    struck === null
+      ? closestWithin(state.animals, landing, state.config, TUNING.hit.nearScale)
+      : null;
+  let animals = state.animals.map((animal): Animal => {
+    if (animal.id === struck?.id) {
+      return { ...animal, mode: { kind: "down" } };
+    }
+    if (animal.id === near?.id || isSpookedBy(animal, landing, state.config)) {
+      return fleeFrom(animal, landing);
+    }
+    return animal;
+  });
   if (struck === null) {
-    let near = closestWithin(
-      state.animals,
-      landing,
-      (animal) => hitRadius(animal) * TUNING.hit.nearScale
-    );
-    return { ...state, phase: { kind: "result", outcome: { kind: "miss", near: near !== null } } };
+    let outcome: ShotOutcome = { kind: "miss", near: near !== null };
+    return { ...state, animals, phase: { kind: "result", outcome } };
   }
   let roller = createRoller(state.rng);
   let harvest = buildHarvest(state, struck, landing, roller);
-  let struckId = struck.id;
   return {
     ...state,
     rng: roller.state(),
-    animals: state.animals.map((animal) =>
-      animal.id === struckId ? { ...animal, mode: { kind: "down" } } : animal
-    ),
+    animals,
     harvests: [...state.harvests, harvest],
     phase: { kind: "result", outcome: { kind: "harvest", harvest } },
   };

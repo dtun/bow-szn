@@ -17,10 +17,13 @@ export const TUNING = {
   },
   hit: {
     nearScale: 2,
+    buckZoneScale: 0.75,
   },
   animals: {
     grazeMs: [2500, 6000],
     buckGrazeScale: 0.5,
+    buckWariness: 1.5,
+    drawSpookScale: 0.5,
     alertMs: 1500,
     fleeSpeedScale: 3.5,
     meadow: { minX: 24, maxX: 156, minY: 120, maxY: 240 },
@@ -37,8 +40,8 @@ export const TUNING = {
     everyMs: [6000, 12000],
   },
   difficulty: {
-    easy: { arrows: 6, speedScale: 0.85 },
-    medium: { arrows: 5, speedScale: 1 },
-    hard: { arrows: 4, speedScale: 1.2 },
+    easy: { arrows: 6, speedScale: 0.85, hitZoneScale: 1.25, wariness: 0.85 },
+    medium: { arrows: 5, speedScale: 1, hitZoneScale: 1, wariness: 1 },
+    hard: { arrows: 4, speedScale: 1.2, hitZoneScale: 0.8, wariness: 1.25 },
   },
 } as const;
