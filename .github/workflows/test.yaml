@@ -103,3 +103,26 @@ jobs:
       - name: Run snapshot tests
         run: npm run test:snapshot
         working-directory: packages/sound
+
+  test-pixels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run unit tests
+        run: npm test
+        working-directory: packages/pixels
+
+      - name: Run snapshot tests
+        run: npm run test:snapshot
+        working-directory: packages/pixels
