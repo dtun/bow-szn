@@ -1,7 +1,8 @@
 import type { PrepState } from "@bow-szn/core";
-import { PALETTE, SPRITES, type Sprite } from "@bow-szn/pixels";
+import { SPRITES, type Sprite } from "@bow-szn/pixels";
 
 import type { SceneLayer, SceneRect, SceneSprite } from "@/art/scene";
+import { rect } from "@/art/scene-shapes";
 
 import { stuckArrows, type Landing } from "./landings";
 
@@ -42,10 +43,6 @@ export function goldFace(zone: PrepState["zone"]): GoldFace {
     centerX: swayPosition((start + end) / 2),
     radius: ((end - start) * PATH_LENGTH) / 2,
   };
-}
-
-function rect(x: number, y: number, width: number, height: number, char: string): SceneRect {
-  return { x, y, width, height, color: PALETTE[char] };
 }
 
 function hashed(x: number, y: number): number {
