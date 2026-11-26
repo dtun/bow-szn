@@ -18,7 +18,7 @@ import { overPanelFor } from "./hunt-over";
 import { HuntOverPanel } from "./hunt-over-panel";
 import { sceneFor } from "./hunt-scene";
 import { MapButton } from "./map-button";
-import { QuiverStatus } from "./quiver-status";
+import { arrowsLeftLabel, HudStatus, tagsFilledLabel } from "./hud-status";
 import { SceneLabels } from "./scene-labels";
 import { useHunt } from "./use-hunt";
 import { usePullGesture } from "./use-pull-gesture";
@@ -86,7 +86,18 @@ function HuntRun({ config, onAgain }: HuntRunProps) {
           onMap={leaveForMap}
         />
       )}
-      <QuiverStatus view={scene.view} box={scene.hud.quiver} arrows={state.arrows} />
+      <HudStatus
+        testID="quiver"
+        label={arrowsLeftLabel(state.arrows)}
+        view={scene.view}
+        box={scene.hud.quiver}
+      />
+      <HudStatus
+        testID="tags"
+        label={tagsFilledLabel(state.harvests.length)}
+        view={scene.view}
+        box={scene.hud.tags}
+      />
       <MapButton view={scene.view} box={scene.hud.mapButton} onPress={leaveForMap} />
     </>
   );

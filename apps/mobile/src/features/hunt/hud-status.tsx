@@ -3,25 +3,30 @@ import { StyleSheet, View } from "react-native";
 import type { Box } from "./hud";
 import { toScreen, type HuntView } from "./hunt-view";
 
-type QuiverStatusProps = {
+type HudStatusProps = {
+  testID: string;
+  label: string;
   view: HuntView;
   box: Box;
-  arrows: number;
 };
 
 export function arrowsLeftLabel(arrows: number): string {
   return arrows === 1 ? "1 arrow left" : `${arrows} arrows left`;
 }
 
-export function QuiverStatus({ view, box, arrows }: QuiverStatusProps) {
+export function tagsFilledLabel(tags: number): string {
+  return tags === 1 ? "1 tag filled" : `${tags} tags filled`;
+}
+
+export function HudStatus({ testID, label, view, box }: HudStatusProps) {
   let at = toScreen(view, box);
 
   return (
     <View
-      testID="quiver"
+      testID={testID}
       accessible
       accessibilityRole="text"
-      accessibilityLabel={arrowsLeftLabel(arrows)}
+      accessibilityLabel={label}
       pointerEvents="none"
       style={[
         styles.status,

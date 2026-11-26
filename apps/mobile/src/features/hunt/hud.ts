@@ -6,7 +6,7 @@ import { CREAM, label, rect, sprite, YELLOW, type Label, type Mark } from "./sce
 
 export type Box = { x: number; y: number; width: number; height: number };
 
-export type Hud = { marks: Mark[]; labels: Label[]; mapButton: Box; quiver: Box };
+export type Hud = { marks: Mark[]; labels: Label[]; mapButton: Box; quiver: Box; tags: Box };
 
 const ROW_H = 12;
 const EDGE = 3;
@@ -15,6 +15,7 @@ const MAP_W = 26;
 const ARROW_STEP = 6;
 const WIND_W = 32;
 const TAGS_GAP = 4;
+const TAG_STEP = 8;
 const TITLE = 8;
 const TITLE_DROP = 6;
 const PILL = "rgba(19,33,74,0.82)";
@@ -56,9 +57,21 @@ export function hudFor(hunt: HuntState, view: HuntView): Hud {
     width: 3 + Math.max(1, hunt.arrows) * ARROW_STEP,
     height: ROW_H,
   };
+  let tags: Box = {
+    x: quiver.x + quiver.width + TAGS_GAP,
+    y: row,
+    width: Math.max(1, hunt.harvests.length) * TAG_STEP,
+    height: ROW_H,
+  };
   let wind: Box = { x: windLeft, y: row, width: WIND_W, height: ROW_H };
   let marks: Mark[] = [
     ...quiverMarks(hunt.arrows, quiver),
+    ...hunt.harvests.map((harvest, index) =>
+      sprite(`tag-${harvest.id}`, "deer-tag", {
+        x: tags.x + 3 + index * TAG_STEP,
+        y: tags.y + tags.height,
+      })
+    ),
     rect("wind", wind.x, wind.y, wind.width, wind.height, PILL),
     sprite(
       "wind-flag",
@@ -85,13 +98,6 @@ export function hudFor(hunt: HuntState, view: HuntView): Hud {
   let labels: Label[] = [
     ...title,
     label(
-      "tags",
-      `TAGS ${hunt.harvests.length}`,
-      { x: quiver.x + quiver.width + TAGS_GAP, y: row + (ROW_H - TEXT) / 2 },
-      TEXT,
-      CREAM
-    ),
-    label(
       "wind-strength",
       String(hunt.wind.strength),
       { x: wind.x + wind.width - 3, y: row + (ROW_H - TEXT) / 2 },
@@ -100,5 +106,5 @@ export function hudFor(hunt: HuntState, view: HuntView): Hud {
       "right"
     ),
   ];
-  return { marks, labels, mapButton, quiver };
+  return { marks, labels, mapButton, quiver, tags };
 }

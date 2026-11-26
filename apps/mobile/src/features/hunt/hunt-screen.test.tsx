@@ -79,7 +79,7 @@ test("the hunt opens on the spot's name and no tags, with no AM clock", () => {
   renderHunt();
 
   expect(screen.getByText("CEDAR HOLLOW")).toBeOnTheScreen();
-  expect(screen.getByText("TAGS 0")).toBeOnTheScreen();
+  expect(screen.getByTestId("tags")).toHaveAccessibleName("0 tags filled");
   expect(screen.queryByText("6:00 AM")).not.toBeOnTheScreen();
 });
 
@@ -107,6 +107,15 @@ test("an arrow loosed at a standing doe flies, then lands as DOE!", () => {
 
   expect(screen.getByTestId("shotResult")).toBeOnTheScreen();
   expect(screen.getByTestId("shotResult")).toHaveTextContent("DOE!");
+});
+
+test("a harvest fills a tag, and a screen reader hears it", () => {
+  renderHunt();
+
+  dragBackAndLetGo(PULL_TO_DOE);
+  passTime(1300);
+
+  expect(screen.getByTestId("tags")).toHaveAccessibleName("1 tag filled");
 });
 
 test("the quiver tells a screen reader how many arrows are left, counting down per shot", () => {

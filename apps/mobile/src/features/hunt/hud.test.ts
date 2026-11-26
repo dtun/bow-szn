@@ -44,10 +44,25 @@ test("there is no top bar and no digital clock", () => {
   expect(hud.labels.map((each) => each.key)).not.toContain("clock");
 });
 
-test("the tags filled show in the row", () => {
-  let state = hunt({ harvests: [DOE, { ...DOE, id: "1-4" }] });
+function tagIcons(state: HuntState): Mark[] {
+  return hudFor(state, VIEW).marks.filter((mark) => mark.key.startsWith("tag-"));
+}
 
-  expect(labelText(state, "tags")).toBe("TAGS 2");
+test("each tag filled hangs a paper deer tag in the row, after the quiver", () => {
+  let state = hunt({ harvests: [DOE, { ...DOE, id: "1-4" }] });
+  let hud = hudFor(state, VIEW);
+  let quiverEnd = hud.quiver.x + hud.quiver.width;
+
+  expect(tagIcons(state).map((mark) => (mark.kind === "sprite" ? mark.id : null))).toEqual([
+    "deer-tag",
+    "deer-tag",
+  ]);
+  expect(tagIcons(state).every((mark) => mark.x > quiverEnd)).toBe(true);
+  expect(hud.labels.map((each) => each.text)).not.toContain("TAGS 2");
+});
+
+test("a morning with no tags yet shows no tag", () => {
+  expect(tagIcons(hunt({ harvests: [] }))).toEqual([]);
 });
 
 test("the quiver shows one pixel arrow per arrow left", () => {

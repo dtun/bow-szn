@@ -17,6 +17,26 @@ const RETICLE: Sprite = {
   ],
 };
 
-export type ArtId = SpriteId | "reticle";
+const DEER_TAG: Sprite = {
+  name: "deer-tag",
+  w: 7,
+  h: 12,
+  rows: [
+    "..RRR..",
+    ".R...R.",
+    "..R.R..",
+    ".KKRKK.",
+    "KOOKOOK",
+    "KOOOOOK",
+    "KOCCCOK",
+    "KOOOOOK",
+    "KOCCOOK",
+    "KOOOOOK",
+    "KOOOOOK",
+    ".KKKKK.",
+  ],
+};
 
-export const ART: Record<ArtId, Sprite> = { ...SPRITES, reticle: RETICLE };
+export type ArtId = SpriteId | "reticle" | "deer-tag";
+
+export const ART: Record<ArtId, Sprite> = { ...SPRITES, reticle: RETICLE, "deer-tag": DEER_TAG };
