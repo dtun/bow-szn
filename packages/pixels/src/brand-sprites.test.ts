@@ -37,4 +37,34 @@ describe("brand sprites", () => {
       expect(runs.filter((run) => run.length < 2)).toEqual([]);
     }
   });
+
+  describe("the icon buck", () => {
+    let { rows } = SPRITES["brand-icon-buck"];
+
+    function runs(row: string): string[] {
+      return row.split(".").filter((run) => run.length > 0);
+    }
+
+    function painted(row: string): number {
+      return row.replaceAll(".", "").length;
+    }
+
+    let firstBodyRow = rows.findIndex((row) => painted(row) >= 15);
+
+    it("splits its rack into at least three tines with a cell of sun between each", () => {
+      expect(Math.max(...rows.slice(0, 6).map((row) => runs(row).length))).toBeGreaterThanOrEqual(
+        3
+      );
+    });
+
+    it("holds the neck to well under the width of the body slab", () => {
+      expect(painted(rows[firstBodyRow - 1])).toBeLessThanOrEqual(
+        0.6 * painted(rows[firstBodyRow])
+      );
+    });
+
+    it("shows a tail rising above the rump", () => {
+      expect(rows[firstBodyRow - 1].slice(0, 4)).toContain("N");
+    });
+  });
 });

@@ -69,17 +69,19 @@ describe("icon scene", () => {
     }
   });
 
-  it("stands the buck over most of the sun, from its antler tips down to its hooves", () => {
+  it("stands the buck about 70 to 75 percent of the sun's height, antler tips to hooves", () => {
     let top = Math.min(...buck.map(([, y]) => y));
     let bottom = Math.max(...buck.map(([, y]) => y));
+    let share = (bottom - top + 1) / 31;
 
-    expect(bottom - top + 1).toBeGreaterThanOrEqual(0.8 * 31);
+    expect(share).toBeGreaterThanOrEqual(0.7);
+    expect(share).toBeLessThanOrEqual(0.76);
   });
 
-  it("keeps a ring of sun around the buck so it never merges with the navy field", () => {
+  it("keeps two cells of sun between the buck and the sun's edge so it never merges with the navy field", () => {
     let ring = paintedCells(scene).filter(([x, y]) => {
       let distance = distanceFromCenter(scene, x, y);
-      return distance > scene.w / 2 - 1.5 && distance <= scene.w / 2 - 0.5;
+      return distance > scene.w / 2 - 2.5 && distance <= scene.w / 2 - 0.5;
     });
 
     expect(ring.filter(([x, y]) => scene.rows[y][x] !== "O")).toEqual([]);

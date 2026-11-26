@@ -11,10 +11,10 @@ const ADAPTIVE_GRID = 64;
 type Cell = { x: number; y: number };
 
 const ICON_SUN_RADIUS = ICON_GRID / 2 - 0.5;
-const ICON_BUCK_AT: Cell = { x: 3, y: 2 };
+const ICON_BUCK_AT: Cell = { x: 5, y: 4 };
 const FAVICON_SUN_RADIUS = FAVICON_GRID / 2 - 0.5;
 const ADAPTIVE_SUN_RADIUS = 17.5;
-const ADAPTIVE_BUCK_AT: Cell = { x: 19, y: 18 };
+const ADAPTIVE_BUCK_AT: Cell = { x: 21, y: 20 };
 
 function centered(outer: number, inner: number): number {
   return Math.floor((outer - inner) / 2);
