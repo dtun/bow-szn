@@ -75,7 +75,7 @@ test("BACK on the map returns to the title", async () => {
   expect(screen.queryByTestId("mapScreen")).not.toBeOnTheScreen();
 });
 
-test("BACK on the prep bench returns to the map with the spot still chosen", async () => {
+test("BACK on sighting in returns to the map with the spot still chosen", async () => {
   let app = renderRouter(APP_DIR);
   await openMapFromTitle();
   fireEvent.press(screen.getByTestId("spotFlag-cattail-marsh"));
@@ -90,7 +90,7 @@ test("BACK on the prep bench returns to the map with the spot still chosen", asy
   expect(screen.getByTestId("spotName")).toHaveTextContent("CATTAIL MARSH");
 });
 
-test("BACK twice from the bench leads all the way to the title", async () => {
+test("BACK twice from sighting in leads all the way to the title", async () => {
   let app = renderRouter(APP_DIR);
   await openMapFromTitle();
   await openPrepFromMap();
@@ -113,7 +113,7 @@ test("a map opened straight from a link still has a way out", async () => {
   expect(app.getPathname()).toBe("/");
 });
 
-test("a prep bench opened straight from a link still has a way out", async () => {
+test("a sighting-in screen opened straight from a link still has a way out", async () => {
   let app = renderRouter(APP_DIR, { initialUrl: "/prep" });
   expect(await screen.findByTestId("prepScreen")).toBeOnTheScreen();
 
