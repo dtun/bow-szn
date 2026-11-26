@@ -54,10 +54,10 @@ test("announces the game's name as the screen heading", () => {
   expect(screen.getByRole("header", { name: "BOW SEASON" })).toBeOnTheScreen();
 });
 
-test("wears the Pixel Hunting Club ribbon under the logo", () => {
+test("says what the game is under the logo", () => {
   render(<TitleScreen />);
 
-  expect(screen.getByText("PIXEL HUNTING CLUB")).toBeOnTheScreen();
+  expect(screen.getByText("8-BIT BOW HUNTING")).toBeOnTheScreen();
 });
 
 test("offers a GO HUNTING button", () => {

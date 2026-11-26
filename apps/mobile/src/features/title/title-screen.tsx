@@ -14,7 +14,7 @@ import {
 } from "@/platform/preferences";
 import { preloadSfx } from "@/platform/sfx";
 import { PixelButton } from "@/ui/pixel-button";
-import { BACKGROUND, FONT_PIXEL, FOREGROUND, PRIMARY, PRIMARY_DARK } from "@/ui/theme";
+import { BACKGROUND, FONT_PIXEL, FOREGROUND } from "@/ui/theme";
 
 import { DawnSceneView } from "./dawn-scene-view";
 
@@ -56,9 +56,7 @@ export function TitleScreen() {
           <View accessible accessibilityRole="header" accessibilityLabel="BOW SEASON">
             <PixelSprite sprite={LOGO} scale={logoScale} testID="titleLogo" />
           </View>
-          <View style={styles.ribbon}>
-            <Text style={styles.ribbonText}>PIXEL HUNTING CLUB</Text>
-          </View>
+          <Text style={styles.tagline}>8-BIT BOW HUNTING</Text>
         </View>
       </View>
       <View style={[styles.menu, { paddingBottom: insets.bottom + 16 }]}>
@@ -105,14 +103,14 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: BACKGROUND },
   scene: { flex: 1, overflow: "hidden" },
   brand: { alignItems: "center", gap: 14 },
-  ribbon: {
-    backgroundColor: PRIMARY,
-    borderBottomWidth: 4,
-    borderColor: PRIMARY_DARK,
-    paddingVertical: 6,
-    paddingHorizontal: 14,
+  tagline: {
+    fontFamily: FONT_PIXEL,
+    fontSize: 12,
+    color: FOREGROUND,
+    textShadowColor: BACKGROUND,
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 0,
   },
-  ribbonText: { fontFamily: FONT_PIXEL, fontSize: 10, color: FOREGROUND },
   menu: { paddingHorizontal: SCREEN_MARGIN, paddingTop: 16, gap: 12 },
   wide: { alignSelf: "stretch" },
   footer: {
