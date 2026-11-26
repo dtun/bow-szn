@@ -7,6 +7,7 @@ bun.lock
 
 .expo/
 .expo-export/
+apps/mobile/e2e/*.generated.yaml
 dist/
 web-build/
 expo-env.d.ts

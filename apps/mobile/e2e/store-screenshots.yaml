@@ -1,0 +1,53 @@
+appId: host.exp.Exponent
+---
+- stopApp
+- openLink: ${METRO_URL || 'exp://127.0.0.1:8081'}
+- runFlow:
+    when:
+      visible: Open
+    commands:
+      - tapOn: Open
+- extendedWaitUntil:
+    visible:
+      id: titleScreen
+    timeout: 120000
+- runFlow:
+    when:
+      visible: Continue
+    commands:
+      - tapOn: Continue
+- takeScreenshot: 01-title
+- tapOn:
+    id: goHuntingBtn
+- assertVisible:
+    id: mapScreen
+- tapOn:
+    id: spotFlag-cedar-hollow
+- takeScreenshot: 02-county-map
+- runFlow: hunt-the-buck.generated.yaml
+- extendedWaitUntil:
+    visible:
+      id: harvestCard
+    timeout: 10000
+- takeScreenshot: 04-harvest-card
+- tapOn:
+    id: mountBtn
+- assertVisible:
+    id: mapBtn
+- tapOn:
+    id: mapBtn
+- assertVisible:
+    id: mapScreen
+- tapOn:
+    id: mapBackBtn
+- assertVisible:
+    id: titleScreen
+- tapOn:
+    id: journalBtn
+- assertVisible:
+    id: journalScreen
+- tapOn:
+    id: trophyRoomBtn
+- assertVisible:
+    id: trophyRoomScreen
+- takeScreenshot: 05-trophy-room

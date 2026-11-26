@@ -120,6 +120,8 @@ Running the command twice leaves the same screenshots in the same order. The scr
 
 Apple's sign-in fails on Node 26 and later, so the script refuses to run there. Run `fnm exec --using=22 npm run store:screenshots`. In a terminal, the script restores the saved Apple session from `~/.app-store/auth/` and falls back to a password and 2FA prompt. Without a terminal it only restores the session, and it stops with a message when none is saved. Set `EXPO_APPLE_ID` to the Apple ID, or let the script prompt for it in a terminal. Set `EXPO_APPLE_TEAM_ID` to choose a team. Keep the Apple ID out of the repo.
 
+To retake the `iphone-6.9` set, boot the iPhone 17 Pro Max simulator with Expo Go installed, start Metro with `EXPO_PUBLIC_SFX=off`, put `maestro` on `PATH`, and run `npm run store:capture -- <udid> exp://127.0.0.1:<port>`. It prepares the simulator, clears Expo Go's saved journal, sets a clean status bar, runs `e2e/store-screenshots.yaml`, and writes `01-title.png` through `05-trophy-room.png`. `npm run store:swipe` derives the hunt seed and the swipe that hits the buck from the tuning, so rerun it instead of editing coordinates.
+
 ### Testing
 
 This project uses **Jest** as the testing framework (not Vitest). Rationale for the tiers in `docs/adr/0004-test-tiers.md`.
