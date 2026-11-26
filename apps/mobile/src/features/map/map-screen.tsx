@@ -85,6 +85,7 @@ const styles = StyleSheet.create({
   stamp: { position: "absolute", right: STAMP_INSET, bottom: STAMP_INSET },
   signs: {
     alignSelf: "stretch",
+    marginTop: "auto",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
