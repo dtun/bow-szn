@@ -1,12 +1,35 @@
-import { createAudioPlayer, type AudioPlayer } from "expo-audio";
+import { createAudioPlayer, type AudioPlayer, type AudioSource } from "expo-audio";
 
-const SOURCES = {
+export type SfxId =
+  | "ui-select"
+  | "tap-hit"
+  | "tap-slip"
+  | "creak"
+  | "full-draw"
+  | "twang"
+  | "whoosh"
+  | "thunk"
+  | "hit"
+  | "spook"
+  | "glint"
+  | "whiff"
+  | "fanfare";
+
+const SOURCES: Record<SfxId, AudioSource> = {
   "ui-select": require("../../assets/sound/ui-select.wav"),
   "tap-hit": require("../../assets/sound/tap-hit.wav"),
   "tap-slip": require("../../assets/sound/tap-slip.wav"),
+  creak: require("../../assets/sound/creak.wav"),
+  "full-draw": require("../../assets/sound/full-draw.wav"),
+  twang: require("../../assets/sound/twang.wav"),
+  whoosh: require("../../assets/sound/whoosh.wav"),
+  thunk: require("../../assets/sound/thunk.wav"),
+  hit: require("../../assets/sound/hit.wav"),
+  spook: require("../../assets/sound/spook.wav"),
+  glint: require("../../assets/sound/glint.wav"),
+  whiff: require("../../assets/sound/whiff.wav"),
+  fanfare: require("../../assets/sound/fanfare.wav"),
 };
-
-export type SfxId = keyof typeof SOURCES;
 
 let players = new Map<SfxId, AudioPlayer>();
 

@@ -20,14 +20,39 @@ async function settle() {
   await Promise.resolve();
 }
 
+const SOUND_COUNT = 13;
+
 test("preloading loads every sound once and plays none", () => {
   let { sfx, createAudioPlayer, created } = freshSfx();
 
   sfx.preloadSfx();
   sfx.preloadSfx();
 
-  expect(createAudioPlayer).toHaveBeenCalledTimes(3);
-  expect([0, 1, 2].map((index) => created(index).play.mock.calls.length)).toEqual([0, 0, 0]);
+  expect(createAudioPlayer).toHaveBeenCalledTimes(SOUND_COUNT);
+  let plays = Array.from({ length: SOUND_COUNT }, (_, index) => created(index).play.mock.calls);
+  expect(plays.flat()).toEqual([]);
+});
+
+const HUNT_SOUNDS = [
+  "creak",
+  "full-draw",
+  "twang",
+  "whoosh",
+  "thunk",
+  "hit",
+  "spook",
+  "glint",
+  "whiff",
+  "fanfare",
+] as const;
+
+test.each(HUNT_SOUNDS)("the hunt sound %s plays", async (id) => {
+  let { sfx, created } = freshSfx();
+
+  sfx.playSfx(id);
+  await settle();
+
+  expect(created(0).play).toHaveBeenCalledTimes(1);
 });
 
 test("a sound plays from the start every time it fires", async () => {
