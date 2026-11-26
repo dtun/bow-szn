@@ -1,10 +1,9 @@
 import { stuckArrows, type Landing } from "./landings";
 
-const ZONE = [0.2, 0.4] as const;
-const HIT_AT_QUARTER: Landing = { pos: 0.25, zone: ZONE, hit: true };
-const HIT_AT_HALF: Landing = { pos: 0.5, zone: ZONE, hit: true };
-const FLIER_AT_START: Landing = { pos: 0, zone: ZONE, hit: false };
-const FLIER_AT_END: Landing = { pos: 1, zone: ZONE, hit: false };
+const HIT_AT_QUARTER: Landing = { pos: 0.25, hit: true };
+const HIT_AT_HALF: Landing = { pos: 0.5, hit: true };
+const FLIER_AT_START: Landing = { pos: 0, hit: false };
+const FLIER_AT_END: Landing = { pos: 1, hit: false };
 
 test("no arrows are stuck before the first shot", () => {
   expect(stuckArrows([])).toEqual([]);

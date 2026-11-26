@@ -52,10 +52,7 @@ export function usePrep(
     let before = latest.current;
     let next = apply({ type: "tap" });
     if (!isPrepDone(before)) {
-      setLandings((landed) => [
-        ...landed,
-        { pos: before.markerPos, zone: before.zone, hit: next.lastTap === "hit" },
-      ]);
+      setLandings((landed) => [...landed, { pos: before.markerPos, hit: next.lastTap === "hit" }]);
     }
     return next;
   }, [apply]);

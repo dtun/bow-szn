@@ -113,7 +113,7 @@ describe("the stuck arrows", () => {
   });
 
   test("a good arrow sticks out of the bale where the pin was", () => {
-    let layers = baleScene(ZONE, [{ pos: 0.5, zone: ZONE, hit: true }]);
+    let layers = baleScene(ZONE, [{ pos: 0.5, hit: true }]);
 
     expect(colorAt(layers, 40, PATH_ROW - 1)).toBe(ARROW_SHAFT);
     expect(colorAt(layers, 40, PATH_ROW - 8)).toBe(ARROW_SHAFT);
@@ -122,9 +122,9 @@ describe("the stuck arrows", () => {
 
   test("three good arrows all stay stuck", () => {
     let layers = baleScene(ZONE, [
-      { pos: 0.1, zone: ZONE, hit: true },
-      { pos: 0.5, zone: ZONE, hit: true },
-      { pos: 0.9, zone: ZONE, hit: true },
+      { pos: 0.1, hit: true },
+      { pos: 0.5, hit: true },
+      { pos: 0.9, hit: true },
     ]);
 
     expect(colorAt(layers, 12, PATH_ROW - 1)).toBe(ARROW_SHAFT);
@@ -133,43 +133,52 @@ describe("the stuck arrows", () => {
   });
 
   test("a flier sticks outside the gold until the next shot", () => {
-    let flier = { pos: 0.05, zone: ZONE, hit: false };
+    let flier = { pos: 0.05, hit: false };
 
     expect(colorAt(baleScene(ZONE, [flier]), 8, PATH_ROW - 1)).toBe(ARROW_SHAFT);
-    expect(
-      colorAt(baleScene(ZONE, [flier, { pos: 0.6, zone: ZONE, hit: true }]), 8, PATH_ROW - 1)
-    ).not.toBe(ARROW_SHAFT);
+    expect(colorAt(baleScene(ZONE, [flier, { pos: 0.6, hit: true }]), 8, PATH_ROW - 1)).not.toBe(
+      ARROW_SHAFT
+    );
   });
 });
 
-describe("spent faces", () => {
+describe("the one live face", () => {
   let FIRST_ZONE = [0.4, 0.62] as const;
   let NEXT_ZONE = [0.7, 0.92] as const;
-  let hitInFirstZone = { pos: 0.5, zone: FIRST_ZONE, hit: true };
+  let hitInFirstZone = { pos: 0.5, hit: true };
+  let firstFaceColumn = Math.floor(goldFace(FIRST_ZONE).centerX);
+  let nextFaceColumn = Math.floor(goldFace(NEXT_ZONE).centerX);
 
-  test("a face that took a good arrow stays on the bale, faded, after the zone moves on", () => {
+  test("the face a good arrow hit is gone once the zone moves on", () => {
     let layers = baleScene(NEXT_ZONE, [hitInFirstZone]);
 
-    expect(colorAt(layers, 42, PATH_ROW)).toBe(OUTER_GOLD);
-    expect(colorAt(layers, 42, PATH_ROW)).not.toBe(INNER_GOLD);
+    expect(STRAW).toContain(colorAt(layers, firstFaceColumn, PATH_ROW + 6));
+    expect(GOLD).not.toContain(colorAt(layers, firstFaceColumn, PATH_ROW));
   });
 
-  test("the live face keeps its bright gold beside the faded one", () => {
+  test("the good arrow stays stuck where it hit, with no face under it", () => {
     let layers = baleScene(NEXT_ZONE, [hitInFirstZone]);
 
-    expect(colorAt(layers, Math.floor(goldFace(NEXT_ZONE).centerX), PATH_ROW)).toBe(INNER_GOLD);
+    expect(colorAt(layers, 40, PATH_ROW - 1)).toBe(ARROW_SHAFT);
+    expect(GOLD).not.toContain(colorAt(layers, 40, PATH_ROW + 1));
+  });
+
+  test("the live face keeps its bright gold", () => {
+    let layers = baleScene(NEXT_ZONE, [hitInFirstZone]);
+
+    expect(colorAt(layers, nextFaceColumn, PATH_ROW)).toBe(INNER_GOLD);
   });
 
   test("a flier leaves no face behind", () => {
-    let layers = baleScene(NEXT_ZONE, [{ pos: 0.5, zone: FIRST_ZONE, hit: false }]);
+    let layers = baleScene(NEXT_ZONE, [{ pos: 0.5, hit: false }]);
 
     expect(GOLD).not.toContain(colorAt(layers, 42, PATH_ROW));
   });
 
-  test("no live face is drawn once the sight is dialed in", () => {
+  test("no face is drawn once the sight is dialed in", () => {
     let layers = baleScene(null, [hitInFirstZone]);
 
-    expect(colorAt(layers, Math.floor(goldFace(NEXT_ZONE).centerX), PATH_ROW)).not.toBe(INNER_GOLD);
-    expect(colorAt(layers, 42, PATH_ROW)).toBe(OUTER_GOLD);
+    expect(colorAt(layers, nextFaceColumn, PATH_ROW)).not.toBe(INNER_GOLD);
+    expect(GOLD).not.toContain(colorAt(layers, firstFaceColumn, PATH_ROW));
   });
 });
