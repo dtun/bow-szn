@@ -233,7 +233,7 @@ export function sceneFor(state: HuntState, juice: Juice, screen: Screen): Scene 
     shake: shakeOffset(juice),
     field: { terrain: SPOTS[state.config.spot].terrain, seed: state.config.seed },
     ground: [
-      ...(aim?.zone ?? []),
+      ...(aim?.ground ?? []),
       ...bursts.filter((mark) => !mark.key.startsWith("confetti-")),
       ...animals.flatMap((animal) => animalMarks(animal, state.elapsedMs, juice)),
     ],

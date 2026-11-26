@@ -302,17 +302,45 @@ test("a small rack never glints", () => {
   expect(keysStartingWith(scene, "glint-")).toEqual([]);
 });
 
-test("drawing back shows the kill zone, the dotted arc, and the reticle with its yards", () => {
+test("drawing back shows the dotted arc, the reticle with its yards, and no kill zone", () => {
   let scene = sceneOf(huntWith([], { kind: "drawing", pull: { x: 0, y: 30 }, heldMs: 0 }));
 
   expect(keysStartingWith(scene, "arc-dot-")).toHaveLength(16);
   expect(markNamed(scene, "reticle")).toMatchObject({ id: "reticle", x: 90, y: 225 });
   expect(markNamed(scene, "reticle")).toHaveProperty("tint", "#ffffff");
-  expect(markNamed(scene, "zone")).toMatchObject({ x: -50, y: 150, width: 280, height: 280 });
-  expect(scene.labels.map((each) => [each.text, each.x, each.y])).toEqual([
-    ["35Y", 90, 205],
-    ["KILL ZONE", 90, 154],
-  ]);
+  expect(keysStartingWith(scene, "zone")).toEqual([]);
+  expect(scene.labels.map((each) => each.text)).not.toContain("KILL ZONE");
+  expect(scene.labels[0]).toMatchObject({ text: "35Y", x: 90, y: 205 });
+});
+
+test("a 35 yard draw stakes green and yellow pins at 20 and 30 yards along the aim", () => {
+  let scene = sceneOf(huntWith([], { kind: "drawing", pull: { x: 0, y: 30 }, heldMs: 0 }));
+
+  expect(markNamed(scene, "pin-20")).toMatchObject({
+    x: 89,
+    y: 249,
+    width: 3,
+    height: 3,
+    color: "#5fae3a",
+  });
+  expect(markNamed(scene, "pin-30")).toMatchObject({
+    x: 89,
+    y: 229,
+    width: 3,
+    height: 3,
+    color: "#f7d44a",
+  });
+  expect(markNamed(scene, "pin-40")).toBe(undefined);
+  expect(scene.labels.map((each) => each.text)).toEqual(["35Y", "20", "30"]);
+});
+
+test("a long draw adds the red 40 yard pin, and the pins follow the aim sideways", () => {
+  let scene = sceneOf(huntWith([], { kind: "drawing", pull: { x: -36, y: 48 }, heldMs: 0 }));
+  let pin = markNamed(scene, "pin-40");
+
+  expect(pin).toMatchObject({ width: 3, height: 3, color: "#e23b3b" });
+  expect((pin?.x ?? 0) + 1).toBe(90 + 48);
+  expect((pin?.y ?? 0) + 1).toBe(290 - 64);
 });
 
 test("the reticle turns red once a held draw starts to wobble", () => {
@@ -572,5 +600,6 @@ test("the yards over the reticle win over an alert ! they would cover", () => {
   let under = onAlert(7, 90, (yards?.y ?? 0) + 20);
   let scene = sceneOf({ ...target, animals: [under] });
 
-  expect(texts(scene)).toEqual(["35Y", "KILL ZONE"]);
+  expect(texts(scene)).toContain("35Y");
+  expect(texts(scene)).not.toContain("!");
 });

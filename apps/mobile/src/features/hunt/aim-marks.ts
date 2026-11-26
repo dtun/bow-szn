@@ -5,15 +5,33 @@ import {
   TUNING,
   YARDS_PER_PX,
   type HuntState,
+  type Vec2,
 } from "@bow-szn/core";
 
-import { centeredRect, CREAM, INK, label, RED, sprite, type Label, type Mark } from "./scene-marks";
+import {
+  centeredRect,
+  CREAM,
+  GREEN,
+  INK,
+  label,
+  RED,
+  sprite,
+  YELLOW,
+  type Label,
+  type Mark,
+} from "./scene-marks";
 
-export type AimMarks = { zone: Mark[]; sight: Mark[]; labels: Label[] };
+export type AimMarks = { ground: Mark[]; sight: Mark[]; labels: Label[] };
 
-const ZONE_FILL = "rgba(11,15,26,0.14)";
-const ZONE_DOT = "rgba(244,239,225,0.55)";
-const ZONE_DOT_STEP_PX = 5;
+type Pin = { yards: number; color: string };
+
+const PINS: readonly Pin[] = [
+  { yards: 20, color: GREEN },
+  { yards: 30, color: YELLOW },
+  { yards: 40, color: RED },
+];
+const PIN_HEAD = 3;
+const PIN_LABEL_GAP = 4;
 const ARC_DOT_STEP_PX = 4;
 const BIG_DOT_EVERY = 3;
 const WHITE = "#ffffff";
@@ -22,40 +40,31 @@ const PULSE_MS = 260;
 const RETICLE_HALF = 4;
 const TEXT = 6;
 
-function killZone(): { marks: Mark[]; labels: Label[] } {
-  let reach = TUNING.aim.maxRangePx;
-  let count = Math.floor((Math.PI * reach) / ZONE_DOT_STEP_PX);
-  let dots = Array.from({ length: count + 1 }, (_, index) => {
-    let angle = Math.PI + (Math.PI * index) / count;
-    let at = {
-      x: HUNTER_POS.x + Math.cos(angle) * reach,
-      y: HUNTER_POS.y + Math.sin(angle) * reach,
-    };
-    return centeredRect(`zone-dot-${index}`, at, 1, 1, ZONE_DOT);
-  });
+function pins(dir: Vec2, reach: number): { marks: Mark[]; labels: Label[] } {
+  let shown = PINS.filter((pin) => pin.yards / YARDS_PER_PX <= reach);
   return {
-    marks: [
-      {
-        kind: "oval",
-        key: "zone",
-        x: HUNTER_POS.x - reach,
-        y: HUNTER_POS.y - reach,
-        width: reach * 2,
-        height: reach * 2,
-        color: ZONE_FILL,
-      },
-      ...dots,
-    ],
-    labels: [
+    marks: shown.flatMap((pin) => {
+      let at = {
+        x: HUNTER_POS.x + (dir.x * pin.yards) / YARDS_PER_PX,
+        y: HUNTER_POS.y + (dir.y * pin.yards) / YARDS_PER_PX,
+      };
+      return [
+        centeredRect(`pin-ring-${pin.yards}`, at, PIN_HEAD + 2, PIN_HEAD + 2, INK),
+        centeredRect(`pin-${pin.yards}`, at, PIN_HEAD, PIN_HEAD, pin.color),
+      ];
+    }),
+    labels: shown.map((pin) =>
       label(
-        "kill-zone",
-        "KILL ZONE",
-        { x: HUNTER_POS.x, y: HUNTER_POS.y - reach + 4 },
+        `pin-label-${pin.yards}`,
+        String(pin.yards),
+        {
+          x: HUNTER_POS.x + (dir.x * pin.yards) / YARDS_PER_PX + PIN_LABEL_GAP,
+          y: HUNTER_POS.y + (dir.y * pin.yards) / YARDS_PER_PX - TEXT / 2,
+        },
         TEXT,
-        CREAM,
-        "center"
-      ),
-    ],
+        CREAM
+      )
+    ),
   };
 }
 
@@ -84,10 +93,10 @@ export function aimMarks(hunt: HuntState): AimMarks | null {
     { x: target.x, y: target.y - tick },
     { x: target.x, y: target.y + tick },
   ].map((at, index) => centeredRect(`reticle-tick-${index}`, at, 1, 1, color));
-  let zone = killZone();
+  let ruler = pins(aim.dir, reach);
   let anchor = { x: target.x, y: target.y + RETICLE_HALF + 1 };
   return {
-    zone: zone.marks,
+    ground: ruler.marks,
     sight: [
       ...arc,
       sprite("reticle-shadow", "reticle", { x: anchor.x + 1, y: anchor.y + 1 }, { tint: INK }),
@@ -103,7 +112,7 @@ export function aimMarks(hunt: HuntState): AimMarks | null {
         CREAM,
         "center"
       ),
-      ...zone.labels,
+      ...ruler.labels,
     ],
   };
 }
