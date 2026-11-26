@@ -15,14 +15,8 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22.x
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci --ignore-scripts
+      - name: Setup
+        uses: ./.github/actions/setup
 
       - name: Run tests
         run: npm test
@@ -34,14 +28,8 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22.x
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci --ignore-scripts
+      - name: Setup
+        uses: ./.github/actions/setup
 
       - name: Run unit, ui, and integration tests
         run: npm test
@@ -53,14 +41,8 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22.x
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci --ignore-scripts
+      - name: Setup
+        uses: ./.github/actions/setup
 
       - name: Run snapshot tests
         run: npm run test:snapshot
@@ -72,14 +54,8 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22.x
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci --ignore-scripts
+      - name: Setup
+        uses: ./.github/actions/setup
 
       - name: Run tests
         run: npm test
@@ -91,14 +67,8 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22.x
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci --ignore-scripts
+      - name: Setup
+        uses: ./.github/actions/setup
 
       - name: Run snapshot tests
         run: npm run test:snapshot
@@ -110,14 +80,8 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22.x
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci --ignore-scripts
+      - name: Setup
+        uses: ./.github/actions/setup
 
       - name: Run unit tests
         run: npm test

@@ -1,0 +1,26 @@
+name: Setup
+description: Install Node and the workspace dependencies, reusing node_modules while the lockfile and Node version are unchanged.
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node
+      id: node
+      uses: actions/setup-node@v6
+      with:
+        node-version: 22.x
+
+    - name: Restore node_modules
+      id: modules
+      uses: actions/cache@v6
+      with:
+        path: |
+          node_modules
+          apps/*/node_modules
+          packages/*/node_modules
+        key: node-modules-${{ runner.os }}-${{ runner.arch }}-node-${{ steps.node.outputs.node-version }}-${{ hashFiles('package-lock.json') }}
+
+    - name: Install dependencies
+      if: steps.modules.outputs.cache-hit != 'true'
+      shell: bash
+      run: npm ci --ignore-scripts --no-audit --no-fund
