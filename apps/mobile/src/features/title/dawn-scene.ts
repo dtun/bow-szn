@@ -1,8 +1,7 @@
 import { PALETTE, SPRITES, type Sprite } from "@bow-szn/pixels";
 
-export type SceneRect = { x: number; y: number; width: number; height: number; color: string };
-export type SceneSprite = { sprite: Sprite; x: number; y: number };
-export type SceneLayer = { rects: SceneRect[]; sprites: SceneSprite[] };
+import type { SceneLayer, SceneRect, SceneSprite } from "@/art/scene";
+
 export type DawnScene = { layers: SceneLayer[]; horizonRow: number };
 
 const HORIZON_AT = 0.6;
