@@ -19,6 +19,14 @@ appId: host.exp.Exponent
 - tapOn:
     id: goHuntingBtn
 - assertVisible:
+    id: mapScreen
+- tapOn:
+    id: huntBtn
+- assertVisible:
+    id: prepScreen
+- tapOn:
+    id: skipPrepBtn
+- assertVisible:
     id: huntScreen
 - takeScreenshot: skeleton-hunt
 - swipe:

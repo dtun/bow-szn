@@ -23,12 +23,14 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-test("title to hunt, draw and release at a doe, HIT!, tap to dismiss, ready again", async () => {
+test("hunt, draw and release at a doe, HIT!, tap to dismiss, ready again", async () => {
   let app = renderRouter(APP_DIR);
   clockReads(Number(STANDING_DOE.seed));
 
   expect(await screen.findByTestId("titleScreen")).toBeOnTheScreen();
-  fireEvent.press(screen.getByTestId("goHuntingBtn"));
+  act(() => {
+    router.push("/hunt");
+  });
 
   expect(await screen.findByTestId("huntScreen")).toBeOnTheScreen();
   expect(app.getPathname()).toBe("/hunt");

@@ -65,7 +65,7 @@ export function TitleScreen() {
         <PixelButton
           label="GO HUNTING"
           testID="goHuntingBtn"
-          onPress={() => router.push("/hunt")}
+          onPress={() => router.push("/map")}
           style={styles.wide}
         />
         <PixelButton

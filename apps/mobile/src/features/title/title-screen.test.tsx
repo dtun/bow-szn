@@ -9,6 +9,22 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
+test("GO HUNTING opens the county map", () => {
+  let push = jest.spyOn(router, "push").mockImplementation(() => undefined);
+  render(<TitleScreen />);
+
+  fireEvent.press(screen.getByTestId("goHuntingBtn"));
+
+  expect(push).toHaveBeenCalledTimes(1);
+  expect(push).toHaveBeenCalledWith("/map");
+});
+
+test("GO HUNTING is announced as a button", () => {
+  render(<TitleScreen />);
+
+  expect(screen.getByRole("button", { name: "GO HUNTING" })).toBeOnTheScreen();
+});
+
 test("JOURNAL opens the journal", () => {
   let push = jest.spyOn(router, "push").mockImplementation(() => undefined);
   render(<TitleScreen />);
