@@ -65,4 +65,13 @@ describe("the sound registry", () => {
       expect(seconds).toBeLessThanOrEqual(0.45);
     });
   });
+
+  describe("jingles", () => {
+    it("plays the harvest fanfare for two to three seconds", () => {
+      let seconds = samplesOf("fanfare").length / SOUND_SAMPLE_RATE;
+
+      expect(seconds).toBeGreaterThanOrEqual(2);
+      expect(seconds).toBeLessThanOrEqual(3);
+    });
+  });
 });
