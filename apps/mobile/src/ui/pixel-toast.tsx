@@ -43,8 +43,8 @@ const styles = StyleSheet.create({
   },
   message: {
     fontFamily: FONT_PIXEL,
-    fontSize: 10,
-    lineHeight: 16,
+    fontSize: 12,
+    lineHeight: 20,
     textAlign: "center",
     color: FOREGROUND,
   },
