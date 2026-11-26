@@ -172,3 +172,19 @@ test("shows no aim and no arrow when the hunt is ready", () => {
 
   expect(scene.rects.map((rect) => rect.key)).toEqual(["field", "hunter"]);
 });
+
+test("an ended hunt says why, in place of a shot result", () => {
+  let dusk = sceneFor(huntWith([], { kind: "over", reason: "dusk" }));
+  let empty = sceneFor(huntWith([], { kind: "over", reason: "quiver-empty" }));
+
+  expect(dusk.overLabel).toBe("DUSK");
+  expect(empty.overLabel).toBe("OUT OF ARROWS");
+  expect(dusk.resultLabel).toBe(null);
+  expect(dusk.powerLabel).toBe(null);
+});
+
+test("only an ended hunt carries the over label", () => {
+  let scene = sceneFor(huntWith([], { kind: "ready" }));
+
+  expect(scene.overLabel).toBe(null);
+});

@@ -25,6 +25,7 @@ export type Scene = {
   rects: SceneRect[];
   powerLabel: string | null;
   resultLabel: string | null;
+  overLabel: string | null;
 };
 
 const FIELD_COLOR = "#2d6b24";
@@ -121,6 +122,13 @@ function resultLabel(phase: HuntPhase): string | null {
   return phase.outcome.kind === "harvest" ? "HIT!" : "MISS";
 }
 
+function overLabel(phase: HuntPhase): string | null {
+  if (phase.kind !== "over") {
+    return null;
+  }
+  return phase.reason === "dusk" ? "DUSK" : "OUT OF ARROWS";
+}
+
 export function sceneFor(state: HuntState): Scene {
   return {
     rects: [
@@ -131,5 +139,6 @@ export function sceneFor(state: HuntState): Scene {
     ],
     powerLabel: powerLabel(state),
     resultLabel: resultLabel(state.phase),
+    overLabel: overLabel(state.phase),
   };
 }
