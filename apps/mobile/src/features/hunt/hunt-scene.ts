@@ -1,5 +1,6 @@
 import {
   arrowAt,
+  currentAim,
   HUNTER_POS,
   isGlinting,
   SPOTS,
@@ -7,7 +8,6 @@ import {
   WORLD_H,
   type Animal,
   type Arrow,
-  type HuntPhase,
   type HuntState,
   type Terrain,
   type Vec2,
@@ -17,6 +17,7 @@ import { HUNTER_FRAMES, SPRITES } from "@bow-szn/pixels";
 import { aimMarks } from "./aim-marks";
 import { animalPose, glintFrame, rackTip } from "./animal-art";
 import { airborneAt, headingAt } from "./arrow-path";
+import { bowMarks } from "./bow-marks";
 import { hudFor, type Hud } from "./hud";
 import { isFrozen, type Juice } from "./hunt-session";
 import { huntView, type Bounds, type HuntView, type Screen } from "./hunt-view";
@@ -152,9 +153,9 @@ function byDepth(animals: Animal[]): Animal[] {
   return [...animals].sort((a, b) => a.pos.y - b.pos.y);
 }
 
-function hunterMark(phase: HuntPhase): Mark {
-  let frame = phase.kind === "drawing" ? HUNTER_FRAMES.draw : HUNTER_FRAMES.idle;
-  return sprite("hunter", frame, HUNTER_ANCHOR);
+function hunterMarks(state: HuntState): Mark[] {
+  let hunter = sprite("hunter", HUNTER_FRAMES.idle, HUNTER_ANCHOR);
+  return state.phase.kind === "drawing" ? [hunter, ...bowMarks(currentAim(state))] : [hunter];
 }
 
 function flightMarks(arrow: Arrow): Mark[] {
@@ -197,7 +198,7 @@ export function sceneFor(state: HuntState, juice: Juice, screen: Screen): Scene 
     ],
     air: [
       ...animals.flatMap((animal) => glintMarks(animal, state.elapsedMs)),
-      hunterMark(state.phase),
+      ...hunterMarks(state),
       ...(aim?.sight ?? []),
       ...slowMoMarks(state, view.bounds),
       ...flight,

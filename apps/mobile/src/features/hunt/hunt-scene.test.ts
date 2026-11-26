@@ -122,10 +122,43 @@ test("a ready hunter stands idle in the stand at the bottom of the field", () =>
   expect(markNamed(scene, "hunter")).toMatchObject({ id: "hunter-idle", x: 90, y: 318 });
 });
 
-test("the hunter raises the bow while drawing", () => {
-  let scene = sceneOf(huntWith([], { kind: "drawing", pull: { x: 0, y: 30 }, heldMs: 0 }));
+function drawingScene(pull: { x: number; y: number }): Scene {
+  return sceneOf(huntWith([], { kind: "drawing", pull, heldMs: 0 }));
+}
 
-  expect(markNamed(scene, "hunter")).toMatchObject({ id: "hunter-draw", x: 90, y: 318 });
+function arrowHeading(scene: Scene): number {
+  let tip = markNamed(scene, "bow-arrow-tip");
+  let nock = markNamed(scene, "bow-nock");
+  if (tip === undefined || nock === undefined) {
+    throw new Error("no nocked arrow on the bow");
+  }
+  return Math.atan2(tip.x - nock.x, nock.y - tip.y);
+}
+
+test("the hunter holds the bow out with its arrow up-field on a straight pull back", () => {
+  let scene = drawingScene({ x: 0, y: 30 });
+  let tip = markNamed(scene, "bow-arrow-tip");
+
+  expect(markNamed(scene, "hunter")).toMatchObject({ x: 90, y: 318 });
+  expect(tip?.x).toBe(90);
+  expect(tip?.y).toBeLessThan(290);
+  expect(arrowHeading(scene)).toBe(0);
+});
+
+test.each([
+  ["down and left", { x: -30, y: 30 }, Math.PI / 4],
+  ["down and right", { x: 30, y: 30 }, -Math.PI / 4],
+  ["mostly sideways to the left", { x: -40, y: 15 }, Math.atan2(40, 15)],
+])("pulling %s swings the bow and arrow to point along the aim", (_, pull, heading) => {
+  expect(Math.abs(arrowHeading(drawingScene(pull)) - heading)).toBeLessThan(0.1);
+});
+
+test("a harder draw brings the string back toward the hunter", () => {
+  let light = markNamed(drawingScene({ x: 0, y: 15 }), "bow-nock");
+  let full = markNamed(drawingScene({ x: 0, y: 60 }), "bow-nock");
+
+  expect(full?.y).toBeGreaterThan(light?.y ?? Infinity);
+  expect(full?.x).toBe(90);
 });
 
 test("a grazing doe stands on its own spot with its head down, over its shadow", () => {
