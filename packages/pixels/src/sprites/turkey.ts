@@ -1,7 +1,7 @@
 import { defineSprites } from "../compose.ts";
 import type { Sprite } from "../types.ts";
 
-export type TurkeyPose = "walk-1" | "walk-2" | "graze" | "flee";
+export type TurkeyPose = "walk-1" | "walk-2" | "graze" | "flee" | "down";
 export type TurkeySpriteId = `turkey-${TurkeyPose}`;
 
 export const TURKEY_SPRITES: Record<TurkeySpriteId, Sprite> = defineSprites({
@@ -59,5 +59,14 @@ export const TURKEY_SPRITES: Record<TurkeySpriteId, Sprite> = defineSprites({
     "..V.V...V.V.....",
     ".V...V.V...V....",
     "V...V.....V.....",
+  ],
+  "turkey-down": [
+    "....VVV.VVV.....",
+    ".....V...V......",
+    ".....V...V......",
+    "..T.bbbbbbbb....",
+    ".TbUUUUUUUUUEZZ.",
+    ".bUUbUUUUUUUEZKY",
+    "..TUbbbbbbbbERR.",
   ],
 });

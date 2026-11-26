@@ -38,6 +38,7 @@ export type AnimalFrames = {
   walk: readonly [SpriteId, SpriteId];
   graze: SpriteId;
   flee: SpriteId;
+  down: SpriteId;
 };
 
 function poseFrames(kind: AnimalKind): AnimalFrames {
@@ -45,6 +46,7 @@ function poseFrames(kind: AnimalKind): AnimalFrames {
     walk: [`${kind}-walk-1`, `${kind}-walk-2`],
     graze: `${kind}-graze`,
     flee: `${kind}-flee`,
+    down: `${kind}-down`,
   };
 }
 

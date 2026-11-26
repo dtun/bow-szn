@@ -6,8 +6,8 @@ const WHITETAIL_KINDS: AnimalKind[] = ["doe", "spike", "buck-small", "buck-mediu
 const ANTLER_CHARS = new Set(["A", "a"]);
 
 function posesOf(kind: AnimalKind): Sprite[] {
-  let { walk, graze, flee } = ANIMAL_FRAMES[kind];
-  return [...walk, graze, flee].map((id) => SPRITES[id]);
+  let { walk, graze, flee, down } = ANIMAL_FRAMES[kind];
+  return [...walk, graze, flee, down].map((id) => SPRITES[id]);
 }
 
 function firstWalkFrame(kind: string): Sprite {
@@ -74,6 +74,23 @@ describe("whitetail sprites", () => {
   it("grows the antlers from spike to small to medium to large", () => {
     let sizes = ["spike", "buck-small", "buck-medium", "buck-large"].map(
       (kind) => antlerCells(firstWalkFrame(kind)).size
+    );
+
+    expect(sizes).toEqual([...sizes].sort((a, b) => a - b));
+    expect(new Set(sizes).size).toBe(sizes.length);
+  });
+
+  it("keeps the rack on every spike and buck in every pose, lying down included", () => {
+    for (let kind of ["spike", "buck-small", "buck-medium", "buck-large"]) {
+      for (let pose of posesOf(kind as AnimalKind)) {
+        expect(antlerCells(pose).size).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("grows the antlers from spike to small to medium to large when down too", () => {
+    let sizes = ["spike", "buck-small", "buck-medium", "buck-large"].map(
+      (kind) => antlerCells(SPRITES[ANIMAL_FRAMES[kind as AnimalKind].down]).size
     );
 
     expect(sizes).toEqual([...sizes].sort((a, b) => a - b));

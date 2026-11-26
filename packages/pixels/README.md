@@ -14,7 +14,7 @@ All of Bow Season's art as data. The game draws it with Skia and the brand gener
 Frames name the sprites an animated thing cycles through, so the renderer never builds an id by hand.
 
 - `HUNTER_FRAMES` holds `idle` and `draw`.
-- `ANIMAL_FRAMES[kind]` holds `walk` (two frames), `graze`, and `flee`. The kinds are `doe`, `spike`, `buck-small`, `buck-medium`, `buck-large`, `elk-cow`, `elk-bull`, `turkey`, and `rabbit`.
+- `ANIMAL_FRAMES[kind]` holds `walk` (two frames), `graze`, `flee`, and `down`. The kinds are `doe`, `spike`, `buck-small`, `buck-medium`, `buck-large`, `elk-cow`, `elk-bull`, `turkey`, and `rabbit`.
 - `whitetailKind(antlers)` picks the kind for a whitetail: no antlers is a doe, a spike is a spike, and a rack of 4-6, 7-9, or 10-12 points is a small, medium, or large buck.
 - `FX_FRAMES` holds the `dirtPuff` and `glint` frames and the `confetti` pieces.
 - `WIND_FLAG_FRAMES` runs from a light wind to a strong one.
@@ -25,6 +25,7 @@ Frames name the sprites an animated thing cycles through, so the renderer never 
 - Animals face right. The renderer mirrors a sprite when an animal faces left.
 - A sprite is anchored by its bottom-center: the feet of an animal or the base of a prop sit on the last row. Every sprite paints its first and last row, so nothing floats.
 - All poses of one animal kind share a width, so switching frames never shifts the anchor.
+- A `down` animal lies on its side with its legs out. It is shorter than a standing one and paints no blood. A buck keeps its rack.
 - Antlers use the bone colors `A` and `a`. Does and cows have none, spikes have two straight tines, and each larger rack adds tines and height.
 - Tests check every sprite as an invariant: row count, row width, and palette membership.
 - Snapshot tests print every sprite as its rows, so a change to the art shows up as a visual diff in review.

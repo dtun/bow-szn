@@ -31,6 +31,13 @@ export function recolor(name: string, source: Sprite, char: string): Sprite {
   );
 }
 
+export function erase(name: string, source: Sprite, char: string): Sprite {
+  return sprite(
+    name,
+    source.rows.map((row) => row.replaceAll(char, TRANSPARENT))
+  );
+}
+
 export function hstack(name: string, parts: readonly Sprite[], gap: number): Sprite {
   let h = Math.max(...parts.map((part) => part.h));
   let rows = Array.from({ length: h }, (_, y) =>

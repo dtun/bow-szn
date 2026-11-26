@@ -11,17 +11,17 @@ function firstWalkFrame(kind: AnimalKind): Sprite {
 
 describe("elk sprites", () => {
   it("gives cows no antler pixels in any pose", () => {
-    let { walk, graze, flee } = ANIMAL_FRAMES["elk-cow"];
+    let { walk, graze, flee, down } = ANIMAL_FRAMES["elk-cow"];
 
-    for (let id of [...walk, graze, flee]) {
+    for (let id of [...walk, graze, flee, down]) {
       expect(antlerPixels(SPRITES[id])).toBe(0);
     }
   });
 
   it("gives bulls a rack in every pose", () => {
-    let { walk, graze, flee } = ANIMAL_FRAMES["elk-bull"];
+    let { walk, graze, flee, down } = ANIMAL_FRAMES["elk-bull"];
 
-    for (let id of [...walk, graze, flee]) {
+    for (let id of [...walk, graze, flee, down]) {
       expect(antlerPixels(SPRITES[id])).toBeGreaterThan(0);
     }
   });

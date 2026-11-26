@@ -1,9 +1,9 @@
-import { defineSprites, overlay, sprite } from "../compose.ts";
+import { defineSprites, erase, overlay, sprite } from "../compose.ts";
 import type { Sprite } from "../types.ts";
 
 export const ELK_KINDS = ["elk-cow", "elk-bull"] as const;
 export type ElkKind = (typeof ELK_KINDS)[number];
-export type ElkPose = "walk-1" | "walk-2" | "graze" | "flee";
+export type ElkPose = "walk-1" | "walk-2" | "graze" | "flee" | "down";
 export type ElkSpriteId = `${ElkKind}-${ElkPose}`;
 
 const COW_BODIES = defineSprites<ElkPose>({
@@ -78,6 +78,18 @@ const COW_BODIES = defineSprites<ElkPose>({
     ".U.E..........E.U.......",
     "K.K............K.K......",
   ],
+  down: [
+    ".K.K.......K.K..........",
+    ".U.E.......E.U..........",
+    "..U.E.....E.U...........",
+    "..U.E.....E.U...........",
+    "...U.E...E.U............",
+    "...LLLLLLLLLLLL..E.E....",
+    "..LTttttttttTT.UUUUU....",
+    "..LTTTTTTTTTTTTUUUUKUU..",
+    "..LTTTTTTTTTTTTUUUUUULLK",
+    "...tttttttttttt.UUUUUL..",
+  ],
 });
 
 const BULL_RACK: Sprite = sprite("rack-bull", [
@@ -96,14 +108,36 @@ const BULL_RACK: Sprite = sprite("rack-bull", [
 
 const BULL_RACK_CENTER = 6;
 
-const BULL_HEAD_ANCHORS: Record<ElkPose, { x: number; y: number }> = {
+const LOWERED_BULL_RACK: Sprite = sprite("lowered-rack-bull", [
+  "..a..A......",
+  "a.aA.A......",
+  "a.aAaA.A....",
+  "a.aAaA.A....",
+  ".aa.AAaA.A..",
+  "..a.aAaA.A..",
+  "...aa.AA.A..",
+  "....a.aA.A..",
+  ".....aa.AA.A",
+  "......a.aA.A",
+  "..........AA",
+  "..........AA",
+  "...........A",
+]);
+
+type Anchor = { x: number; y: number };
+
+const STANDING_BULL_ANCHORS: Record<"walk-1" | "walk-2" | "flee" | "graze", Anchor> = {
   "walk-1": { x: 17, y: 1 },
   "walk-2": { x: 17, y: 1 },
   flee: { x: 17, y: 1 },
   graze: { x: 17, y: 7 },
 };
 
-const POSES: readonly ElkPose[] = ["walk-1", "walk-2", "graze", "flee"];
+const LOWERED_BULL_ANCHORS: Record<"down", Anchor> = {
+  down: { x: 18, y: 4 },
+};
+
+const POSES: readonly ElkPose[] = ["walk-1", "walk-2", "graze", "flee", "down"];
 
 function buildElk(kind: ElkKind, pose: ElkPose): Sprite {
   let name = `${kind}-${pose}`;
@@ -111,7 +145,12 @@ function buildElk(kind: ElkKind, pose: ElkPose): Sprite {
   if (kind === "elk-cow") {
     return { ...body, name };
   }
-  let anchor = BULL_HEAD_ANCHORS[pose];
+  if (pose === "down") {
+    let rack = erase(name, LOWERED_BULL_RACK, "a");
+    let anchor = LOWERED_BULL_ANCHORS[pose];
+    return overlay(name, rack, body, rack.w - 1 - anchor.x, rack.h - 1 - anchor.y);
+  }
+  let anchor = STANDING_BULL_ANCHORS[pose];
   let x = anchor.x - BULL_RACK_CENTER;
   let y = anchor.y - BULL_RACK.h;
   if (pose === "graze") {

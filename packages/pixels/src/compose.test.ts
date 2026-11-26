@@ -1,4 +1,13 @@
-import { blank, defineSprites, hstack, overlay, recolor, shadowed, sprite } from "./compose.ts";
+import {
+  blank,
+  defineSprites,
+  erase,
+  hstack,
+  overlay,
+  recolor,
+  shadowed,
+  sprite,
+} from "./compose.ts";
 
 describe("sprite", () => {
   it("measures the grid from its rows", () => {
@@ -67,6 +76,14 @@ describe("blank", () => {
 describe("recolor", () => {
   it("paints every opaque cell one color and leaves the clear cells", () => {
     expect(recolor("flat", sprite("mix", ["AB.", ".CD"]), "K").rows).toEqual(["KK.", ".KK"]);
+  });
+});
+
+describe("erase", () => {
+  it("clears every cell of one color and keeps the rest and the size", () => {
+    let result = erase("plain", sprite("mix", ["AaA", "a.B"]), "a");
+
+    expect(result).toEqual({ name: "plain", w: 3, h: 2, rows: ["A.A", "..B"] });
   });
 });
 
