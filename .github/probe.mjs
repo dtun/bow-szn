@@ -26,13 +26,13 @@ function run(pass) {
   let report = JSON.parse(readFileSync(outputFile, "utf8"));
   let files = report.testResults.map(function (file) {
     let testTime = file.assertionResults.reduce((sum, test) => sum + (test.duration ?? 0), 0);
-    let runtime = file.perfStats.runtime;
+    let runtime = file.endTime - file.startTime;
     return {
       name: file.name.replace(/^.*\/apps\/mobile\//, ""),
       runtime: runtime / 1000,
       testTime: testTime / 1000,
       overhead: (runtime - testTime) / 1000,
-      start: (file.perfStats.start - report.startTime) / 1000,
+      start: (file.startTime - report.startTime) / 1000,
     };
   });
   let sum = (key) => files.reduce((total, file) => total + file[key], 0);
