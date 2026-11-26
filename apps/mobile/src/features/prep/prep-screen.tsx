@@ -13,9 +13,15 @@ import { SignArrow } from "@/ui/sign-arrow";
 import { ACCENT, BACKGROUND, FONT_PIXEL, FOREGROUND, PRIMARY } from "@/ui/theme";
 
 import { stuckArrows } from "./landings";
-import { sightCell } from "./prep-layout";
+import {
+  HEADING_HEIGHT,
+  PLATE_HEIGHT,
+  PLATE_MAX_WIDTH,
+  PLATE_MIN_MARGIN,
+  prepLayout,
+} from "./prep-layout";
 import { prepMessage } from "./prep-message";
-import { baleScene, pinScene, SIGHT_COLS, SIGHT_ROWS } from "./sight-scene";
+import { baleScene, pinScene, sightBackdrop, SIGHT_COLS, SIGHT_ROWS } from "./sight-scene";
 import { usePrep } from "./use-prep";
 
 const SCREEN_MARGIN = 16;
@@ -34,18 +40,33 @@ function startHunt({ spot, season, difficulty }: Preferences) {
   router.replace({ pathname: "/hunt", params: { spot, season, difficulty } });
 }
 
-const Bale = memo(function Bale({ layers, cell }: { layers: SceneLayer[]; cell: number }) {
+const StillScene = memo(function StillScene({
+  layers,
+  cell,
+}: {
+  layers: SceneLayer[];
+  cell: number;
+}) {
   return <SceneView layers={layers} cell={cell} />;
 });
 
 export function PrepScreen() {
   let insets = useSafeAreaInsets();
-  let { width } = useWindowDimensions();
+  let { width, height } = useWindowDimensions();
   let choice = usePreferences();
   let [seed] = useState(() => Date.now());
   let { state, landings, tap } = usePrep(choice.difficulty, seed);
 
-  let cell = sightCell(width, PixelRatio.get());
+  let { top: insetTop, bottom: insetBottom } = insets;
+  let layout = useMemo(
+    () => prepLayout({ width, height, insetTop, insetBottom }, PixelRatio.get()),
+    [width, height, insetTop, insetBottom]
+  );
+  let { cell } = layout;
+  let backdrop = useMemo(
+    () => sightBackdrop(layout.cols, layout.rows, layout.horizonRow, layout.groundRow),
+    [layout.cols, layout.rows, layout.horizonRow, layout.groundRow]
+  );
   let arrows = stuckArrows(landings).length;
   let done = isPrepDone(state);
   let bale = useMemo(
@@ -73,8 +94,11 @@ export function PrepScreen() {
     }
   }
 
+  let plateWidth = Math.min(PLATE_MAX_WIDTH, width - PLATE_MIN_MARGIN * 2);
+
   return (
     <View testID="prepScreen" style={styles.screen}>
+      <StillScene layers={backdrop} cell={cell} />
       <Pressable
         testID="prepTapArea"
         accessibilityRole="button"
@@ -82,31 +106,42 @@ export function PrepScreen() {
         onPressIn={attempt}
         style={StyleSheet.absoluteFill}
       />
-      <View
-        pointerEvents="none"
-        style={[styles.content, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }]}
-      >
-        <Text accessibilityRole="header" style={styles.heading}>
-          SIGHT IN
-        </Text>
+      <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+        <View style={[styles.centered, { top: layout.headingTop }]}>
+          <View style={styles.headingPlate}>
+            <Text accessibilityRole="header" style={styles.heading}>
+              SIGHT IN
+            </Text>
+          </View>
+        </View>
         <View
           testID="prepBale"
           accessible
           accessibilityLabel={`${arrows} ${arrows === 1 ? "arrow" : "arrows"} in the bale`}
-          style={{ width: SIGHT_COLS * cell, height: SIGHT_ROWS * cell }}
+          style={{
+            position: "absolute",
+            left: layout.baleLeft,
+            top: layout.baleTop,
+            width: SIGHT_COLS * cell,
+            height: SIGHT_ROWS * cell,
+          }}
         >
-          <Bale layers={bale} cell={cell} />
+          <StillScene layers={bale} cell={cell} />
           <SceneView layers={pinScene(state.markerPos)} cell={cell} />
         </View>
-        <Text
-          testID="prepMessage"
-          style={[styles.message, { color: MESSAGE_COLORS[done ? "hit" : state.lastTap] }]}
-        >
-          {prepMessage(state)}
-        </Text>
-        <Text testID="prepCount" style={styles.count}>
-          {`${state.hits}/${state.needed}`}
-        </Text>
+        <View style={[styles.centered, { top: layout.plateTop }]}>
+          <View style={[styles.plate, { width: plateWidth }]}>
+            <Text
+              testID="prepMessage"
+              style={[styles.message, { color: MESSAGE_COLORS[done ? "hit" : state.lastTap] }]}
+            >
+              {prepMessage(state)}
+            </Text>
+            <Text testID="prepCount" style={styles.count}>
+              {`${state.hits}/${state.needed}`}
+            </Text>
+          </View>
+        </View>
       </View>
       <View pointerEvents="box-none" style={[styles.topRow, { paddingTop: insets.top + 8 }]}>
         <SignArrow
@@ -140,8 +175,25 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
   },
-  content: { flex: 1, alignItems: "center", justifyContent: "center", gap: 16 },
+  centered: { position: "absolute", left: 0, right: 0, alignItems: "center" },
+  headingPlate: {
+    height: HEADING_HEIGHT,
+    paddingHorizontal: 14,
+    justifyContent: "center",
+    backgroundColor: BACKGROUND,
+    borderWidth: 3,
+    borderColor: ACCENT,
+  },
   heading: { fontFamily: FONT_PIXEL, fontSize: 16, color: ACCENT },
-  message: { fontFamily: FONT_PIXEL, fontSize: 14, textAlign: "center" },
-  count: { fontFamily: FONT_PIXEL, fontSize: 12, color: FOREGROUND },
+  plate: {
+    height: PLATE_HEIGHT,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: BACKGROUND,
+    borderWidth: 3,
+    borderColor: ACCENT,
+  },
+  message: { fontFamily: FONT_PIXEL, fontSize: 16, textAlign: "center" },
+  count: { fontFamily: FONT_PIXEL, fontSize: 14, color: FOREGROUND },
 });

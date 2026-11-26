@@ -1,6 +1,14 @@
 import { colorAt } from "@/art/test-support/color-at";
 
-import { baleScene, BALE_ROWS, goldFace, PATH_ROW, pinScene, swayPosition } from "./sight-scene";
+import {
+  baleScene,
+  BALE_ROWS,
+  goldFace,
+  PATH_ROW,
+  pinScene,
+  sightBackdrop,
+  swayPosition,
+} from "./sight-scene";
 
 const INNER_GOLD = "#f7d44a";
 const OUTER_GOLD = "#d9a73a";
@@ -8,6 +16,8 @@ const RED_RING = "#e23b3b";
 const GOLD = [INNER_GOLD, OUTER_GOLD];
 const STRAW = ["#c9a36b", "#e6d3a3", "#9c7a45", "#5a3a1e", "#8b5a2f"];
 const GRASS = ["#3e8e2f", "#5fae3a", "#2d6b24"];
+const SKY_BLUE = "#2b6cd9";
+const BASE_SHADOW = "#1d4a22";
 const ARROW_SHAFT = "#f4efe1";
 const PIN_CENTER = "#e23b3b";
 const ZONE: readonly [number, number] = [0.5, 0.72];
@@ -102,8 +112,36 @@ describe("the bale", () => {
     expect(STRAW).toContain(colorAt(baleScene(ZONE, []), 10, 30));
   });
 
-  test("stands on grass", () => {
-    expect(GRASS).toContain(colorAt(baleScene(ZONE, []), 40, BALE_ROWS + 2));
+  test("casts a shadow on the grass at its base", () => {
+    expect(colorAt(baleScene(ZONE, []), 40, BALE_ROWS + 1)).toBe(BASE_SHADOW);
+    expect(colorAt(baleScene(ZONE, []), 40, BALE_ROWS + 4)).toBeNull();
+  });
+});
+
+describe("the backdrop", () => {
+  let COLS = 83;
+  let ROWS = 180;
+  let HORIZON = 63;
+  let GROUND = 115;
+  let layers = sightBackdrop(COLS, ROWS, HORIZON, GROUND);
+
+  test("is sky at the top and grass at the very bottom, edge to edge", () => {
+    expect(colorAt(layers, 0, 0)).toBe(SKY_BLUE);
+    expect(colorAt(layers, COLS - 1, 0)).toBe(SKY_BLUE);
+    expect(GRASS).toContain(colorAt(layers, 0, ROWS - 1));
+    expect(GRASS).toContain(colorAt(layers, COLS - 1, ROWS - 1));
+  });
+
+  test("has a low sun on the horizon", () => {
+    expect(colorAt(layers, Math.round(COLS * 0.68), HORIZON - 10)).toBe("#f7d44a");
+  });
+
+  test("dots only the field below the bale with grass blades", () => {
+    let blades = layers[1].rects;
+
+    expect(blades.length).toBeGreaterThan(0);
+    expect(blades.filter((blade) => blade.y < GROUND)).toEqual([]);
+    expect(blades.filter((blade) => blade.y + blade.height > ROWS)).toEqual([]);
   });
 });
 

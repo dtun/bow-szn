@@ -1,6 +1,7 @@
 import type { PrepState } from "@bow-szn/core";
 import { SPRITES, type Sprite } from "@bow-szn/pixels";
 
+import { dawnBackdrop } from "@/art/dawn-backdrop";
 import type { SceneLayer, SceneRect, SceneSprite } from "@/art/scene";
 import { rect } from "@/art/scene-shapes";
 
@@ -12,8 +13,8 @@ const PIN = SPRITES["sight-pin"];
 
 export const SIGHT_COLS = BALE.w;
 export const BALE_ROWS = BALE.h;
-export const GROUND_ROWS = 4;
-export const SIGHT_ROWS = BALE_ROWS + GROUND_ROWS;
+export const SHADOW_ROWS = 2;
+export const SIGHT_ROWS = BALE_ROWS + SHADOW_ROWS;
 export const PATH_ROW = Math.floor(BALE_ROWS / 2);
 export const FACE_RIM_CELLS = 3;
 
@@ -23,13 +24,15 @@ const PATH_LENGTH = SIGHT_COLS - 2 * PATH_START;
 const RED_RING_CELLS = 2;
 const INNER_GOLD_SHARE = 0.5;
 
-const GROUND = "G";
-const GROUND_BLADE = "g";
-const GROUND_SHADE = "D";
 const INNER_GOLD = "Y";
 const OUTER_GOLD = "y";
 const RED_RING = "R";
 const FACE_OUTLINE = "E";
+const SHADOW = "F";
+const SHADOW_UNDER_BALE_ROWS = 2;
+const BLADE = "G";
+const BLADE_ONE_IN = 37;
+const BLADE_ROWS = 2;
 
 export type GoldFace = { centerX: number; radius: number };
 
@@ -45,19 +48,16 @@ export function goldFace(zone: PrepState["zone"]): GoldFace {
   };
 }
 
-function hashed(x: number, y: number): number {
-  return (Math.imul(x, 73856093) ^ Math.imul(y, 19349663)) >>> 0;
-}
-
-function groundRects(): SceneRect[] {
-  let rects = [rect(0, BALE_ROWS - 1, SIGHT_COLS, GROUND_ROWS + 1, GROUND)];
-  rects.push(rect(0, BALE_ROWS - 1, SIGHT_COLS, 1, GROUND_SHADE));
-  for (let x = 0; x < SIGHT_COLS; x++) {
-    if (hashed(x, 3) % 3 === 0) {
-      rects.push(rect(x, BALE_ROWS + (hashed(x, 5) % GROUND_ROWS), 1, 1, GROUND_BLADE));
-    }
-  }
-  return rects;
+function shadowRects(): SceneRect[] {
+  return [
+    rect(
+      1,
+      BALE_ROWS - SHADOW_UNDER_BALE_ROWS,
+      SIGHT_COLS - 2,
+      SHADOW_UNDER_BALE_ROWS + SHADOW_ROWS,
+      SHADOW
+    ),
+  ];
 }
 
 function ringAt(distance: number, radius: number): string | null {
@@ -117,7 +117,7 @@ export function baleScene(
 ): SceneLayer[] {
   let stuck = stuckArrows(landings);
   return [
-    { rects: groundRects(), sprites: [{ sprite: BALE, x: 0, y: 0 }] },
+    { rects: shadowRects(), sprites: [{ sprite: BALE, x: 0, y: 0 }] },
     { rects: zone === null ? [] : faceRects(goldFace(zone)), sprites: [] },
     { rects: [], sprites: stuck.map(arrowAt) },
   ];
@@ -135,5 +135,33 @@ export function pinScene(markerPos: number): SceneLayer[] {
         },
       ],
     },
+  ];
+}
+
+function hashed(x: number, y: number): number {
+  return (Math.imul(x, 73856093) ^ Math.imul(y, 19349663)) >>> 0;
+}
+
+function bladeRects(cols: number, rows: number, fromRow: number): SceneRect[] {
+  let rects: SceneRect[] = [];
+  for (let y = fromRow; y < rows - BLADE_ROWS; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (hashed(x, y) % BLADE_ONE_IN === 0) {
+        rects.push(rect(x, y, 1, BLADE_ROWS, BLADE));
+      }
+    }
+  }
+  return rects;
+}
+
+export function sightBackdrop(
+  cols: number,
+  rows: number,
+  horizonRow: number,
+  groundRow: number
+): SceneLayer[] {
+  return [
+    dawnBackdrop(cols, rows, horizonRow),
+    { rects: bladeRects(cols, rows, groundRow), sprites: [] },
   ];
 }
