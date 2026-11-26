@@ -2,6 +2,9 @@ import { PALETTE, SPRITES, type Sprite } from "@bow-szn/pixels";
 
 import type { SceneLayer, SceneRect, SceneSprite } from "@/art/scene";
 
+import { CLOUD } from "./dawn-cloud";
+import { titleAmbience } from "./title-ambience";
+
 export type DawnScene = { layers: SceneLayer[]; horizonRow: number };
 
 const HORIZON_AT = 0.6;
@@ -18,10 +21,7 @@ const FIELD_BANDS: readonly { rows: number; char: string }[] = [
   { rows: Infinity, char: "D" },
 ];
 const TREELINE_OVERLAP = 1;
-const CLOUD_SPOTS: readonly { across: number; down: number }[] = [
-  { across: 0.06, down: 0.36 },
-  { across: 0.52, down: 0.5 },
-];
+const DOE_FEET_BELOW_HORIZON = 14;
 const TUFT_SPOTS: readonly { across: number; below: number }[] = [
   { across: 0.08, below: 22 },
   { across: 0.42, below: 18 },
@@ -81,14 +81,6 @@ function sunRects(cols: number, horizon: number): SceneRect[] {
     }
   }
   return rects;
-}
-
-function cloudRects(cols: number, horizon: number): SceneRect[] {
-  return CLOUD_SPOTS.flatMap(({ across, down }) => {
-    let x = Math.round(cols * across);
-    let y = Math.round(horizon * down);
-    return [rect(x, y, 14, 1, "W"), rect(x + 3, y - 1, 7, 1, "W"), rect(x + 6, y + 1, 12, 1, "C")];
-  });
 }
 
 function hillRects(cols: number, horizon: number): SceneRect[] {
@@ -155,9 +147,20 @@ function standLayer(cols: number, horizon: number): SceneLayer {
   };
 }
 
+function ambientLayer(cols: number, horizon: number): SceneLayer {
+  let { clouds, doe } = titleAmbience(0, 0, cols);
+  let doeSprite = SPRITES[doe.frame];
+  return {
+    rects: [],
+    sprites: [
+      ...clouds.map(({ x, down }) => ({ sprite: CLOUD, x, y: Math.round(horizon * down) - 1 })),
+      { sprite: doeSprite, x: doe.x, y: horizon + DOE_FEET_BELOW_HORIZON - doeSprite.h },
+    ],
+  };
+}
+
 export function dawnScene(cols: number, rows: number): DawnScene {
   let horizonRow = Math.round(rows * HORIZON_AT);
-  let doe = SPRITES["doe-graze"];
   let tufts = TUFT_SPOTS.map(({ across, below }) => ({
     sprite: SPRITES["grass-tuft-1"],
     x: Math.round(cols * across),
@@ -168,16 +171,14 @@ export function dawnScene(cols: number, rows: number): DawnScene {
     rects: [
       ...skyRects(cols, horizonRow),
       ...sunRects(cols, horizonRow),
-      ...cloudRects(cols, horizonRow),
       ...hillRects(cols, horizonRow),
       ...fieldRects(cols, rows, horizonRow),
     ],
-    sprites: [
-      ...treelineSprites(cols, horizonRow),
-      ...tufts,
-      { sprite: doe, x: Math.round(cols * 0.6), y: horizonRow + 14 - doe.h },
-    ],
+    sprites: [...treelineSprites(cols, horizonRow), ...tufts],
   };
 
-  return { horizonRow, layers: [backdrop, standLayer(cols, horizonRow)] };
+  return {
+    horizonRow,
+    layers: [backdrop, standLayer(cols, horizonRow), ambientLayer(cols, horizonRow)],
+  };
 }
