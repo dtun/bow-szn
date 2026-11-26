@@ -617,3 +617,28 @@ test("the yards over the reticle win over an alert ! they would cover", () => {
   expect(texts(scene)).toContain("35Y");
   expect(texts(scene)).not.toContain("!");
 });
+
+test("a called-out buck shows its callout over its head, and it clears with its moment", () => {
+  let buck = { ...BIG_BUCK, mode: { kind: "walk", target: { x: 90, y: 200 } } } as Animal;
+  let hunt = huntWith([buck], { kind: "ready" });
+  let calling: Juice = {
+    ...STILL,
+    nowMs: 100,
+    bursts: [{ kind: "callout", animalId: 7, text: "BUCK!", startMs: 100 }],
+  };
+  let callout = sceneFor(hunt, calling, PHONE).labels.find((each) => each.key === "callout-7");
+
+  expect(callout).toMatchObject({ text: "BUCK!", x: 90, color: "#f7d44a", align: "center" });
+  expect(callout?.y).toBeLessThan(buck.pos.y - 20);
+  expect((callout?.size ?? 0) * 2).toBeGreaterThanOrEqual(12);
+});
+
+test("a callout leaves with the buck when it bolts off the field", () => {
+  let hunt = huntWith([{ ...BIG_BUCK, mode: { kind: "gone" } }], { kind: "ready" });
+  let calling: Juice = {
+    ...STILL,
+    bursts: [{ kind: "callout", animalId: 7, text: "BUCK!", startMs: 0 }],
+  };
+
+  expect(sceneFor(hunt, calling, PHONE).labels).toEqual([]);
+});

@@ -6,6 +6,7 @@ import {
   WORLD_W,
   type Roller,
   type Terrain,
+  type Vec2,
 } from "@bow-szn/core";
 import { PALETTE, SPRITES, type SpriteId } from "@bow-szn/pixels";
 
@@ -118,6 +119,10 @@ export const STAND: Box = {
   right: HUNTER_POS.x + 24,
   bottom: Infinity,
 };
+
+export function isInTheOpen(pos: Vec2): boolean {
+  return pos.x >= 0 && pos.x <= WORLD_W && pos.y >= OPEN_MIDDLE.top && pos.y <= WORLD_H;
+}
 
 export function groundColor(terrain: Terrain): string {
   return LOOKS[terrain].ground;

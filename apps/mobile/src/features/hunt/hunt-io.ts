@@ -47,6 +47,7 @@ export function fireEffects(effects: HuntEffect[], io: HuntIo) {
       case "dust":
       case "stuck":
       case "pop":
+      case "callout":
         break;
       default:
         unrouted(effect);

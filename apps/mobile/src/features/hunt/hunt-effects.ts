@@ -3,6 +3,7 @@ import {
   currentAim,
   isFullDraw,
   isGlinting,
+  isLive,
   TUNING,
   type Animal,
   type AnimalMode,
@@ -15,6 +16,7 @@ import {
 import type { SfxId } from "@/platform/sfx";
 
 import { headingAt } from "./arrow-path";
+import { isInTheOpen } from "./field-layout";
 import { tagName } from "./hunt-over";
 import { powerSegments } from "./draw-gauge";
 
@@ -48,7 +50,8 @@ export type HuntEffect =
   | { kind: "dirt"; at: Vec2 }
   | { kind: "dust"; at: Vec2 }
   | { kind: "stuck"; at: Vec2; heading: number }
-  | { kind: "pop"; pop: Pop };
+  | { kind: "pop"; pop: Pop }
+  | { kind: "callout"; animalId: number; text: string };
 
 const PLAIN_MISSES = ["WHIFF!", "DIRT NAP!"];
 const SPOTTED_BY: Record<SpeciesId, string> = {
@@ -165,6 +168,18 @@ function landingEffects(prev: HuntState, next: HuntState): HuntEffect[] {
   ];
 }
 
+function inTheOpen(state: HuntState, id: number): boolean {
+  let animal = state.animals.find((each) => each.id === id);
+  return state.elapsedMs > 0 && animal !== undefined && isLive(animal) && isInTheOpen(animal.pos);
+}
+
+function racksSpotted(prev: HuntState, next: HuntState): Animal[] {
+  return next.animals.filter(
+    (animal) =>
+      animal.antlers.kind === "rack" && inTheOpen(next, animal.id) && !inTheOpen(prev, animal.id)
+  );
+}
+
 function animalEffects(prev: HuntState, next: HuntState): HuntEffect[] {
   let bolted = turned(prev, next, "flee");
   let startled = [...bolted, ...turned(prev, next, "alert")];
@@ -175,10 +190,18 @@ function animalEffects(prev: HuntState, next: HuntState): HuntEffect[] {
       (before === undefined || !isGlinting(before, prev.elapsedMs))
     );
   });
+  let spotted = racksSpotted(prev, next);
   return [
     ...(startled.length > 0 ? [sound("spook")] : []),
     ...bolted.map((animal): HuntEffect => ({ kind: "dust", at: animal.pos })),
-    ...(glinted ? [sound("glint")] : []),
+    ...spotted.map(
+      (animal): HuntEffect => ({
+        kind: "callout",
+        animalId: animal.id,
+        text: `${tagName(animal)}!`,
+      })
+    ),
+    ...(glinted || spotted.length > 0 ? [sound("glint")] : []),
   ];
 }
 

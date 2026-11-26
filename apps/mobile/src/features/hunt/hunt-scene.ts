@@ -5,6 +5,7 @@ import {
   isGlinting,
   SPOTS,
   timeScale,
+  TUNING,
   WORLD_H,
   type Animal,
   type Arrow,
@@ -20,7 +21,7 @@ import { airborneAt, headingAt } from "./arrow-path";
 import { bowMarks } from "./bow-marks";
 import { drawGauge, type DrawGauge } from "./draw-gauge";
 import { hudFor, type Hud } from "./hud";
-import { isFrozen, type Juice } from "./hunt-session";
+import { burstAge, isFrozen, type Juice } from "./hunt-session";
 import { huntView, type Bounds, type HuntView, type Screen } from "./hunt-view";
 import { burstMarks, popLabel, shakeOffset } from "./juice-marks";
 import { resultFor, type ResultView } from "./result-view";
@@ -67,6 +68,9 @@ const SLOW_MO_DIM = "rgba(8,12,40,0.3)";
 const FLASH = "rgba(255,255,255,0.6)";
 const BRACKET_REACH = 11;
 const LINE_HEIGHT = 1.2;
+const CALLOUT_SIZE = 8;
+const CALLOUT_LIFT = 4;
+const CALLOUT_RISE_MAX = 6;
 const OVERLAY_MARGIN = 8;
 
 function labelBox(label: Label): Bounds {
@@ -141,6 +145,29 @@ function alertLabels(animals: Animal[], elapsedMs: number): Label[] {
     }
     let top = animal.pos.y - SPRITES[pose.id].h - 8;
     return [label(`alert-${animal.id}`, "!", { x: animal.pos.x, y: top }, 6, YELLOW, "center")];
+  });
+}
+
+function calloutLabels(animals: Animal[], juice: Juice, elapsedMs: number): Label[] {
+  return juice.bursts.flatMap((burst) => {
+    let animal = animals.find((each) => burst.kind === "callout" && each.id === burst.animalId);
+    let pose = animal === undefined ? null : animalPose(animal, elapsedMs);
+    let age = burstAge(juice, burst);
+    if (burst.kind !== "callout" || animal === undefined || pose === null || age < 0) {
+      return [];
+    }
+    let rise = Math.min(CALLOUT_RISE_MAX, (TUNING.juice.popRisePxPerSec * age) / 1000);
+    let top = animal.pos.y - SPRITES[pose.id].h - CALLOUT_LIFT - CALLOUT_SIZE - rise;
+    return [
+      label(
+        `callout-${animal.id}`,
+        burst.text,
+        { x: animal.pos.x, y: top },
+        CALLOUT_SIZE,
+        YELLOW,
+        "center"
+      ),
+    ];
   });
 }
 
@@ -250,6 +277,7 @@ export function sceneFor(state: HuntState, juice: Juice, screen: Screen): Scene 
     ],
     labels: oneAtATime([
       ...(pop === null ? [] : [pop]),
+      ...calloutLabels(animals, juice, state.elapsedMs),
       ...(aim?.labels ?? []),
       ...alertLabels(animals, state.elapsedMs),
     ]),

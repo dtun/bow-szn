@@ -96,6 +96,7 @@ export function burstMarks(juice: Juice): Mark[] {
       case "stuck":
         return stuckMarks(burst);
       case "shake":
+      case "callout":
         return [];
     }
   });

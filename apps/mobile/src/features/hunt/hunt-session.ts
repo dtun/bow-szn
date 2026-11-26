@@ -16,7 +16,8 @@ export type Burst =
   | { kind: "dirt"; at: Vec2; startMs: number }
   | { kind: "dust"; at: Vec2; startMs: number }
   | { kind: "stuck"; at: Vec2; heading: number; startMs: number }
-  | { kind: "shake"; px: number; startMs: number };
+  | { kind: "shake"; px: number; startMs: number }
+  | { kind: "callout"; animalId: number; text: string; startMs: number };
 
 export type ShownPop = Pop & { startMs: number };
 
@@ -39,6 +40,7 @@ const LIFE_MS: Record<Burst["kind"], number> = {
   dust: TUNING.juice.dustMs,
   stuck: TUNING.juice.stuckMs,
   shake: TUNING.juice.shakeMs,
+  callout: TUNING.hud.calloutMs,
 };
 
 export function createSession(config: HuntConfig): HuntSession {
@@ -77,6 +79,8 @@ function burstFor(effect: HuntEffect, nowMs: number, afterFreezeMs: number): Bur
       return { kind: effect.kind, at: effect.at, startMs: nowMs };
     case "stuck":
       return { kind: "stuck", at: effect.at, heading: effect.heading, startMs: nowMs };
+    case "callout":
+      return { kind: "callout", animalId: effect.animalId, text: effect.text, startMs: nowMs };
     case "sound":
     case "haptic":
     case "record":
