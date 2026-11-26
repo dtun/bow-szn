@@ -6,7 +6,7 @@ import { GestureDetector } from "react-native-gesture-handler";
 
 import { BACKGROUND, FONT_PIXEL, FOREGROUND, NAVY } from "@/ui/theme";
 
-import { huntConfigFor, type SeedParam } from "./hunt-config";
+import { huntConfigFor, type HuntParams } from "./hunt-config";
 import { sceneFor } from "./hunt-scene";
 import { useHunt } from "./use-hunt";
 import { usePullGesture } from "./use-pull-gesture";
@@ -16,12 +16,8 @@ const LABEL_SIZE = 8;
 const RESULT_SIZE = 16;
 const POWER_LABEL_AT = { x: WORLD_W - 84, y: WORLD_H - 16 };
 
-type HuntScreenProps = {
-  seed?: SeedParam;
-};
-
-export function HuntScreen({ seed }: HuntScreenProps) {
-  let [config] = useState(() => huntConfigFor(seed, Date.now()));
+export function HuntScreen(params: HuntParams) {
+  let [config] = useState(() => huntConfigFor(params, Date.now()));
   let { state, dispatch } = useHunt(config);
   let { width, height } = useWindowDimensions();
   let scale = worldScale(width, height);

@@ -8,7 +8,7 @@ const EMPTY_GROUND_RANGE_PX = 30;
 
 function findStandingDoe(): StandingDoe {
   for (let seed = 1; seed < 5000; seed++) {
-    let hunt = createHunt(huntConfigFor(String(seed), 0));
+    let hunt = createHunt(huntConfigFor({ seed: String(seed) }, 0));
     let doe = hunt.animals.find(
       (animal) =>
         animal.antlers.kind === "none" &&
