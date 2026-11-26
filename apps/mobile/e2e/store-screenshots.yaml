@@ -24,11 +24,12 @@ appId: host.exp.Exponent
 - tapOn:
     id: spotFlag-cedar-hollow
 - takeScreenshot: 02-county-map
-- runFlow: hunt-the-buck.generated.yaml
-- extendedWaitUntil:
-    visible:
-      id: harvestCard
-    timeout: 10000
+- retry:
+    maxRetries: 4
+    commands:
+      - runFlow: hunt-the-buck.generated.yaml
+- assertVisible:
+    id: harvestCard
 - takeScreenshot: 04-harvest-card
 - tapOn:
     id: mountBtn
