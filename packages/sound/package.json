@@ -10,6 +10,7 @@
     "./wav": "./src/wav.ts"
   },
   "scripts": {
+    "sound": "node scripts/generate-sound.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest --selectProjects unit",
