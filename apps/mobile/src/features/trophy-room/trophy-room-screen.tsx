@@ -5,10 +5,14 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useJournal } from "@/features/journal";
+import { deviceSharer, type Sharer } from "@/platform/share";
 import { PixelButton } from "@/ui/pixel-button";
 import { BACKGROUND, FONT_PIXEL, FOREGROUND, NAVY, SKY } from "@/ui/theme";
 
 import { MountCard } from "./mount-card";
+import { PixelToast } from "./pixel-toast";
+import { useCardRenderer, type CardRenderer } from "./use-card-renderer";
+import { useShareMount } from "./use-share-mount";
 import { WoodWall } from "./wood-wall";
 
 function leaveTrophyRoom() {
@@ -19,9 +23,16 @@ function leaveTrophyRoom() {
   }
 }
 
-export function TrophyRoomScreen() {
+type TrophyRoomScreenProps = {
+  sharer?: Sharer;
+  renderCard?: CardRenderer;
+};
+
+export function TrophyRoomScreen({ sharer = deviceSharer, renderCard }: TrophyRoomScreenProps) {
   let { journal } = useJournal();
   let mounts = trophyRoom(journal);
+  let deviceRenderer = useCardRenderer();
+  let { shareMount, toast, dismissToast } = useShareMount(sharer, renderCard ?? deviceRenderer);
 
   return (
     <View testID="trophyRoomScreen" style={styles.screen}>
@@ -47,11 +58,12 @@ export function TrophyRoomScreen() {
         ) : (
           <ScrollView contentContainerStyle={styles.mounts}>
             {mounts.map((harvest) => (
-              <MountCard key={harvest.id} harvest={harvest} />
+              <MountCard key={harvest.id} harvest={harvest} onShare={() => shareMount(harvest)} />
             ))}
           </ScrollView>
         )}
       </SafeAreaView>
+      {toast === null ? null : <PixelToast message={toast} onDone={dismissToast} />}
     </View>
   );
 }
