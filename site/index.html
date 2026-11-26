@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bow Season</title>
+    <meta
+      name="description"
+      content="Bow Season is an 8-bit bow hunt for iPhone. Draw, aim, and let it fly with one thumb."
+    />
+    <link rel="icon" href="data:," />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        background: #0b0f1a;
+        color: #f4efe1;
+        font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
+        text-align: center;
+      }
+      .sky {
+        position: relative;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        padding: 48px 20px 120px;
+        background: linear-gradient(
+          #13214a 0 18%,
+          #2b3a7a 18% 34%,
+          #8a3d5c 34% 50%,
+          #e23b3b 50% 62%,
+          #f08a4b 62% 80%,
+          #f7b35a 80% 100%
+        );
+      }
+      .sun {
+        position: absolute;
+        left: 50%;
+        bottom: 72px;
+        width: 120px;
+        transform: translateX(-50%);
+        image-rendering: pixelated;
+      }
+      .trees {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 96px;
+        display: block;
+      }
+      h1 {
+        position: relative;
+        margin: 0;
+        font-size: clamp(34px, 11vw, 88px);
+        font-weight: 900;
+        letter-spacing: 0.04em;
+        line-height: 1;
+        color: #f7d44a;
+        text-shadow:
+          4px 4px 0 #e23b3b,
+          8px 8px 0 #0b0f1a;
+      }
+      .ribbon {
+        position: relative;
+        display: inline-block;
+        padding: 6px 14px;
+        background: #e23b3b;
+        color: #f4efe1;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        box-shadow: 0 4px 0 #0b0f1a;
+      }
+      .pitch {
+        position: relative;
+        max-width: 30ch;
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.5;
+        font-weight: 700;
+        text-shadow: 2px 2px 0 #0b0f1a;
+      }
+      nav {
+        position: relative;
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      nav a {
+        display: inline-block;
+        min-width: 150px;
+        padding: 14px 18px;
+        background: #13214a;
+        color: #f4efe1;
+        border: 4px solid #f4efe1;
+        box-shadow: 0 6px 0 #0b0f1a;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-decoration: none;
+      }
+      nav a:hover,
+      nav a:focus-visible {
+        background: #e23b3b;
+        outline: none;
+      }
+      nav a:active {
+        transform: translateY(4px);
+        box-shadow: 0 2px 0 #0b0f1a;
+      }
+      footer {
+        padding: 16px;
+        background: #2d6b24;
+        color: #f4efe1;
+        font-size: 12px;
+        letter-spacing: 0.1em;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="sky">
+      <svg class="sun" viewBox="0 0 12 6" shape-rendering="crispEdges" aria-hidden="true">
+        <g fill="#f7d44a">
+          <rect x="4" y="0" width="4" height="1" />
+          <rect x="2" y="1" width="8" height="1" />
+          <rect x="1" y="2" width="10" height="2" />
+          <rect x="0" y="4" width="12" height="2" />
+        </g>
+      </svg>
+      <svg
+        class="trees"
+        viewBox="0 0 480 24"
+        preserveAspectRatio="xMidYMax slice"
+        shape-rendering="crispEdges"
+        aria-hidden="true"
+      >
+        <defs>
+          <pattern id="pine-back" width="10" height="24" patternUnits="userSpaceOnUse">
+            <g fill="#2d6b24">
+              <rect x="4" y="2" width="2" height="3" />
+              <rect x="3" y="5" width="4" height="4" />
+              <rect x="2" y="9" width="6" height="5" />
+              <rect x="0" y="14" width="10" height="10" />
+            </g>
+          </pattern>
+          <pattern id="pine-front" x="5" width="10" height="24" patternUnits="userSpaceOnUse">
+            <g fill="#0b0f1a">
+              <rect x="4" y="8" width="2" height="3" />
+              <rect x="3" y="11" width="4" height="3" />
+              <rect x="2" y="14" width="6" height="4" />
+              <rect x="0" y="18" width="10" height="6" />
+            </g>
+          </pattern>
+        </defs>
+        <rect width="480" height="24" fill="url(#pine-back)" />
+        <rect width="480" height="24" fill="url(#pine-front)" />
+      </svg>
+      <h1>BOW SEASON</h1>
+      <div class="ribbon">PIXEL HUNTING CLUB</div>
+      <p class="pitch">
+        Pull back, aim, and let it fly. An 8-bit bow hunt you play with one thumb.
+      </p>
+      <nav>
+        <a href="privacy.html">PRIVACY</a>
+        <a href="support.html">SUPPORT</a>
+      </nav>
+    </main>
+    <footer>&copy; 2026 Paper Street App LLC</footer>
+  </body>
+</html>
