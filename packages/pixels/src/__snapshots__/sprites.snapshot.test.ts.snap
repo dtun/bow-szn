@@ -110,62 +110,6 @@ exports[`sprite art brand-bow 1`] = `
 "
 `;
 
-exports[`sprite art brand-bow-compact 1`] = `
-"
-.........EE.......
-........EEE.......
-........CbEEEE....
-.......C...bEEE...
-......C.....bEEE..
-.....C.......bEE..
-.....C.......bEE..
-....C........MRR..
-...RRRM......MRHh.
-..CCCCCCCCCCCCCHHW
-...RRRM......MRHh.
-....C........MRR..
-.....C.......bEE..
-.....C.......bEE..
-......C.....bEEE..
-.......C...bEEE...
-........CbEEEE....
-........EEE.......
-.........EE.......
-"
-`;
-
-exports[`sprite art brand-bow-mini 1`] = `
-"
-....bEEEE..
-....C.bEEE.
-...C...bEE.
-...C...bEE.
-..RRRM.bHh.
-.CCCCCCCHHW
-..RRRM.bHh.
-...C...bEE.
-...C...bEE.
-....C.bEEE.
-....bEEEE..
-"
-`;
-
-exports[`sprite art brand-deer 1`] = `
-"
-......K.K..
-.....KKKKK.
-.......KK..
-.......KKK.
-.......KKKK
-.KKKKKKKK..
-KKKKKKKKK..
-.KKKKKKKK..
-.K.K...K.K.
-.K.K...K.K.
-.K.K...K.K.
-"
-`;
-
 exports[`sprite art brand-icon-buck 1`] = `
 "
 .........NN.NN.NN........
@@ -227,15 +171,6 @@ NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
-"
-`;
-
-exports[`sprite art brand-treeline-mini 1`] = `
-"
-...N......N.....
-..NNN....NNN..N.
-.NNNNN..NNNNN.NN
-NNNNNNNNNNNNNNNN
 "
 `;
 

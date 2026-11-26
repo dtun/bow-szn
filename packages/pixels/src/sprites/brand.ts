@@ -3,13 +3,9 @@ import type { Sprite } from "../types.ts";
 
 export type BrandSpriteId =
   | "brand-bow"
-  | "brand-bow-compact"
-  | "brand-bow-mini"
-  | "brand-deer"
   | "brand-icon-buck"
   | "brand-icon-buck-mini"
-  | "brand-treeline"
-  | "brand-treeline-mini";
+  | "brand-treeline";
 
 export const BRAND_SPRITES: Record<BrandSpriteId, Sprite> = defineSprites({
   "brand-bow": [
@@ -38,53 +34,6 @@ export const BRAND_SPRITES: Record<BrandSpriteId, Sprite> = defineSprites({
     ".........bEEEEE.......",
     "..........E...........",
     "...........EE.........",
-  ],
-  "brand-bow-compact": [
-    ".........EE.......",
-    "........EEE.......",
-    "........CbEEEE....",
-    ".......C...bEEE...",
-    "......C.....bEEE..",
-    ".....C.......bEE..",
-    ".....C.......bEE..",
-    "....C........MRR..",
-    "...RRRM......MRHh.",
-    "..CCCCCCCCCCCCCHHW",
-    "...RRRM......MRHh.",
-    "....C........MRR..",
-    ".....C.......bEE..",
-    ".....C.......bEE..",
-    "......C.....bEEE..",
-    ".......C...bEEE...",
-    "........CbEEEE....",
-    "........EEE.......",
-    ".........EE.......",
-  ],
-  "brand-bow-mini": [
-    "....bEEEE..",
-    "....C.bEEE.",
-    "...C...bEE.",
-    "...C...bEE.",
-    "..RRRM.bHh.",
-    ".CCCCCCCHHW",
-    "..RRRM.bHh.",
-    "...C...bEE.",
-    "...C...bEE.",
-    "....C.bEEE.",
-    "....bEEEE..",
-  ],
-  "brand-deer": [
-    "......K.K..",
-    ".....KKKKK.",
-    ".......KK..",
-    ".......KKK.",
-    ".......KKKK",
-    ".KKKKKKKK..",
-    "KKKKKKKKK..",
-    ".KKKKKKKK..",
-    ".K.K...K.K.",
-    ".K.K...K.K.",
-    ".K.K...K.K.",
   ],
   "brand-icon-buck": [
     ".........NN.NN.NN........",
@@ -140,11 +89,5 @@ export const BRAND_SPRITES: Record<BrandSpriteId, Sprite> = defineSprites({
     "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
     "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
     "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
-  ],
-  "brand-treeline-mini": [
-    "...N......N.....",
-    "..NNN....NNN..N.",
-    ".NNNNN..NNNNN.NN",
-    "NNNNNNNNNNNNNNNN",
   ],
 });
