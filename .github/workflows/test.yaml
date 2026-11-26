@@ -65,3 +65,41 @@ jobs:
       - name: Run snapshot tests
         run: npm run test:snapshot
         working-directory: apps/mobile
+
+  test-sound:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run tests
+        run: npm test
+        working-directory: packages/sound
+
+  test-sound-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run snapshot tests
+        run: npm run test:snapshot
+        working-directory: packages/sound
