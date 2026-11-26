@@ -46,9 +46,12 @@ export function PrepScreen() {
   let { state, landings, tap } = usePrep(choice.difficulty, seed);
 
   let cell = Math.max(MIN_CELL, Math.floor((width - SCREEN_MARGIN * 2) / SIGHT_COLS));
-  let bale = useMemo(() => baleScene(state.zone, landings), [state.zone, landings]);
   let arrows = stuckArrows(landings).length;
   let done = isPrepDone(state);
+  let bale = useMemo(
+    () => baleScene(done ? null : state.zone, landings),
+    [done, state.zone, landings]
+  );
 
   useEffect(() => {
     if (!done) {

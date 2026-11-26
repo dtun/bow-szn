@@ -29,6 +29,7 @@ const INNER_GOLD = "Y";
 const OUTER_GOLD = "y";
 const RED_RING = "R";
 const FACE_OUTLINE = "E";
+const SPENT_FACE: Record<string, string> = { Y: "y", y: "t", R: "M", E: "E" };
 
 export type GoldFace = { centerX: number; radius: number };
 
@@ -79,7 +80,7 @@ function ringAt(distance: number, radius: number): string | null {
   return null;
 }
 
-function faceRects(face: GoldFace): SceneRect[] {
+function faceRects(face: GoldFace, spent: boolean): SceneRect[] {
   let reach = Math.ceil(face.radius + FACE_RIM_CELLS);
   let left = Math.max(0, Math.floor(face.centerX) - reach);
   let right = Math.min(SIGHT_COLS - 1, Math.ceil(face.centerX) + reach);
@@ -92,7 +93,7 @@ function faceRects(face: GoldFace): SceneRect[] {
         x > right ? null : ringAt(Math.hypot(x + 0.5 - face.centerX, y - PATH_ROW), face.radius);
       if (char !== runChar) {
         if (runChar !== null) {
-          rects.push(rect(runStart, y, x - runStart, 1, runChar));
+          rects.push(rect(runStart, y, x - runStart, 1, spent ? SPENT_FACE[runChar] : runChar));
         }
         runStart = x;
         runChar = char;
@@ -114,11 +115,21 @@ function arrowAt(landing: Landing): SceneSprite {
   };
 }
 
-export function baleScene(zone: PrepState["zone"], landings: readonly Landing[]): SceneLayer[] {
+export function baleScene(
+  zone: PrepState["zone"] | null,
+  landings: readonly Landing[]
+): SceneLayer[] {
+  let stuck = stuckArrows(landings);
   return [
     { rects: groundRects(), sprites: [{ sprite: BALE, x: 0, y: 0 }] },
-    { rects: faceRects(goldFace(zone)), sprites: [] },
-    { rects: [], sprites: stuckArrows(landings).map(arrowAt) },
+    {
+      rects: stuck
+        .filter((landing) => landing.hit)
+        .flatMap((landing) => faceRects(goldFace(landing.zone), true)),
+      sprites: [],
+    },
+    { rects: zone === null ? [] : faceRects(goldFace(zone), false), sprites: [] },
+    { rects: [], sprites: stuck.map(arrowAt) },
   ];
 }
 

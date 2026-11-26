@@ -1,4 +1,4 @@
-export type Landing = { pos: number; hit: boolean };
+export type Landing = { pos: number; zone: readonly [start: number, end: number]; hit: boolean };
 
 export function stuckArrows(landings: readonly Landing[]): Landing[] {
   let hits = landings.filter((landing) => landing.hit);
