@@ -69,7 +69,7 @@ test("the top bar sits just under the top safe area", () => {
 });
 
 test("MAP sits at the left of the row under the bar", () => {
-  expect(hudFor(hunt(), VIEW).mapButton).toEqual({ x: -4, y: -47, width: 22, height: 11 });
+  expect(hudFor(hunt(), VIEW).mapButton).toEqual({ x: -4, y: -47, width: 26, height: 12 });
 });
 
 test.each([

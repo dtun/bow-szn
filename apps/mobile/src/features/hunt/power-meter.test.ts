@@ -64,8 +64,8 @@ test("a full draw reads 100% and lights the meter green to yellow to red", () =>
 });
 
 test("the steady bar drains while a full draw is held, empty as the sway starts", () => {
-  expect(steadyWidth(drawing(60, 0))).toBe(42);
-  expect(steadyWidth(drawing(60, 1250))).toBe(21);
+  expect(steadyWidth(drawing(60, 0))).toBe(59);
+  expect(steadyWidth(drawing(60, 1250))).toBe(30);
   expect(steadyWidth(drawing(60, 2500))).toBe(0);
 });
 
@@ -76,7 +76,7 @@ test("past the sway onset the panel calls out the wobble", () => {
 test("sits in the bottom right corner, above the home indicator", () => {
   let panel = powerFor(drawing(30), VIEW)?.marks.find((mark) => mark.key === "power-panel");
 
-  expect(panel).toMatchObject({ x: 135, y: 279, width: 50, height: 38 });
+  expect(panel).toMatchObject({ x: 118, y: 279, width: 67, height: 38 });
 });
 
 test("shows nothing until the pull clears the dead zone", () => {

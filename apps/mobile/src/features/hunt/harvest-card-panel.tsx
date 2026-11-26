@@ -12,7 +12,7 @@ const CARD_W = 150;
 const SPRITE_SCALE = 3;
 const TITLE = 12;
 const NAME = 6;
-const LINE = 5;
+const LINE = 6;
 
 type HarvestCardPanelProps = {
   card: HarvestCard;

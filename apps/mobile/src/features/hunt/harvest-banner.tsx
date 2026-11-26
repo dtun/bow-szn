@@ -9,7 +9,7 @@ import { GREEN, YELLOW } from "./scene-marks";
 const BELOW_HUD = 28;
 const EDGE = 3;
 const HEIGHT = 20;
-const TEXT = 5;
+const TEXT = 6;
 
 type HarvestBannerProps = {
   card: HarvestCard;

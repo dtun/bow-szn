@@ -20,6 +20,7 @@ const WHITE = "#ffffff";
 const TICK_REACH = 6;
 const PULSE_MS = 260;
 const RETICLE_HALF = 4;
+const TEXT = 6;
 
 function killZone(): { marks: Mark[]; labels: Label[] } {
   let reach = TUNING.aim.maxRangePx;
@@ -50,7 +51,7 @@ function killZone(): { marks: Mark[]; labels: Label[] } {
         "kill-zone",
         "KILL ZONE",
         { x: HUNTER_POS.x, y: HUNTER_POS.y - reach + 4 },
-        4,
+        TEXT,
         CREAM,
         "center"
       ),
@@ -98,8 +99,8 @@ export function aimMarks(hunt: HuntState): AimMarks | null {
       label(
         "yards",
         `${Math.round(reach * YARDS_PER_PX)}Y`,
-        { x: target.x, y: target.y - 13 },
-        4,
+        { x: target.x, y: target.y - 15 },
+        TEXT,
         CREAM,
         "center"
       ),

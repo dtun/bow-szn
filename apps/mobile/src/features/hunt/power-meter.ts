@@ -18,13 +18,14 @@ export type PowerMeter = { marks: Mark[]; labels: Label[] };
 
 export const POWER_SEGMENTS = 10;
 
-const PANEL_W = 50;
+const PANEL_W = 67;
 const PANEL_H = 38;
 const EDGE = 3;
-const SEGMENT_W = 3;
-const SEGMENT_STEP = 4;
+const SEGMENT_W = 5;
+const SEGMENT_STEP = 6;
 const SEGMENT_H = 6;
-const STEADY_W = 42;
+const STEADY_W = 59;
+const TEXT = 6;
 const GREEN_SEGMENTS = 5;
 const YELLOW_SEGMENTS = 8;
 
@@ -56,7 +57,7 @@ export function powerFor(hunt: HuntState, view: HuntView): PowerMeter | null {
   let segments = Array.from({ length: POWER_SEGMENTS }, (_, index) =>
     rect(
       `power-segment-${index}`,
-      x + 5 + index * SEGMENT_STEP,
+      x + 4 + index * SEGMENT_STEP,
       y + 14,
       SEGMENT_W,
       SEGMENT_H,
@@ -73,20 +74,20 @@ export function powerFor(hunt: HuntState, view: HuntView): PowerMeter | null {
       rect("steady", x + 4, y + 32, Math.round(STEADY_W * steady), 2, wobbling ? RED : steadyColor),
     ],
     labels: [
-      label("power", "POWER", { x: x + 4, y: y + 5 }, 4, CREAM),
+      label("power", "POWER", { x: x + 4, y: y + 4 }, TEXT, CREAM),
       label(
         "power-percent",
         `${Math.round(aim.power * 100)}%`,
         { x: x + PANEL_W - 3, y: y + 4 },
-        6,
+        TEXT,
         YELLOW,
         "right"
       ),
       label(
         "steady",
         wobbling ? "WOBBLE!" : "STEADY",
-        { x: x + 4, y: y + 24 },
-        4,
+        { x: x + 4, y: y + 23 },
+        TEXT,
         wobbling ? RED : CREAM
       ),
     ],

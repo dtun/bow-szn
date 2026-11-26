@@ -7,7 +7,7 @@ import { FONT_PIXEL, FOREGROUND, NAVY } from "@/ui/theme";
 import type { Box } from "./hud";
 import { toScreen, type HuntView } from "./hunt-view";
 
-const TEXT = 4;
+const TEXT = 6;
 const REACH = 10;
 
 type MapButtonProps = {

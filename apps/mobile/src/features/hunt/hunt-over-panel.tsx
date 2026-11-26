@@ -8,7 +8,7 @@ import type { OverPanel } from "./hunt-over";
 const YELLOW = "#f7d44a";
 const PANEL_W = 150;
 const TITLE_SIZE = 6;
-const LINE_SIZE = 5;
+const LINE_SIZE = 6;
 const FREEZER_SIZE = 12;
 
 type HuntOverPanelProps = {

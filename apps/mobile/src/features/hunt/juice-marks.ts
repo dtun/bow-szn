@@ -14,6 +14,7 @@ const ARROW_IN_GROUND = 8;
 const POP_RISE_MAX = 12;
 const POP_LIFT = 14;
 const LONG_LINE = 10;
+const LONG_LINE_SIZE = 6;
 
 const POP_STYLE = {
   buck: { size: 10, color: YELLOW },
@@ -106,7 +107,7 @@ export function popLabel(hunt: HuntState, juice: Juice): Label | null {
     return null;
   }
   let style = POP_STYLE[pop.tone];
-  let size = pop.text.length > LONG_LINE ? Math.min(style.size, 4) : style.size;
+  let size = pop.text.length > LONG_LINE ? Math.min(style.size, LONG_LINE_SIZE) : style.size;
   let age = Math.max(0, juice.nowMs - pop.startMs);
   let rise = Math.min(POP_RISE_MAX, (TUNING.juice.popRisePxPerSec * age) / 1000);
   let half = (pop.text.length * size) / 2;

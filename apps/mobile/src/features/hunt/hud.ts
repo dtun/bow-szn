@@ -20,12 +20,13 @@ export type Hud = { marks: Mark[]; labels: Label[]; mapButton: Box; quiver: Box 
 
 const BAR_H = 12;
 const ROW_GAP = 2;
-const ROW_H = 11;
+const ROW_H = 12;
 const EDGE = 3;
-const TEXT = 4;
-const MAP_W = 22;
+const TEXT = 6;
+const MAP_W = 26;
 const ARROW_STEP = 6;
-const WIND_W = 30;
+const WIND_W = 32;
+const TAGS_GAP = 4;
 const PILL = "rgba(19,33,74,0.82)";
 
 export function clockLabel(clockMin: number): string {
@@ -81,19 +82,18 @@ export function hudFor(hunt: HuntState, view: HuntView): Hud {
   ];
   let labels: Label[] = [
     label("spot", SPOTS[hunt.config.spot].name, { x: left + EDGE, y: textY }, TEXT, CREAM),
-    label("clock", clockLabel(hunt.clockMin), { x: 90, y: textY }, TEXT, YELLOW, "center"),
+    label("clock", clockLabel(hunt.clockMin), { x: right - EDGE, y: textY }, TEXT, YELLOW, "right"),
     label(
       "tags",
       `TAGS ${hunt.harvests.length}`,
-      { x: right - EDGE, y: textY },
+      { x: quiver.x + quiver.width + TAGS_GAP, y: row + (ROW_H - TEXT) / 2 },
       TEXT,
-      CREAM,
-      "right"
+      CREAM
     ),
     label(
       "wind-strength",
       String(hunt.wind.strength),
-      { x: wind.x + wind.width - 3, y: row + 4 },
+      { x: wind.x + wind.width - 3, y: row + (ROW_H - TEXT) / 2 },
       TEXT,
       CREAM,
       "right"

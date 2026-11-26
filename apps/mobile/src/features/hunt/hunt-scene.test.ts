@@ -304,7 +304,7 @@ test("drawing back shows the kill zone, the dotted arc, and the reticle with its
   expect(markNamed(scene, "zone")).toMatchObject({ x: -50, y: 150, width: 280, height: 280 });
   expect(scene.labels.map((each) => [each.text, each.x, each.y])).toEqual([
     ["KILL ZONE", 90, 154],
-    ["35Y", 90, 207],
+    ["35Y", 90, 205],
   ]);
 });
 
@@ -486,4 +486,36 @@ test("an ended hunt shows no aim and no power", () => {
 
   expect(scene.labels).toEqual([]);
   expect(scene.power).toBe(null);
+});
+
+test.each([
+  [
+    "ready, with an animal on alert",
+    huntWith([{ ...DOE, mode: { kind: "alert", untilMs: 9000 } }], { kind: "ready" }),
+  ],
+  ["drawing", huntWith([DOE], { kind: "drawing", pull: { x: 0, y: 30 }, heldMs: 0 })],
+  ["wobbling at full draw", huntWith([], { kind: "drawing", pull: { x: 0, y: 60 }, heldMs: 4000 })],
+  ["over", huntWith([], { kind: "over", reason: "quiver-empty" })],
+])("every label reads at 12pt or more on a 390x844 phone while %s", (_, hunt) => {
+  let scene = sceneFor(hunt, STILL, PHONE);
+  let labels = [...scene.labels, ...scene.hud.labels, ...(scene.power?.labels ?? [])];
+
+  expect(labels.length).toBeGreaterThan(0);
+  expect(labels.filter((each) => each.size * scene.view.scale < 12)).toEqual([]);
+});
+
+test.each([
+  ["a long miss line", { text: "THAT TURKEY SAW YOU.", tone: "miss" as const }],
+  ["a close call", { text: "SO CLOSE!", tone: "near" as const }],
+  ["a snack", { text: "TURKEY!", tone: "snack" as const }],
+])("the pop line for %s reads at 12pt or more on a 390x844 phone", (_, line) => {
+  let juice: Juice = {
+    ...STILL,
+    pop: { ...line, at: { x: 90, y: 150 }, animalId: null, startMs: 0 },
+  };
+  let hunt = huntWith([], { kind: "result", outcome: { kind: "miss", near: false } });
+  let scene = sceneFor(hunt, juice, PHONE);
+  let pop = scene.labels.find((each) => each.key === "pop");
+
+  expect((pop?.size ?? 0) * scene.view.scale).toBeGreaterThanOrEqual(12);
 });
