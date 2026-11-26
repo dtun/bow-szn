@@ -19,6 +19,14 @@ const CELLS_ACROSS = 60;
 const MIN_CELL = 3;
 const WAXED_BEAT_MS = 500;
 
+function leavePrep() {
+  if (router.canGoBack()) {
+    router.back();
+  } else {
+    router.replace("/map");
+  }
+}
+
 function startHunt({ spot, season, difficulty }: Preferences) {
   router.replace({ pathname: "/hunt", params: { spot, season, difficulty } });
 }
@@ -108,7 +116,15 @@ export function PrepScreen() {
           {`(${state.hits}/${state.needed})`}
         </Text>
       </View>
-      <View pointerEvents="box-none" style={[styles.skipRow, { paddingTop: insets.top + 8 }]}>
+      <View pointerEvents="box-none" style={[styles.topRow, { paddingTop: insets.top + 8 }]}>
+        <PixelButton
+          label="BACK"
+          accessibilityHint="Returns to the county map"
+          testID="prepBackBtn"
+          tone="navy"
+          size="small"
+          onPress={leavePrep}
+        />
         <PixelButton
           label="SKIP"
           accessibilityHint="Skips waxing the string and starts the hunt"
@@ -124,12 +140,14 @@ export function PrepScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: BACKGROUND },
-  skipRow: {
+  topRow: {
     position: "absolute",
     top: 0,
+    left: 0,
     right: 0,
-    paddingRight: SCREEN_MARGIN,
-    alignItems: "flex-end",
+    paddingHorizontal: SCREEN_MARGIN,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   content: { flex: 1, alignItems: "center", justifyContent: "center", gap: 16 },
   heading: { fontFamily: FONT_PIXEL, fontSize: 16, color: ACCENT },

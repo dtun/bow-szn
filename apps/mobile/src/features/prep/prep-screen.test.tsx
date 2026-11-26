@@ -281,3 +281,31 @@ describe("finishing the prep", () => {
     expect(replace).not.toHaveBeenCalled();
   });
 });
+
+describe("BACK", () => {
+  test("goes back to the screen before when there is one", () => {
+    jest.spyOn(router, "canGoBack").mockReturnValue(true);
+    let back = jest.spyOn(router, "back").mockImplementation(() => undefined);
+    startPrep();
+
+    fireEvent.press(screen.getByTestId("prepBackBtn"));
+
+    expect(back).toHaveBeenCalledTimes(1);
+  });
+
+  test("goes to the county map when the bench was opened directly", () => {
+    jest.spyOn(router, "canGoBack").mockReturnValue(false);
+    let replace = replaceSpy();
+    startPrep();
+
+    fireEvent.press(screen.getByTestId("prepBackBtn"));
+
+    expect(replace).toHaveBeenCalledWith("/map");
+  });
+
+  test("is announced as a button", () => {
+    startPrep();
+
+    expect(screen.getByRole("button", { name: "BACK" })).toBeOnTheScreen();
+  });
+});
