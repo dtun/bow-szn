@@ -3,6 +3,7 @@ import { SPRITES } from "@bow-szn/pixels";
 import { colorAt } from "@/art/test-support/color-at";
 
 import { dawnScene, type DawnScene } from "./dawn-scene";
+import { titleAmbience } from "./title-ambience";
 
 const SKY_BLUE = "#2b6cd9";
 const SUN_YELLOW = "#f7d44a";
@@ -35,7 +36,8 @@ test("the sun rises to the right of center, clear of the hills and the treeline"
 
 test("the deer grazes in the field, below the horizon and inside the picture", () => {
   let scene = dawnScene(PHONE.cols, PHONE.rows);
-  let doe = allSprites(scene).find((placed) => placed.sprite === SPRITES["doe-graze"]);
+  let atRest = scene.ambient(titleAmbience(0, 1, PHONE.cols));
+  let doe = atRest.sprites.find((placed) => placed.sprite === SPRITES["doe-graze"]);
 
   expect(doe?.y).toBeGreaterThan(scene.horizonRow);
   expect((doe?.y ?? 0) + SPRITES["doe-graze"].h).toBeLessThanOrEqual(PHONE.rows);

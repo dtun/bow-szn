@@ -2,10 +2,14 @@ import { PALETTE, SPRITES, type Sprite } from "@bow-szn/pixels";
 
 import type { SceneLayer, SceneRect, SceneSprite } from "@/art/scene";
 
-import { CLOUD } from "./dawn-cloud";
-import { titleAmbience } from "./title-ambience";
+import { ambientLayer } from "./ambient-layer";
+import type { TitleAmbience } from "./title-ambience";
 
-export type DawnScene = { layers: SceneLayer[]; horizonRow: number };
+export type DawnScene = {
+  layers: SceneLayer[];
+  horizonRow: number;
+  ambient(ambience: TitleAmbience): SceneLayer;
+};
 
 const HORIZON_AT = 0.6;
 const SKY_BANDS: readonly { until: number; char: string }[] = [
@@ -21,7 +25,6 @@ const FIELD_BANDS: readonly { rows: number; char: string }[] = [
   { rows: Infinity, char: "D" },
 ];
 const TREELINE_OVERLAP = 1;
-const DOE_FEET_BELOW_HORIZON = 14;
 const TUFT_SPOTS: readonly { across: number; below: number }[] = [
   { across: 0.08, below: 22 },
   { across: 0.42, below: 18 },
@@ -147,18 +150,6 @@ function standLayer(cols: number, horizon: number): SceneLayer {
   };
 }
 
-function ambientLayer(cols: number, horizon: number): SceneLayer {
-  let { clouds, doe } = titleAmbience(0, 0, cols);
-  let doeSprite = SPRITES[doe.frame];
-  return {
-    rects: [],
-    sprites: [
-      ...clouds.map(({ x, down }) => ({ sprite: CLOUD, x, y: Math.round(horizon * down) - 1 })),
-      { sprite: doeSprite, x: doe.x, y: horizon + DOE_FEET_BELOW_HORIZON - doeSprite.h },
-    ],
-  };
-}
-
 export function dawnScene(cols: number, rows: number): DawnScene {
   let horizonRow = Math.round(rows * HORIZON_AT);
   let tufts = TUFT_SPOTS.map(({ across, below }) => ({
@@ -179,6 +170,9 @@ export function dawnScene(cols: number, rows: number): DawnScene {
 
   return {
     horizonRow,
-    layers: [backdrop, standLayer(cols, horizonRow), ambientLayer(cols, horizonRow)],
+    layers: [backdrop, standLayer(cols, horizonRow)],
+    ambient(ambience) {
+      return ambientLayer(ambience, { rows, horizonRow });
+    },
   };
 }

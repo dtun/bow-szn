@@ -5,6 +5,11 @@ import { updatePreferences } from "@/platform/preferences";
 
 import { TitleScreen } from "./title-screen";
 
+jest.mock("expo-router", () => ({
+  ...jest.requireActual("expo-router"),
+  useIsFocused: () => true,
+}));
+
 afterEach(() => {
   jest.restoreAllMocks();
 });
@@ -67,14 +72,15 @@ test("offers a GO HUNTING button", () => {
   expect(screen.getByTestId("goHuntingBtn")).toHaveTextContent("GO HUNTING");
 });
 
-test("paints the dawn once the screen knows how big its sky is", () => {
+test("paints the dawn once the screen knows how big its sky is", async () => {
   render(<TitleScreen />);
 
   expect(screen.queryByTestId("dawnScene")).not.toBeOnTheScreen();
 
   measure("titleScene", 390, 450);
 
-  expect(screen.getByTestId("dawnScene")).toBeOnTheScreen();
+  expect(await screen.findByTestId("dawnScene")).toBeOnTheScreen();
+  expect(screen.getByTestId("dawnAmbience")).toBeOnTheScreen();
 });
 
 describe("level", () => {

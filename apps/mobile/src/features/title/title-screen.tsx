@@ -30,6 +30,7 @@ export function TitleScreen() {
   let { width } = useWindowDimensions();
   let { difficulty, season, spot } = usePreferences();
   let [sceneSize, setSceneSize] = useState<Size | null>(null);
+  let [seed] = useState(() => Date.now());
 
   useEffect(() => {
     preloadSfx();
@@ -50,6 +51,7 @@ export function TitleScreen() {
             cols={Math.ceil(sceneSize.width / cell)}
             rows={Math.ceil(sceneSize.height / cell)}
             cell={cell}
+            seed={seed}
           />
         ) : null}
         <View style={[styles.brand, { paddingTop: insets.top + 20 }]}>
