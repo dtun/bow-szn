@@ -9,13 +9,10 @@ import { BACKGROUND, FONT_PIXEL, FOREGROUND } from "@/ui/theme";
 
 import { DawnSceneView } from "./dawn-scene-view";
 import { TitleMenu } from "./title-menu";
+import { sceneGrid, type Size } from "./title-layout";
 
 const LOGO = SPRITES["logo-wordmark"];
-const SCENE_CELLS_ACROSS = 90;
-const MIN_CELL = 3;
 const SCREEN_MARGIN = 16;
-
-type Size = { width: number; height: number };
 
 export function TitleScreen() {
   let insets = useSafeAreaInsets();
@@ -32,18 +29,13 @@ export function TitleScreen() {
   }
 
   let logoScale = Math.max(2, Math.floor((width - SCREEN_MARGIN * 2) / LOGO.w));
-  let cell = sceneSize ? Math.max(MIN_CELL, Math.floor(sceneSize.width / SCENE_CELLS_ACROSS)) : 0;
+  let grid = sceneSize ? sceneGrid(sceneSize) : null;
 
   return (
     <View testID="titleScreen" style={styles.screen}>
       <View testID="titleScene" style={styles.scene} onLayout={measureScene}>
-        {sceneSize ? (
-          <DawnSceneView
-            cols={Math.ceil(sceneSize.width / cell)}
-            rows={Math.ceil(sceneSize.height / cell)}
-            cell={cell}
-            seed={seed}
-          />
+        {grid ? (
+          <DawnSceneView cols={grid.cols} rows={grid.rows} cell={grid.cell} seed={seed} />
         ) : null}
         <View style={[styles.brand, { paddingTop: insets.top + 20 }]}>
           <View accessible accessibilityRole="header" accessibilityLabel="BOW SEASON">
