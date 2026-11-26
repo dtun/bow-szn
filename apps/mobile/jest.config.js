@@ -14,7 +14,11 @@ function project(displayName, testMatch, testPathIgnorePatterns = [], setupFiles
 
 module.exports = {
   projects: [
-    project("unit", ["<rootDir>/src/**/*.test.ts"], [SNAPSHOT_TESTS]),
+    project(
+      "unit",
+      ["<rootDir>/src/**/*.test.ts", "<rootDir>/scripts/**/*.test.ts"],
+      [SNAPSHOT_TESTS]
+    ),
     project("ui", ["<rootDir>/src/**/*.test.tsx"], [INTEGRATION_TESTS, SNAPSHOT_TESTS]),
     project(
       "integration",
