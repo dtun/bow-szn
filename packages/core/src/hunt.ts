@@ -1,9 +1,8 @@
-import { aimFromPull, isFullDraw } from "./aim";
-import { noticesDraw, stepAnimal } from "./animals";
+import { aimFromPull } from "./aim";
+import { noticesDraw } from "./animals";
 import { launchArrow } from "./arrow";
 import { createRoller } from "./rng";
-import { landArrow } from "./shot";
-import { openingAnimals, rollSpawnDelay, stepSpawner } from "./spawn";
+import { openingAnimals, rollSpawnDelay } from "./spawn";
 import { TUNING } from "./tuning";
 import {
   HUNTER_POS,
@@ -16,8 +15,7 @@ import {
   type Wind,
 } from "./types";
 import { ZERO } from "./vec";
-
-const STEP_MS = 5;
+import { stepAt, stepIndexAt } from "./world";
 
 const READY: HuntPhase = { kind: "ready" };
 
@@ -44,31 +42,6 @@ export function createHunt(config: HuntConfig): HuntState {
   };
 }
 
-function stepWorld(state: HuntState, nowMs: number): HuntState {
-  let roller = createRoller(state.rng);
-  let animals = state.animals.map((animal) =>
-    stepAnimal(animal, state.config, nowMs, STEP_MS, roller)
-  );
-  let spawned = stepSpawner({ ...state, animals }, STEP_MS, roller);
-  return { ...spawned, rng: roller.state() };
-}
-
-function stepPhase(state: HuntState): HuntState {
-  if (state.phase.kind === "drawing") {
-    return isFullDraw(state.phase.pull)
-      ? { ...state, phase: { ...state.phase, heldMs: state.phase.heldMs + STEP_MS } }
-      : state;
-  }
-  if (state.phase.kind !== "flight") {
-    return state;
-  }
-  let arrow = { ...state.phase.arrow, elapsedMs: state.phase.arrow.elapsedMs + STEP_MS };
-  if (arrow.elapsedMs < arrow.durationMs) {
-    return { ...state, phase: { kind: "flight", arrow } };
-  }
-  return landArrow(state, arrow.to);
-}
-
 function clockAt(elapsedMs: number): number {
   let clock = TUNING.clock;
   return Math.min(clock.endMin, clock.startMin + (elapsedMs / 1000) * clock.gameMinPerSec);
@@ -90,11 +63,9 @@ function advance(state: HuntState, dtMs: number): HuntState {
     return state;
   }
   let elapsedMs = state.elapsedMs + dtMs;
-  let firstStep = Math.floor(state.elapsedMs / STEP_MS) + 1;
-  let lastStep = Math.floor(elapsedMs / STEP_MS);
   let next = state;
-  for (let index = firstStep; index <= lastStep; index++) {
-    next = stepPhase(stepWorld(next, index * STEP_MS));
+  for (let index = stepIndexAt(state.elapsedMs) + 1; index <= stepIndexAt(elapsedMs); index++) {
+    next = stepAt(next, index);
   }
   return endAtDusk({ ...next, elapsedMs, clockMin: clockAt(elapsedMs) });
 }
