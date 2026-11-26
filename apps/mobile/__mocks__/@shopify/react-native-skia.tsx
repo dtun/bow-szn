@@ -28,3 +28,7 @@ export function useImage() {
 export function useFont() {
   return null;
 }
+
+export function createPicture() {
+  return {};
+}
