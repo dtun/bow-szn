@@ -27,8 +27,30 @@ function labelText(state: HuntState, key: string): string | undefined {
   return hudFor(state, VIEW).labels.find((label) => label.key === key)?.text;
 }
 
-function windFlag(wind: Wind): Mark | undefined {
-  return hudFor(hunt({ wind }), VIEW).marks.find((mark) => mark.key === "wind-flag");
+function flag(wind: Wind, elapsedMs = 0): Mark[] {
+  return hudFor(hunt({ wind, elapsedMs }), VIEW).marks.filter((mark) =>
+    mark.key.startsWith("wind-")
+  );
+}
+
+function fly(wind: Wind, elapsedMs = 0): Mark[] {
+  return flag(wind, elapsedMs).filter((mark) => mark.key.startsWith("wind-fly-"));
+}
+
+function pole(wind: Wind): Mark | undefined {
+  return flag(wind).find((mark) => mark.key === "wind-pole");
+}
+
+function shapesOver(wind: Wind, windowMs: number): number {
+  let shapes = new Set<string>();
+  for (let elapsedMs = 0; elapsedMs < windowMs; elapsedMs += 40) {
+    shapes.add(
+      fly(wind, elapsedMs)
+        .map((mark) => mark.y)
+        .join()
+    );
+  }
+  return shapes.size;
 }
 
 test("the hunt opens with the spot's name, which clears after a moment", () => {
@@ -86,15 +108,30 @@ test("MAP sits at the left of the row under the bar", () => {
 });
 
 test.each([
-  [0, "icon-wind-light"],
-  [1, "icon-wind-light"],
-  [2, "icon-wind-medium"],
-  [3, "icon-wind-strong"],
-])("wind of strength %p flies the %s flag", (strength, id) => {
-  expect(windFlag({ dir: 1, strength })).toMatchObject({ id, flip: false });
+  [1, 6],
+  [2, 9],
+  [3, 12],
+])("a wind of strength %p flies a flag %p pixels long", (strength, length) => {
+  expect(fly({ dir: 1, strength })).toHaveLength(length);
 });
 
 test("the flag flies the way the wind blows, with its strength beside it", () => {
-  expect(windFlag({ dir: -1, strength: 2 })).toMatchObject({ flip: true });
-  expect(labelText(hunt({ wind: { dir: -1, strength: 2 } }), "wind-strength")).toBe("2");
+  let right = { dir: 1, strength: 2 } as const;
+  let left = { dir: -1, strength: 2 } as const;
+
+  expect(fly(right).every((mark) => mark.x > (pole(right)?.x ?? Infinity))).toBe(true);
+  expect(fly(left).every((mark) => mark.x < (pole(left)?.x ?? -Infinity))).toBe(true);
+  expect(labelText(hunt({ wind: left }), "wind-strength")).toBe("2");
+});
+
+test("the flag ripples as time passes, and faster in a stronger wind", () => {
+  expect(shapesOver({ dir: 1, strength: 1 }, 400)).toBeGreaterThan(1);
+  expect(shapesOver({ dir: 1, strength: 3 }, 400)).toBeGreaterThan(
+    shapesOver({ dir: 1, strength: 1 }, 400)
+  );
+});
+
+test("a still morning hangs the flag limp and still", () => {
+  expect(flag({ dir: 1, strength: 0 }, 0)).toEqual(flag({ dir: 1, strength: 0 }, 300));
+  expect(fly({ dir: 1, strength: 0 })).toHaveLength(2);
 });

@@ -1,8 +1,8 @@
 import { SPOTS, TUNING, type HuntState, type Wind } from "@bow-szn/core";
-import { WIND_FLAG_FRAMES, type SpriteId } from "@bow-szn/pixels";
+import { PALETTE } from "@bow-szn/pixels";
 
 import type { HuntView } from "./hunt-view";
-import { CREAM, label, rect, sprite, YELLOW, type Label, type Mark } from "./scene-marks";
+import { CREAM, label, rect, RED, sprite, YELLOW, type Label, type Mark } from "./scene-marks";
 
 export type Box = { x: number; y: number; width: number; height: number };
 
@@ -19,6 +19,12 @@ const TAG_STEP = 8;
 const TITLE = 8;
 const TITLE_DROP = 6;
 const PILL = "rgba(19,33,74,0.82)";
+const POLE_INSET = 4;
+const POLE_H = 10;
+const FLY_STEP = 3;
+const FLY_ROOM = FLY_STEP * 4;
+const RIPPLE = 0.8;
+const FLUTTER_MS: readonly number[] = [0, 760, 500, 320];
 
 export type HudRow = { top: number; bottom: number; windLeft: number };
 
@@ -31,8 +37,31 @@ export function hudRowBottom(view: HuntView): number {
   return hudRow(view).bottom;
 }
 
-function windFlag(wind: Wind): SpriteId {
-  return WIND_FLAG_FRAMES[Math.max(0, Math.min(WIND_FLAG_FRAMES.length - 1, wind.strength - 1))];
+function windFlag(wind: Wind, box: Box, elapsedMs: number): Mark[] {
+  let pole = wind.dir === 1 ? box.x + POLE_INSET : box.x + box.width - POLE_INSET - FLY_ROOM;
+  let top = box.y + 1;
+  let staff = [
+    rect("wind-knob", pole, top - 1, 1, 1, YELLOW),
+    rect("wind-pole", pole, top, 1, POLE_H, PALETTE.T),
+  ];
+  if (wind.strength === 0) {
+    return [
+      ...staff,
+      rect("wind-fly-1", pole + wind.dir, top + 1, 1, 4, RED),
+      rect("wind-fly-2", pole + wind.dir * 2, top + 2, 1, 3, PALETTE.M),
+    ];
+  }
+  let length = FLY_STEP * (Math.min(wind.strength, FLUTTER_MS.length - 1) + 1);
+  let period = FLUTTER_MS[Math.min(wind.strength, FLUTTER_MS.length - 1)];
+  let phase = (2 * Math.PI * elapsedMs) / period;
+  let fly = Array.from({ length }, (_, index) => {
+    let along = index + 1;
+    let sway = Math.round(Math.sin(phase - along * RIPPLE) * Math.min(1, along / 4));
+    let height = along > length - 2 ? 2 : 3;
+    let color = along % 4 < 2 ? RED : CREAM;
+    return rect(`wind-fly-${along}`, pole + wind.dir * along, top + 1 + sway, 1, height, color);
+  });
+  return [...staff, ...fly];
 }
 
 function quiverMarks(arrows: number, box: Box): Mark[] {
@@ -73,14 +102,7 @@ export function hudFor(hunt: HuntState, view: HuntView): Hud {
       })
     ),
     rect("wind", wind.x, wind.y, wind.width, wind.height, PILL),
-    sprite(
-      "wind-flag",
-      windFlag(hunt.wind),
-      { x: wind.x + 10, y: wind.y + ROW_H },
-      {
-        flip: hunt.wind.dir === -1,
-      }
-    ),
+    ...windFlag(hunt.wind, wind, hunt.elapsedMs),
   ];
   let title =
     hunt.elapsedMs < TUNING.hud.spotTitleMs
