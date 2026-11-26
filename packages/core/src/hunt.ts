@@ -3,45 +3,41 @@ import { stepAnimal } from "./animals";
 import { launchArrow } from "./arrow";
 import { createRoller } from "./rng";
 import { landArrow } from "./shot";
+import { openingAnimals, rollSpawnDelay, stepSpawner } from "./spawn";
 import { TUNING } from "./tuning";
-import type { Animal, HuntConfig, HuntEvent, HuntPhase, HuntState, Vec2 } from "./types";
+import type { HuntConfig, HuntEvent, HuntPhase, HuntState, Vec2 } from "./types";
 import { ZERO } from "./vec";
 
 const STEP_MS = 5;
 
 const READY: HuntPhase = { kind: "ready" };
 
-const STARTING_DOE: Animal = {
-  id: 1,
-  species: "whitetail",
-  antlers: { kind: "none" },
-  pos: { x: 90, y: 180 },
-  facing: 1,
-  mode: { kind: "graze", untilMs: 0 },
-};
-
 export function createHunt(config: HuntConfig): HuntState {
+  let roller = createRoller(config.seed);
+  let animals = openingAnimals(config, roller);
+  let spawnInMs = rollSpawnDelay(roller);
   return {
     config,
-    rng: config.seed | 0,
+    rng: roller.state(),
     elapsedMs: 0,
     clockMin: TUNING.clock.startMin,
     arrows: TUNING.difficulty[config.difficulty].arrows,
     wind: { dir: 1, strength: 0 },
-    animals: [STARTING_DOE],
-    nextAnimalId: STARTING_DOE.id + 1,
-    spawnInMs: 0,
+    animals,
+    nextAnimalId: animals.length + 1,
+    spawnInMs,
     phase: READY,
     harvests: [],
   };
 }
 
-function stepAnimals(state: HuntState, nowMs: number): HuntState {
+function stepWorld(state: HuntState, nowMs: number): HuntState {
   let roller = createRoller(state.rng);
   let animals = state.animals.map((animal) =>
     stepAnimal(animal, state.config, nowMs, STEP_MS, roller)
   );
-  return { ...state, animals, rng: roller.state() };
+  let spawned = stepSpawner({ ...state, animals }, STEP_MS, roller);
+  return { ...spawned, rng: roller.state() };
 }
 
 function stepPhase(state: HuntState): HuntState {
@@ -61,7 +57,7 @@ function advance(state: HuntState, dtMs: number): HuntState {
   let lastStep = Math.floor(elapsedMs / STEP_MS);
   let next = state;
   for (let index = firstStep; index <= lastStep; index++) {
-    next = stepPhase(stepAnimals(next, index * STEP_MS));
+    next = stepPhase(stepWorld(next, index * STEP_MS));
   }
   return { ...next, elapsedMs };
 }

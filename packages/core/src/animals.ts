@@ -12,11 +12,18 @@ export function hitRadius(animal: Animal): number {
   return SPECIES[animal.species].hitRadius;
 }
 
-function walkSpeed(animal: Animal, config: HuntConfig): number {
-  return SPECIES[animal.species].speed * TUNING.difficulty[config.difficulty].speedScale;
+export type AnimalKind = Pick<Animal, "species" | "antlers">;
+
+function isRutting(animal: AnimalKind, config: HuntConfig): boolean {
+  return config.season === "rut" && SPECIES[animal.species].headgear.kind === "antlered";
 }
 
-function meadowPoint(roller: Roller): Vec2 {
+function walkSpeed(animal: Animal, config: HuntConfig): number {
+  let rut = isRutting(animal, config) ? TUNING.rut.antleredSpeedScale : 1;
+  return SPECIES[animal.species].speed * TUNING.difficulty[config.difficulty].speedScale * rut;
+}
+
+export function meadowPoint(roller: Roller): Vec2 {
   let meadow = TUNING.animals.meadow;
   return {
     x: roller.between(meadow.minX, meadow.maxX),
@@ -24,9 +31,16 @@ function meadowPoint(roller: Roller): Vec2 {
   };
 }
 
-function grazeUntil(nowMs: number, roller: Roller): number {
+export function grazeUntil(
+  animal: AnimalKind,
+  config: HuntConfig,
+  nowMs: number,
+  roller: Roller
+): number {
   let [minMs, maxMs] = TUNING.animals.grazeMs;
-  return nowMs + roller.between(minMs, maxMs);
+  let buck = animal.antlers.kind === "rack" ? TUNING.animals.buckGrazeScale : 1;
+  let rut = isRutting(animal, config) ? TUNING.rut.antleredGrazeScale : 1;
+  return nowMs + roller.between(minMs, maxMs) * buck * rut;
 }
 
 function isOffField(pos: Vec2): boolean {
@@ -41,11 +55,19 @@ function facingAlong(dx: number, facing: Animal["facing"]): Animal["facing"] {
   return dx < 0 ? -1 : facing;
 }
 
-function walk(animal: Animal, target: Vec2, stepPx: number, nowMs: number, roller: Roller): Animal {
+function walk(
+  animal: Animal,
+  target: Vec2,
+  config: HuntConfig,
+  stepPx: number,
+  nowMs: number,
+  roller: Roller
+): Animal {
   let toTarget = sub(target, animal.pos);
   let remaining = magnitude(toTarget);
   if (remaining <= stepPx) {
-    return { ...animal, pos: target, mode: { kind: "graze", untilMs: grazeUntil(nowMs, roller) } };
+    let untilMs = grazeUntil(animal, config, nowMs, roller);
+    return { ...animal, pos: target, mode: { kind: "graze", untilMs } };
   }
   return {
     ...animal,
@@ -77,11 +99,14 @@ export function stepAnimal(
         ? animal
         : { ...animal, mode: { kind: "walk", target: meadowPoint(roller) } };
     case "walk":
-      return walk(animal, mode.target, stepPx, nowMs, roller);
+      return walk(animal, mode.target, config, stepPx, nowMs, roller);
     case "alert":
       return nowMs < mode.untilMs
         ? animal
-        : { ...animal, mode: { kind: "graze", untilMs: grazeUntil(nowMs, roller) } };
+        : {
+            ...animal,
+            mode: { kind: "graze", untilMs: grazeUntil(animal, config, nowMs, roller) },
+          };
     case "flee":
       return flee(animal, mode.dir, stepPx * TUNING.animals.fleeSpeedScale);
     case "gone":
