@@ -1,11 +1,14 @@
 import {
+  aimFromPull,
   currentAim,
   HUNTER_POS,
   previewPath,
   TUNING,
   YARDS_PER_PX,
+  type Aim,
   type HuntState,
   type Vec2,
+  type Wind,
 } from "@bow-szn/core";
 
 import {
@@ -31,6 +34,11 @@ const PINS: readonly Pin[] = [
   { yards: 40, color: RED },
 ];
 const PIN_HEAD = 3;
+const CALM: Wind = { dir: 1, strength: 0 };
+const DRIFT_STEP_PX = 2;
+const DRIFT_MIN_PX = 2;
+const DRIFT_DOT = "rgba(247,212,74,0.8)";
+const STRAIGHT_GHOST = "rgba(244,239,225,0.7)";
 const PIN_LABEL_GAP = 4;
 const ARC_DOT_STEP_PX = 4;
 const BIG_DOT_EVERY = 3;
@@ -68,6 +76,29 @@ function pins(dir: Vec2, reach: number): { marks: Mark[]; labels: Label[] } {
   };
 }
 
+function driftMarks(hunt: HuntState, pull: Vec2, aim: Aim): Mark[] {
+  let straight = aimFromPull(pull, { ...hunt, wind: CALM });
+  let drift = straight === null ? 0 : aim.target.x - straight.target.x;
+  if (straight === null || Math.abs(drift) < DRIFT_MIN_PX) {
+    return [];
+  }
+  let from = straight.target;
+  let dots = Array.from({ length: Math.floor(Math.abs(drift) / DRIFT_STEP_PX) }, (_, index) =>
+    centeredRect(
+      `drift-dot-${index}`,
+      { x: from.x + Math.sign(drift) * DRIFT_STEP_PX * (index + 1), y: from.y },
+      1,
+      1,
+      DRIFT_DOT
+    )
+  );
+  return [
+    centeredRect("drift-straight-across", from, 3, 1, STRAIGHT_GHOST),
+    centeredRect("drift-straight-down", from, 1, 3, STRAIGHT_GHOST),
+    ...dots,
+  ];
+}
+
 export function aimMarks(hunt: HuntState): AimMarks | null {
   let aim = currentAim(hunt);
   if (aim === null || hunt.phase.kind !== "drawing") {
@@ -99,6 +130,7 @@ export function aimMarks(hunt: HuntState): AimMarks | null {
     ground: ruler.marks,
     sight: [
       ...arc,
+      ...driftMarks(hunt, hunt.phase.pull, aim),
       sprite("reticle-shadow", "reticle", { x: anchor.x + 1, y: anchor.y + 1 }, { tint: INK }),
       sprite("reticle", "reticle", anchor, { tint: color }),
       ...ticks,

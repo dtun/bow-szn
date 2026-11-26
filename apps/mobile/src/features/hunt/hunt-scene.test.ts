@@ -642,3 +642,39 @@ test("a callout leaves with the buck when it bolts off the field", () => {
 
   expect(sceneFor(hunt, calling, PHONE).labels).toEqual([]);
 });
+
+function windy(dir: 1 | -1, strength: number): HuntState {
+  let hunt = huntWith([], { kind: "drawing", pull: { x: 0, y: 60 }, heldMs: 0 });
+  return { ...hunt, wind: { dir, strength } };
+}
+
+function driftDots(scene: Scene): Mark[] {
+  return [...scene.ground, ...scene.air].filter((mark) => mark.key.startsWith("drift-dot-"));
+}
+
+test("a strong crosswind draws a faint dotted line from where a straight arrow lands to where the wind takes it", () => {
+  let scene = sceneOf(windy(1, 3));
+
+  expect(markNamed(scene, "drift-straight-across")).toMatchObject({ x: 89, y: 150, width: 3 });
+  expect(driftDots(scene).map((dot) => [dot.x, dot.y])).toEqual([
+    [92, 150],
+    [94, 150],
+    [96, 150],
+    [98, 150],
+    [100, 150],
+    [102, 150],
+  ]);
+  expect(markNamed(scene, "reticle")).toMatchObject({ x: 103 });
+});
+
+test("a wind from the other side draws the drift line the other way", () => {
+  let xs = driftDots(sceneOf(windy(-1, 3))).map((dot) => dot.x);
+
+  expect(xs).toEqual([88, 86, 84, 82, 80, 78]);
+});
+
+test("a calm morning draws no drift line", () => {
+  let scene = sceneOf(windy(1, 0));
+
+  expect(keysStartingWith(scene, "drift-")).toEqual([]);
+});
