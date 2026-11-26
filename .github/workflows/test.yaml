@@ -31,6 +31,15 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
+      - name: Restore Jest cache
+        uses: actions/cache@v6
+        with:
+          path: apps/mobile/.jest-cache
+          key: jest-${{ runner.os }}-${{ hashFiles('package-lock.json', 'apps/mobile/jest.config.js') }}-${{ github.sha }}
+          restore-keys: |
+            jest-${{ runner.os }}-${{ hashFiles('package-lock.json', 'apps/mobile/jest.config.js') }}-
+            jest-${{ runner.os }}-
+
       - name: Run unit, ui, and integration tests
         run: npm test
         working-directory: apps/mobile

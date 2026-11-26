@@ -4,6 +4,7 @@ const INTEGRATION_TESTS = "\\.integration\\.test\\.tsx$";
 function project(displayName, testMatch, testPathIgnorePatterns = [], setupFiles = []) {
   return {
     displayName,
+    cacheDirectory: "<rootDir>/.jest-cache",
     preset: "jest-expo",
     setupFilesAfterEnv: ["<rootDir>/jest.setup.js", ...setupFiles],
     clearMocks: true,
