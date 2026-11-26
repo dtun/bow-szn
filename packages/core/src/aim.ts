@@ -18,3 +18,7 @@ export function aimFromPull(pull: Vec2, hunt: Pick<HuntState, "wind">): Aim | nu
   let target = add(add(add(HUNTER_POS, scale(dir, range)), drift), sway);
   return { dir, power, target, sway };
 }
+
+export function currentAim(state: HuntState): Aim | null {
+  return state.phase.kind === "drawing" ? aimFromPull(state.phase.pull, state) : null;
+}
