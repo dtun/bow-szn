@@ -1,0 +1,53 @@
+name: Probe
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  probe:
+    name: probe-${{ matrix.label }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: all-default
+            projects: unit,ui,integration
+            workers: default
+          - label: all-w4
+            projects: unit,ui,integration
+            workers: "4"
+          - label: unit
+            projects: unit
+            workers: default
+          - label: ui
+            projects: ui
+            workers: default
+          - label: integration
+            projects: integration
+            workers: default
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Hardware
+        run: |
+          nproc
+          free -m | head -2
+          lscpu | grep -E "Model name|^CPU\(s\)"
+          node --version
+
+      - name: Cold then warm Jest
+        working-directory: apps/mobile
+        run: node ../../.github/probe.mjs "${{ matrix.label }}" "${{ matrix.projects }}" "${{ matrix.workers }}"
