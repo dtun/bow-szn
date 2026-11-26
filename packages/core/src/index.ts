@@ -6,3 +6,12 @@ export { aimFromPull, currentAim } from "./aim";
 export { arrowAt, previewPath } from "./arrow";
 export { createHunt, huntReducer } from "./hunt";
 export { createPrep, isPrepDone, prepReducer } from "./prep";
+export {
+  canMount,
+  freezerLb,
+  mount,
+  personalBests,
+  recordHarvest,
+  trophyRoom,
+  trophyScore,
+} from "./journal";
