@@ -7,6 +7,7 @@ import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 
+import { JournalProvider } from "@/features/journal";
 import { BACKGROUND } from "@/ui/theme";
 
 SplashScreen.preventAutoHideAsync();
@@ -27,9 +28,11 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.root}>
       <StatusBar style="light" />
-      <Stack
-        screenOptions={{ headerShown: false, contentStyle: { backgroundColor: BACKGROUND } }}
-      />
+      <JournalProvider>
+        <Stack
+          screenOptions={{ headerShown: false, contentStyle: { backgroundColor: BACKGROUND } }}
+        />
+      </JournalProvider>
     </GestureHandlerRootView>
   );
 }
