@@ -109,6 +109,17 @@ test("an arrow loosed at a standing doe flies, then lands as DOE!", () => {
   expect(screen.getByTestId("shotResult")).toHaveTextContent("DOE!");
 });
 
+test("the quiver tells a screen reader how many arrows are left, counting down per shot", () => {
+  renderHunt();
+
+  expect(screen.getByTestId("quiver")).toHaveAccessibleName("6 arrows left");
+
+  dragBackAndLetGo(PULL_TO_EMPTY_GROUND);
+  passTime(1500);
+
+  expect(screen.getByTestId("quiver")).toHaveAccessibleName("5 arrows left");
+});
+
 test("an arrow that lands on empty ground gets a funny miss line", () => {
   renderHunt();
 
