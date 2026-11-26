@@ -20,7 +20,17 @@ JAVA_HOME="${JAVA_HOME:-$(brew --prefix openjdk)}" MAESTRO_CLI_NO_ANALYTICS=1 \
   maestro --device "$udid" test -e "METRO_URL=$metro_url" --test-output-dir "$run_dir" \
   e2e/store-screenshots.yaml
 
+shots=(01-title 02-county-map 03-hunt 04-harvest-card 05-trophy-room)
 mkdir -p "$store_dir"
-find "$run_dir" -path "*/takeScreenshot/*.png" -exec cp {} "$store_dir"/ \;
+for shot in "${shots[@]}"; do
+  found="$(find "$run_dir" -path "*/takeScreenshot/$shot.png" | head -n 1)"
+  if [ -z "$found" ] || ! file "$found" | grep -q "PNG image data, 1320 x 2868,"; then
+    echo "$shot.png is missing or is not 1320x2868" >&2
+    exit 1
+  fi
+done
+for shot in "${shots[@]}"; do
+  cp "$(find "$run_dir" -path "*/takeScreenshot/$shot.png" | head -n 1)" "$store_dir/$shot.png"
+done
 rm -rf "$run_dir"
 file "$store_dir"/*.png
