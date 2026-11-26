@@ -16,7 +16,7 @@ import {
 
 export type Box = { x: number; y: number; width: number; height: number };
 
-export type Hud = { marks: Mark[]; labels: Label[]; mapButton: Box };
+export type Hud = { marks: Mark[]; labels: Label[]; mapButton: Box; quiver: Box };
 
 const BAR_H = 12;
 const ROW_GAP = 2;
@@ -99,5 +99,5 @@ export function hudFor(hunt: HuntState, view: HuntView): Hud {
       "right"
     ),
   ];
-  return { marks, labels, mapButton };
+  return { marks, labels, mapButton, quiver };
 }
