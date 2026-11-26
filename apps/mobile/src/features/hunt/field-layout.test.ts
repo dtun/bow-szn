@@ -1,8 +1,11 @@
 import type { Terrain } from "@bow-szn/core";
 
+import { SPRITES } from "@bow-szn/pixels";
+
 import {
   decorBox,
   fieldLayout,
+  groundBlocks,
   groundColor,
   OPEN_MIDDLE,
   STAND,
@@ -11,7 +14,7 @@ import {
   type FieldLayout,
 } from "./field-layout";
 import { huntView } from "./hunt-view";
-import type { Block } from "./sprite-pictures";
+import { spriteBlocks, type Block } from "./sprite-pictures";
 
 const TERRAINS: Terrain[] = ["hardwoods", "meadow", "marsh", "ridge"];
 const SEEDS = Array.from({ length: 40 }, (_, index) => index * 7919 + 1);
@@ -138,6 +141,62 @@ test("a phone with no room above the world shows its canopy right up to the top"
     expect(underCanopy(crowns(layout), x, SHORT_PHONE.top)).toBe(true);
   }
 });
+
+function channels(color: string): number[] {
+  return [1, 3, 5].map((start) => parseInt(color.slice(start, start + 2), 16));
+}
+
+function distance(a: string, b: string): number {
+  let [ar, ag, ab] = channels(a);
+  let [br, bg, bb] = channels(b);
+  return Math.hypot(ar - br, ag - bg, ab - bb);
+}
+
+test.each(TERRAINS)(
+  "%s keeps its dressing sparse, ten props at most on a tall phone",
+  (terrain) => {
+    let counts = SEEDS.map((seed) => fieldLayout(terrain, seed, TALL_PHONE).decor.length);
+
+    expect(Math.max(...counts)).toBeLessThanOrEqual(10);
+  }
+);
+
+test.each(TERRAINS)("%s leaves the open grass above the trail mostly bare", (terrain) => {
+  let upperMiddle: Box = { left: OPEN_MIDDLE.left, top: 60, right: OPEN_MIDDLE.right, bottom: 190 };
+  let busiest = Math.max(
+    ...SEEDS.map((seed) => {
+      let [, ...dressing] = fieldLayout(terrain, seed, TALL_PHONE).ground;
+      return dressing.filter((block) =>
+        overlaps(
+          { left: block.x, top: block.y, right: block.x + 1, bottom: block.y + 1 },
+          upperMiddle
+        )
+      ).length;
+    })
+  );
+
+  expect(busiest).toBeLessThanOrEqual(160);
+});
+
+test.each(TERRAINS)(
+  "%s mutes its props toward the grass so the field reads as background",
+  (terrain) => {
+    let layout = fieldLayout(terrain, 11, TALL_PHONE);
+    let drawn = groundBlocks(layout).slice(layout.ground.length);
+    let raw = layout.decor.flatMap((each) => {
+      let box = decorBox(each);
+      return spriteBlocks(SPRITES[each.id], null, box.left, box.top);
+    });
+    let grass = groundColor(terrain);
+
+    expect(drawn).toHaveLength(raw.length);
+    drawn.forEach((block, index) => {
+      expect(distance(block.color, grass)).toBeLessThanOrEqual(
+        distance(raw[index].color, grass) * 0.6
+      );
+    });
+  }
+);
 
 test("the stand's ladder runs down to the bottom of the screen", () => {
   let ground = fieldLayout("hardwoods", 3, TALL_PHONE).ground;

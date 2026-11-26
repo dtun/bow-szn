@@ -14,7 +14,13 @@ import { spriteBlocks, type Block } from "./sprite-pictures";
 
 export type Decor = { id: SpriteId; x: number; y: number };
 
-export type FieldLayout = { ground: Block[]; decor: Decor[]; sky: Block[]; canopy: Decor[] };
+export type FieldLayout = {
+  grass: string;
+  ground: Block[];
+  decor: Decor[];
+  sky: Block[];
+  canopy: Decor[];
+};
 
 export type Box = Bounds;
 
@@ -73,8 +79,8 @@ const LOOKS: Record<Terrain, Look> = {
 };
 
 const MEADOW = TUNING.animals.meadow;
-const SPECKLES_PER_PX = 360 / (WORLD_W * WORLD_H);
-const SPECKS = 26;
+const SPECKLES_PER_PX = 180 / (WORLD_W * WORLD_H);
+const SPECKS = 13;
 const TRAIL_TOP = 196;
 const TRAIL_PEBBLES = 40;
 const TREE_STEP = 14;
@@ -82,9 +88,12 @@ const TREELINE_FLOOR = 44;
 const TREELINE_ROW_DROP = 9;
 const CANOPY_ROW_RISE = 11;
 const EDGE_TOP = 78;
-const EDGE_STEP: readonly [number, number] = [26, 40];
+const EDGE_STEP: readonly [number, number] = [52, 78];
 const LOW_DECOR_TOP = 272;
 const LOW_DECOR_STEP = 32;
+const SIDES = ["left", "right"] as const;
+const PROP_MUTE = 0.45;
+const SPECKLE_MUTE = 0.4;
 const STAND_FLOOR = WORLD_H - 2;
 const LADDER_RUNG_STEP = 4;
 const HORIZON = -14;
@@ -115,6 +124,17 @@ export function groundColor(terrain: Terrain): string {
   return LOOKS[terrain].ground;
 }
 
+function channels(color: string): number[] {
+  return [1, 3, 5].map((start) => parseInt(color.slice(start, start + 2), 16));
+}
+
+export function mutedToward(color: string, toward: string, amount: number): string {
+  let from = channels(color);
+  let to = channels(toward);
+  let mixed = from.map((value, index) => Math.round(value + (to[index] - value) * amount));
+  return `#${mixed.map((value) => value.toString(16).padStart(2, "0")).join("")}`;
+}
+
 export function decorBox(decor: Decor): Box {
   let sprite = SPRITES[decor.id];
   let left = decor.x - Math.floor(sprite.w / 2);
@@ -132,12 +152,16 @@ function speckles(look: Look, bounds: Bounds, roller: Roller): Block[] {
   for (let index = 0; index < Math.round(width * height * SPECKLES_PER_PX); index++) {
     let x = roller.int(bounds.left, bounds.right - 2);
     let y = roller.int(bounds.top + 1, bounds.bottom - 1);
-    let color = roller.chance(0.55) ? look.light : look.dark;
+    let color = mutedToward(
+      roller.chance(0.55) ? look.light : look.dark,
+      look.ground,
+      SPECKLE_MUTE
+    );
     blocks.push({ x, y, width: 2, height: 1, color });
     blocks.push({ x: x + roller.int(0, 1), y: y - 1, width: 1, height: 1, color });
   }
   for (let index = 0; index < SPECKS; index++) {
-    let color = look.specks[index % look.specks.length];
+    let color = mutedToward(look.specks[index % look.specks.length], look.ground, SPECKLE_MUTE);
     blocks.push({
       x: roller.int(0, WORLD_W - 1),
       y: roller.int(60, 260),
@@ -281,7 +305,7 @@ function edgeX(id: SpriteId, side: "left" | "right", bounds: Bounds, roller: Rol
 
 function edges(look: Look, bounds: Bounds, roller: Roller): Decor[] {
   let decor: Decor[] = [];
-  for (let side of ["left", "right"] as const) {
+  for (let side of SIDES) {
     let y = EDGE_TOP + roller.int(0, 12);
     while (y <= MEADOW.maxY + 14) {
       let id = pickEdge(look, roller);
@@ -294,16 +318,17 @@ function edges(look: Look, bounds: Bounds, roller: Roller): Decor[] {
 
 function lowCorners(look: Look, bounds: Bounds, roller: Roller): Decor[] {
   let decor: Decor[] = [];
+  let index = 0;
   for (let row = LOW_DECOR_TOP; row < bounds.bottom + 4; row += LOW_DECOR_STEP) {
-    for (let side of ["left", "right"] as const) {
-      let id = pickEdge(look, roller);
-      let half = Math.ceil(SPRITES[id].w / 2);
-      let x =
-        side === "left"
-          ? roller.int(Math.max(bounds.left, half - 6), STAND.left - half)
-          : roller.int(STAND.right + half, Math.min(bounds.right, WORLD_W + 6 - half));
-      decor.push({ id, x, y: row + roller.int(0, 8) });
-    }
+    let side = SIDES[index % SIDES.length];
+    let id = pickEdge(look, roller);
+    let half = Math.ceil(SPRITES[id].w / 2);
+    let x =
+      side === "left"
+        ? roller.int(Math.max(bounds.left, half - 6), STAND.left - half)
+        : roller.int(STAND.right + half, Math.min(bounds.right, WORLD_W + 6 - half));
+    decor.push({ id, x, y: row + roller.int(0, 8) });
+    index += 1;
   }
   return decor;
 }
@@ -326,6 +351,7 @@ export function fieldLayout(terrain: Terrain, seed: number, bounds: Bounds): Fie
   ];
   let decor = [...edges(look, bounds, roller), ...lowCorners(look, bounds, roller)];
   return {
+    grass: look.ground,
     ground,
     decor: decor.sort((a, b) => a.y - b.y),
     sky: sky(bounds),
@@ -341,7 +367,11 @@ function decorBlocks(decor: Decor[]): Block[] {
 }
 
 export function groundBlocks(layout: FieldLayout): Block[] {
-  return [...layout.ground, ...decorBlocks(layout.decor)];
+  let props = decorBlocks(layout.decor).map((block) => ({
+    ...block,
+    color: mutedToward(block.color, layout.grass, PROP_MUTE),
+  }));
+  return [...layout.ground, ...props];
 }
 
 export function canopyBlocks(layout: FieldLayout): Block[] {
