@@ -14,7 +14,7 @@ import { spriteBlocks, type Block } from "./sprite-pictures";
 
 export type Decor = { id: SpriteId; x: number; y: number };
 
-export type FieldLayout = { ground: Block[]; decor: Decor[]; canopy: Decor[] };
+export type FieldLayout = { ground: Block[]; decor: Decor[]; sky: Block[]; canopy: Decor[] };
 
 export type Box = Bounds;
 
@@ -87,6 +87,15 @@ const LOW_DECOR_TOP = 272;
 const LOW_DECOR_STEP = 32;
 const STAND_FLOOR = WORLD_H - 2;
 const LADDER_RUNG_STEP = 4;
+const HORIZON = -14;
+const SKY_BANDS: readonly { until: number; color: string }[] = [
+  { until: 0.22, color: PALETTE.n },
+  { until: 0.42, color: PALETTE.Z },
+  { until: 0.62, color: PALETTE.l },
+  { until: 0.8, color: PALETTE.P },
+  { until: 1, color: PALETTE.O },
+];
+const SUN = { x: 128, y: HORIZON - 12, radius: 7 };
 
 export const OPEN_MIDDLE: Box = {
   left: MEADOW.minX,
@@ -207,10 +216,52 @@ function canopyRow(bounds: Bounds, y: number, shift: number, roller: Roller): De
   return trees;
 }
 
-function canopy(look: Look, bounds: Bounds, roller: Roller): Decor[] {
+function skyBands(bounds: Bounds): Block[] {
+  let height = HORIZON - bounds.top;
+  let width = bounds.right - bounds.left;
+  let blocks: Block[] = [];
+  let top = bounds.top;
+  SKY_BANDS.forEach((band, index) => {
+    let bottom = bounds.top + Math.round(height * band.until);
+    blocks.push({ x: bounds.left, y: top, width, height: bottom - top, color: band.color });
+    let next = SKY_BANDS[index + 1];
+    if (next !== undefined && bottom > top) {
+      for (let x = bounds.left; x < bounds.right; x += 2) {
+        blocks.push({ x, y: bottom - 1, width: 1, height: 1, color: next.color });
+      }
+    }
+    top = bottom;
+  });
+  return blocks;
+}
+
+function sun(): Block[] {
+  let blocks: Block[] = [];
+  for (let row = -SUN.radius; row <= SUN.radius; row++) {
+    let half = Math.floor(Math.sqrt(SUN.radius ** 2 - row ** 2));
+    let y = SUN.y + row;
+    blocks.push({ x: SUN.x - half, y, width: half * 2 + 1, height: 1, color: PALETTE.Y });
+  }
+  return blocks;
+}
+
+function sky(bounds: Bounds): Block[] {
+  return bounds.top < HORIZON ? [...skyBands(bounds), ...sun()] : [];
+}
+
+function farTreeline(bounds: Bounds, roller: Roller): Decor[] {
+  let width = SPRITES["brand-treeline"].w;
   let trees: Decor[] = [];
+  for (let x = bounds.left - roller.int(0, width - 1); x < bounds.right; x += width) {
+    trees.push({ id: "brand-treeline", x: x + width / 2, y: HORIZON });
+  }
+  return trees;
+}
+
+function canopy(look: Look, bounds: Bounds, roller: Roller): Decor[] {
+  let trees: Decor[] = bounds.top < HORIZON ? farTreeline(bounds, roller) : [];
   let row = 0;
-  for (let y = TREELINE_FLOOR - CANOPY_ROW_RISE; y > bounds.top; y -= CANOPY_ROW_RISE) {
+  for (let y = TREELINE_FLOOR - CANOPY_ROW_RISE; y >= 0; y -= CANOPY_ROW_RISE) {
     row += 1;
     trees.push(...canopyRow(bounds, y, (row % 2) * 7, roller));
   }
@@ -277,6 +328,7 @@ export function fieldLayout(terrain: Terrain, seed: number, bounds: Bounds): Fie
   return {
     ground,
     decor: decor.sort((a, b) => a.y - b.y),
+    sky: sky(bounds),
     canopy: canopy(look, bounds, roller),
   };
 }
@@ -293,5 +345,5 @@ export function groundBlocks(layout: FieldLayout): Block[] {
 }
 
 export function canopyBlocks(layout: FieldLayout): Block[] {
-  return decorBlocks(layout.canopy);
+  return [...layout.sky, ...decorBlocks(layout.canopy)];
 }
