@@ -92,8 +92,24 @@ function HuntRun({ config, onAgain }: HuntRunProps) {
   );
 }
 
-export function HuntScreen(params: HuntParams) {
+function configKey(config: HuntConfig): string {
+  return `${config.spot}/${config.season}/${config.difficulty}/${config.seed}`;
+}
+
+function LinkedHunt({ params }: { params: HuntParams }) {
   let [config, setConfig] = useState(() => huntConfigFor(params, Date.now()));
+
+  return (
+    <HuntRun
+      key={configKey(config)}
+      config={config}
+      onAgain={(seed) => setConfig({ ...config, seed })}
+    />
+  );
+}
+
+export function HuntScreen(params: HuntParams) {
+  let link = configKey(huntConfigFor(params, 0));
 
   useEffect(() => {
     preloadSfx();
@@ -101,11 +117,7 @@ export function HuntScreen(params: HuntParams) {
 
   return (
     <View testID="huntScreen" style={styles.screen}>
-      <HuntRun
-        key={config.seed}
-        config={config}
-        onAgain={(seed) => setConfig({ ...config, seed })}
-      />
+      <LinkedHunt key={link} params={params} />
     </View>
   );
 }
