@@ -1,111 +1,16 @@
-import { createHunt, HUNTER_POS, TUNING, type Vec2 } from "@bow-szn/core";
 import { act, fireEvent, render, screen } from "@testing-library/react-native";
-import { DeviceEventEmitter, Dimensions } from "react-native";
-import { GestureHandlerRootView, State } from "react-native-gesture-handler";
-import { fireGestureHandler, getByGestureTestId } from "react-native-gesture-handler/jest-utils";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-import { huntConfigFor } from "./hunt-config";
 import { HuntScreen } from "./hunt-screen";
-import { worldScale } from "./world-scale";
+import { dragBackAndLetGo, dragBackAndLoseTheTouch, holdBack, letGo } from "./test-support/pan";
+import { PULL_TO_DOE, PULL_TO_EMPTY_GROUND, STANDING_DOE } from "./test-support/standing-doe";
 
-type StandingDoe = { seed: string; pos: Vec2 };
-
-function findStandingDoe(): StandingDoe {
-  for (let seed = 1; seed < 5000; seed++) {
-    let hunt = createHunt(huntConfigFor(String(seed), 0));
-    let doe = hunt.animals.find(
-      (animal) =>
-        animal.antlers.kind === "none" &&
-        animal.mode.kind === "graze" &&
-        animal.mode.untilMs >= 2000 &&
-        Math.abs(animal.pos.x - HUNTER_POS.x) <= 2 &&
-        animal.pos.y >= 150
-    );
-    if (doe !== undefined && hunt.wind.strength === 0) {
-      return { seed: String(seed), pos: doe.pos };
-    }
-  }
-  throw new Error("no seed puts a doe dead ahead in calm air");
-}
-
-let standing = findStandingDoe();
-
-let window = Dimensions.get("window");
-let scale = worldScale(window.width, window.height);
-
-function pullForRange(rangePx: number): number {
-  return (rangePx * TUNING.aim.maxPullPx) / TUNING.aim.maxRangePx;
-}
-
-function pullToDoe(): number {
-  return pullForRange(HUNTER_POS.y - standing.pos.y);
-}
-
-function pullToEmptyGround(): number {
-  return pullForRange(30);
-}
-
-function renderHunt(seed: string) {
+function renderHunt() {
   render(
     <GestureHandlerRootView>
-      <HuntScreen seed={seed} />
+      <HuntScreen seed={STANDING_DOE.seed} />
     </GestureHandlerRootView>
   );
-}
-
-function dragBackAndLetGo(pullWorldPx: number) {
-  act(() => {
-    fireGestureHandler(getByGestureTestId("huntPan"), [
-      { state: State.BEGAN },
-      { state: State.ACTIVE, translationX: 0, translationY: pullWorldPx * scale },
-      { state: State.END },
-    ]);
-  });
-}
-
-function dragBackAndLoseTheTouch(pullWorldPx: number) {
-  act(() => {
-    fireGestureHandler(getByGestureTestId("huntPan"), [
-      { state: State.BEGAN },
-      { state: State.ACTIVE, translationX: 0, translationY: pullWorldPx * scale },
-      { state: State.CANCELLED },
-    ]);
-  });
-}
-
-function holdBack(pullWorldPx: number) {
-  let { handlerTag } = getByGestureTestId("huntPan");
-  act(() => {
-    DeviceEventEmitter.emit("onGestureHandlerStateChange", {
-      handlerTag,
-      oldState: State.UNDETERMINED,
-      state: State.BEGAN,
-    });
-    DeviceEventEmitter.emit("onGestureHandlerStateChange", {
-      handlerTag,
-      oldState: State.BEGAN,
-      state: State.ACTIVE,
-      translationX: 0,
-      translationY: pullWorldPx * scale,
-    });
-    DeviceEventEmitter.emit("onGestureHandlerEvent", {
-      handlerTag,
-      state: State.ACTIVE,
-      translationX: 0,
-      translationY: pullWorldPx * scale,
-    });
-  });
-}
-
-function letGo() {
-  let { handlerTag } = getByGestureTestId("huntPan");
-  act(() => {
-    DeviceEventEmitter.emit("onGestureHandlerStateChange", {
-      handlerTag,
-      oldState: State.ACTIVE,
-      state: State.END,
-    });
-  });
 }
 
 function passTime(ms: number) {
@@ -123,7 +28,7 @@ afterEach(() => {
 });
 
 test("opens ready to draw, with no shot result", () => {
-  renderHunt(standing.seed);
+  renderHunt();
 
   expect(screen.getByTestId("huntScreen")).toBeOnTheScreen();
   expect(screen.queryByTestId("shotResult")).not.toBeOnTheScreen();
@@ -131,7 +36,7 @@ test("opens ready to draw, with no shot result", () => {
 });
 
 test("shows the power while the bow is drawn and clears it on release", () => {
-  renderHunt(standing.seed);
+  renderHunt();
 
   holdBack(30);
 
@@ -143,9 +48,9 @@ test("shows the power while the bow is drawn and clears it on release", () => {
 });
 
 test("an arrow loosed at a standing doe flies, then lands as a HIT!", () => {
-  renderHunt(standing.seed);
+  renderHunt();
 
-  dragBackAndLetGo(pullToDoe());
+  dragBackAndLetGo(PULL_TO_DOE);
   passTime(300);
 
   expect(screen.queryByTestId("shotResult")).not.toBeOnTheScreen();
@@ -157,17 +62,17 @@ test("an arrow loosed at a standing doe flies, then lands as a HIT!", () => {
 });
 
 test("an arrow that lands on empty ground is a MISS", () => {
-  renderHunt(standing.seed);
+  renderHunt();
 
-  dragBackAndLetGo(pullToEmptyGround());
+  dragBackAndLetGo(PULL_TO_EMPTY_GROUND);
   passTime(1500);
 
   expect(screen.getByTestId("shotResult")).toHaveTextContent("MISS");
 });
 
 test("tapping the result dismisses it and the bow is ready again", () => {
-  renderHunt(standing.seed);
-  dragBackAndLetGo(pullToEmptyGround());
+  renderHunt();
+  dragBackAndLetGo(PULL_TO_EMPTY_GROUND);
   passTime(1500);
 
   fireEvent.press(screen.getByTestId("shotResult"));
@@ -180,7 +85,7 @@ test("tapping the result dismisses it and the bow is ready again", () => {
 });
 
 test("a pull inside the dead zone shoots nothing", () => {
-  renderHunt(standing.seed);
+  renderHunt();
 
   dragBackAndLetGo(5);
   passTime(2000);
@@ -189,9 +94,9 @@ test("a pull inside the dead zone shoots nothing", () => {
 });
 
 test("a gesture the system cancels shoots nothing", () => {
-  renderHunt(standing.seed);
+  renderHunt();
 
-  dragBackAndLoseTheTouch(pullToDoe());
+  dragBackAndLoseTheTouch(PULL_TO_DOE);
   passTime(2000);
 
   expect(screen.queryByTestId("shotResult")).not.toBeOnTheScreen();
