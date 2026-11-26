@@ -16,14 +16,21 @@
       }
     },
     "android": {
-      "package": "com.paperstreetapp.bowseason"
+      "package": "com.paperstreetapp.bowseason",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/brand/adaptive-foreground.png",
+        "backgroundImage": "./assets/brand/adaptive-background.png"
+      }
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#0b0f1a"
+          "backgroundColor": "#0b0f1a",
+          "image": "./assets/brand/splash.png",
+          "imageWidth": 240,
+          "resizeMode": "contain"
         }
       ],
       "expo-font",
@@ -46,6 +53,10 @@
       "eas": {
         "projectId": "e7663367-c007-4f5d-a3ab-0a129a9111f7"
       }
+    },
+    "icon": "./assets/brand/icon.png",
+    "web": {
+      "favicon": "./assets/brand/favicon.png"
     }
   }
 }
