@@ -1,8 +1,29 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
+import { router } from "expo-router";
 
 import { updatePreferences } from "@/platform/preferences";
 
 import { TitleScreen } from "./title-screen";
+
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
+test("JOURNAL opens the journal", () => {
+  let push = jest.spyOn(router, "push").mockImplementation(() => undefined);
+  render(<TitleScreen />);
+
+  fireEvent.press(screen.getByTestId("journalBtn"));
+
+  expect(push).toHaveBeenCalledTimes(1);
+  expect(push).toHaveBeenCalledWith("/journal");
+});
+
+test("JOURNAL is announced as a button", () => {
+  render(<TitleScreen />);
+
+  expect(screen.getByRole("button", { name: "JOURNAL" })).toBeOnTheScreen();
+});
 
 function measure(testID: string, width: number, height: number) {
   fireEvent(screen.getByTestId(testID), "layout", {

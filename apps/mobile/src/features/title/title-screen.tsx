@@ -86,6 +86,13 @@ export function TitleScreen() {
           onPress={() => updatePreferences({ season: nextSeason(season) })}
           style={styles.wide}
         />
+        <PixelButton
+          label="JOURNAL"
+          testID="journalBtn"
+          tone="navy"
+          onPress={() => router.push("/journal")}
+          style={styles.wide}
+        />
         <Text testID="lastHuntLabel" style={styles.footer}>
           {`${SPOTS[spot].name} - ${season.toUpperCase()}`}
         </Text>
