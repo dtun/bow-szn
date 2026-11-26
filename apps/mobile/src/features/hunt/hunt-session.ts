@@ -1,4 +1,5 @@
 import {
+  canMount,
   createHunt,
   huntReducer,
   TUNING,
@@ -117,8 +118,16 @@ function then(first: Stepped, events: HuntEvent[]): Stepped {
   return { session: second.session, effects: [...first.effects, ...second.effects] };
 }
 
+export function holdsTheCard(hunt: HuntState): boolean {
+  return (
+    hunt.phase.kind === "result" &&
+    hunt.phase.outcome.kind === "harvest" &&
+    canMount(hunt.phase.outcome.harvest)
+  );
+}
+
 export function isLingering(session: HuntSession): boolean {
-  return session.hunt.phase.kind === "result";
+  return session.hunt.phase.kind === "result" && !holdsTheCard(session.hunt);
 }
 
 function hasLingered(session: HuntSession): boolean {

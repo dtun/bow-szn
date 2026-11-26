@@ -5,10 +5,14 @@ import { StyleSheet, useWindowDimensions, View } from "react-native";
 import { GestureDetector } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { useJournal } from "@/features/journal";
 import { BACKGROUND } from "@/ui/theme";
 
 import { FieldCanvas } from "./field-canvas";
+import { HarvestBanner } from "./harvest-banner";
+import { HarvestCardPanel } from "./harvest-card-panel";
 import { huntConfigFor, type HuntParams } from "./hunt-config";
+import { fireEffects } from "./hunt-io";
 import { overPanelFor } from "./hunt-over";
 import { HuntOverPanel } from "./hunt-over-panel";
 import { sceneFor } from "./hunt-scene";
@@ -27,7 +31,10 @@ type HuntRunProps = {
 };
 
 function HuntRun({ config, onAgain }: HuntRunProps) {
-  let { state, juice, dispatch } = useHunt(config);
+  let journal = useJournal();
+  let { state, juice, dispatch } = useHunt(config, (effects) =>
+    fireEffects(effects, { record: journal.record })
+  );
   let { width, height } = useWindowDimensions();
   let insets = useSafeAreaInsets();
   let scene = sceneFor(state, juice, {
@@ -54,6 +61,21 @@ function HuntRun({ config, onAgain }: HuntRunProps) {
           </View>
         </View>
       </GestureDetector>
+      {scene.result.kind === "banner" ? (
+        <HarvestBanner card={scene.result.card} view={scene.view} />
+      ) : null}
+      {scene.result.kind === "card" ? (
+        <HarvestCardPanel
+          card={scene.result.card}
+          dropPx={scene.result.dropPx}
+          scale={scale}
+          onKeepHunting={() => dispatch({ type: "dismiss" })}
+          onMount={(harvestId) => {
+            journal.mount(harvestId);
+            dispatch({ type: "dismiss" });
+          }}
+        />
+      ) : null}
       {over === null ? null : (
         <HuntOverPanel
           panel={over}

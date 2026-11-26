@@ -3,17 +3,39 @@ import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import { router } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+import { JournalProvider } from "@/features/journal";
+import { createMemoryJournalStore, type JournalStore } from "@/platform/journal-store";
+
 import { HuntScreen } from "./hunt-screen";
+import type { HuntParams } from "./hunt-config";
 import { dragBackAndLetGo, dragBackAndLoseTheTouch, holdBack, letGo } from "./test-support/pan";
 import { shootIntoTheDirt } from "./test-support/quiver";
-import { PULL_TO_DOE, PULL_TO_EMPTY_GROUND, STANDING_DOE } from "./test-support/standing-doe";
+import {
+  PULL_TO_BUCK,
+  PULL_TO_DOE,
+  PULL_TO_EMPTY_GROUND,
+  RUT,
+  STANDING_BUCK,
+  STANDING_DOE,
+} from "./test-support/standing-doe";
 
-function renderHunt() {
+function renderHunt(params: HuntParams = { seed: STANDING_DOE.seed }): JournalStore {
+  let store = createMemoryJournalStore();
   render(
     <GestureHandlerRootView>
-      <HuntScreen seed={STANDING_DOE.seed} />
+      <JournalProvider store={store}>
+        <HuntScreen {...params} />
+      </JournalProvider>
     </GestureHandlerRootView>
   );
+  return store;
+}
+
+function shootTheBuck(): JournalStore {
+  let store = renderHunt({ ...RUT, seed: STANDING_BUCK.seed });
+  dragBackAndLetGo(PULL_TO_BUCK);
+  passTime(1500 + TUNING.juice.cardDelayMs + TUNING.juice.cardSlamMs);
+  return store;
 }
 
 function passTime(ms: number) {
@@ -204,4 +226,64 @@ test("HUNT AGAIN starts a fresh hunt with a full quiver", () => {
   shootIntoTheDirt(1);
 
   expect(screen.getByTestId("huntOverPanel")).toBeOnTheScreen();
+});
+
+test("a buck slams in the harvest card, with MOUNT IT", () => {
+  shootTheBuck();
+
+  expect(screen.getByTestId("harvestCard")).toHaveTextContent(
+    /^BUCK!!WHITETAIL\d+ POINTS · \d+ LB/
+  );
+  expect(screen.getByTestId("mountBtn")).toBeOnTheScreen();
+  expect(screen.getByTestId("keepHuntingBtn")).toBeOnTheScreen();
+});
+
+test("the buck card waits for the hunter, however long they look at it", () => {
+  shootTheBuck();
+
+  passTime(10_000);
+
+  expect(screen.getByTestId("harvestCard")).toBeOnTheScreen();
+});
+
+test("MOUNT IT hangs the buck in the trophy room and goes back to hunting", () => {
+  let store = shootTheBuck();
+
+  fireEvent.press(screen.getByTestId("mountBtn"));
+
+  expect(store.load().mountedIds).toEqual([`${STANDING_BUCK.seed}-${STANDING_BUCK.id}`]);
+  expect(screen.queryByTestId("harvestCard")).not.toBeOnTheScreen();
+});
+
+test("KEEP HUNTING puts the card away without a mount", () => {
+  let store = shootTheBuck();
+
+  fireEvent.press(screen.getByTestId("keepHuntingBtn"));
+
+  expect(screen.queryByTestId("harvestCard")).not.toBeOnTheScreen();
+  expect(store.load().mountedIds).toEqual([]);
+});
+
+test("a doe gets a quick banner with her weight and meat, and no MOUNT IT", () => {
+  renderHunt();
+
+  dragBackAndLetGo(PULL_TO_DOE);
+  passTime(1300);
+
+  expect(screen.getByTestId("harvestBanner")).toHaveTextContent(
+    /^DOE!\+\d+ LB MEATDOE · \d+ LBSHOT AT \d+ YDS$/
+  );
+  expect(screen.queryByTestId("harvestCard")).not.toBeOnTheScreen();
+  expect(screen.queryByTestId("mountBtn")).not.toBeOnTheScreen();
+});
+
+test("a harvest goes into the journal the moment it happens", () => {
+  let store = renderHunt();
+
+  dragBackAndLetGo(PULL_TO_DOE);
+  passTime(1300);
+
+  expect(store.load().harvests.map((harvest) => [harvest.id, harvest.species])).toEqual([
+    [`${STANDING_DOE.seed}-${STANDING_DOE.id}`, "whitetail"],
+  ]);
 });

@@ -22,6 +22,7 @@ import { isFrozen, type Juice } from "./hunt-session";
 import { huntView, type Bounds, type HuntView, type Screen } from "./hunt-view";
 import { burstMarks, popLabel, shakeOffset } from "./juice-marks";
 import { powerFor, type PowerMeter } from "./power-meter";
+import { resultFor, type ResultView } from "./result-view";
 import { centeredRect, label, rect, sprite, YELLOW, type Label, type Mark } from "./scene-marks";
 
 export type { Label, Mark, OvalMark, RectMark, SpriteMark } from "./scene-marks";
@@ -35,6 +36,7 @@ export type Scene = {
   labels: Label[];
   hud: Hud;
   power: PowerMeter | null;
+  result: ResultView;
 };
 
 const SHADOW_COLOR = "rgba(11,15,26,0.28)";
@@ -182,7 +184,8 @@ export function sceneFor(state: HuntState, juice: Juice, screen: Screen): Scene 
   let flight = state.phase.kind === "flight" ? flightMarks(state.phase.arrow) : [];
   let bursts = burstMarks(juice);
   let confetti = bursts.filter((mark) => mark.key.startsWith("confetti-"));
-  let pop = popLabel(state, juice);
+  let result = resultFor(state, juice);
+  let pop = result.kind === "card" ? null : popLabel(state, juice);
   return {
     view,
     shake: shakeOffset(juice),
@@ -208,5 +211,6 @@ export function sceneFor(state: HuntState, juice: Juice, screen: Screen): Scene 
     ],
     hud: hudFor(state, view),
     power: powerFor(state, view),
+    result,
   };
 }
