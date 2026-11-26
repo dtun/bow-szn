@@ -10,6 +10,18 @@ export type Difficulty = "easy" | "medium" | "hard";
 export type Terrain = "hardwoods" | "meadow" | "marsh" | "ridge";
 export type SpotId = "cedar-hollow" | "miller-bottoms" | "high-ridge" | "cattail-marsh";
 
+export type Antlers = { kind: "none" } | { kind: "spike" } | { kind: "rack"; points: number };
+
+export type AntlerOdds = { doe: number; spike: number; buck: number };
+
+export type Headgear =
+  | { kind: "none" }
+  | {
+      kind: "antlered";
+      odds: Record<SeasonId, AntlerOdds>;
+      rackPoints: readonly [min: number, max: number];
+    };
+
 export type Species = {
   id: SpeciesId;
   name: string;
@@ -17,7 +29,8 @@ export type Species = {
   speed: number;
   spookRadius: number;
   weightLb: readonly [min: number, max: number];
-  maxPoints: number;
+  meatYield: number;
+  headgear: Headgear;
   seasons: readonly SeasonId[];
   rarity: number;
 };
@@ -45,6 +58,7 @@ export type AnimalMode =
 export type Animal = {
   id: number;
   species: SpeciesId;
+  antlers: Antlers;
   pos: Vec2;
   facing: -1 | 1;
   mode: AnimalMode;
@@ -68,8 +82,9 @@ export type Arrow = {
 export type Harvest = {
   id: string;
   species: SpeciesId;
+  antlers: Antlers;
   weightLb: number;
-  points: number;
+  meatLb: number;
   spot: SpotId;
   season: SeasonId;
   clockMin: number;
@@ -127,4 +142,4 @@ export type PrepState = {
 
 export type PrepEvent = { type: "tick"; dtMs: number } | { type: "tap" };
 
-export type Journal = { harvests: Harvest[] };
+export type Journal = { harvests: Harvest[]; mountedIds: string[] };
