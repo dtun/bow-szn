@@ -20,7 +20,7 @@ test("is headed PINE KNOB COUNTY and names the county's towns", () => {
 });
 
 test.each(["cedar-hollow", "miller-bottoms", "cattail-marsh", "high-ridge"])(
-  "plants a flag at %s",
+  "pins %s on the map",
   (spot) => {
     render(<MapScreen />);
 
@@ -44,7 +44,7 @@ describe("choosing a spot", () => {
     expect(screen.getByTestId("spotDifficulty")).toHaveTextContent("DIFFICULTY: EASY");
   });
 
-  test("tapping a flag fills the panel with that spot", () => {
+  test("tapping a pin fills the panel with that spot", () => {
     render(<MapScreen />);
 
     fireEvent.press(screen.getByTestId("spotFlag-high-ridge"));
@@ -73,7 +73,7 @@ describe("choosing a spot", () => {
     expect(screen.getByTestId("spotSpecies")).toHaveTextContent("SPECIES: WHITETAIL");
   });
 
-  test("only the chosen flag reads as selected", () => {
+  test("only the chosen pin reads as selected", () => {
     render(<MapScreen />);
 
     fireEvent.press(screen.getByTestId("spotFlag-cattail-marsh"));
@@ -82,7 +82,17 @@ describe("choosing a spot", () => {
     expect(screen.getByTestId("spotFlag-cedar-hollow")).not.toBeSelected();
   });
 
-  test("a flag is read aloud with its spot name and difficulty", () => {
+  test("a pencil ring circles the chosen pin and no other", () => {
+    render(<MapScreen />);
+    expect(screen.getByTestId("spotRing-cedar-hollow")).toBeOnTheScreen();
+
+    fireEvent.press(screen.getByTestId("spotFlag-cattail-marsh"));
+
+    expect(screen.getByTestId("spotRing-cattail-marsh")).toBeOnTheScreen();
+    expect(screen.queryByTestId("spotRing-cedar-hollow")).not.toBeOnTheScreen();
+  });
+
+  test("a pin is read aloud with its spot name and difficulty", () => {
     render(<MapScreen />);
 
     expect(screen.getByRole("button", { name: "HIGH RIDGE, hard" })).toBeOnTheScreen();

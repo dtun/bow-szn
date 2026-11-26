@@ -1,5 +1,5 @@
 import { SPOTS, type SpotId } from "@bow-szn/core";
-import { PALETTE } from "@bow-szn/pixels";
+import { PALETTE, SPRITES } from "@bow-szn/pixels";
 import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -7,12 +7,14 @@ import { PixelSprite } from "@/art/pixel-sprite";
 import { SceneView } from "@/art/scene-view";
 import { lightTap } from "@/platform/haptics";
 import { playSfx } from "@/platform/sfx";
-import { FONT_PIXEL, NAVY } from "@/ui/theme";
+import { FONT_PIXEL } from "@/ui/theme";
 
 import { COUNTY_COLS, COUNTY_ROWS, countyMap, TOWN_LABEL_TOP_CELLS, TOWNS } from "./county-map";
-import { FLAG_IDLE, FLAG_PICKED } from "./spot-flag";
 
-const FLAG_TOUCH = { width: 44, height: 48 };
+const PIN = SPRITES.pushpin;
+const PIN_PICKED = SPRITES["pushpin-picked"];
+const RING = SPRITES["pencil-ring"];
+const MIN_PIN_SCALE = 4;
 const TOWN_LABEL_WIDTH = 140;
 
 type CountyMapViewProps = {
@@ -23,7 +25,12 @@ type CountyMapViewProps = {
 
 export function CountyMapView({ cell, selected, onSelect }: CountyMapViewProps) {
   let layers = useMemo(countyMap, []);
-  let flagScale = Math.max(2, Math.round(cell / 2));
+  let scale = Math.max(MIN_PIN_SCALE, cell);
+  let footY = PIN.h * scale;
+  let touch = {
+    width: RING.w * scale,
+    height: footY + Math.ceil((RING.h * scale) / 2),
+  };
 
   function pick(spot: SpotId) {
     lightTap();
@@ -32,10 +39,7 @@ export function CountyMapView({ cell, selected, onSelect }: CountyMapViewProps) 
   }
 
   return (
-    <View
-      testID="countyMap"
-      style={{ width: COUNTY_COLS * cell, height: COUNTY_ROWS * cell, borderColor: NAVY }}
-    >
+    <View testID="countyMap" style={{ width: COUNTY_COLS * cell, height: COUNTY_ROWS * cell }}>
       <SceneView layers={layers} cell={cell} />
       {TOWNS.map((town) => (
         <Text
@@ -65,16 +69,37 @@ export function CountyMapView({ cell, selected, onSelect }: CountyMapViewProps) 
             accessibilityHint="Selects this hunting spot"
             accessibilityState={{ selected: isSelected }}
             onPress={() => pick(id)}
-            style={[
-              styles.flagTouch,
-              {
-                left: `${spot.mapPos.x * 100}%`,
-                top: `${spot.mapPos.y * 100}%`,
-              },
-            ]}
+            style={{
+              position: "absolute",
+              left: `${spot.mapPos.x * 100}%`,
+              top: `${spot.mapPos.y * 100}%`,
+              width: touch.width,
+              height: touch.height,
+              marginLeft: -touch.width / 2,
+              marginTop: -footY,
+            }}
           >
-            <View pointerEvents="none" style={{ marginLeft: FLAG_TOUCH.width / 2 - flagScale / 2 }}>
-              <PixelSprite sprite={isSelected ? FLAG_PICKED : FLAG_IDLE} scale={flagScale} />
+            {isSelected && (
+              <View
+                pointerEvents="none"
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: footY - Math.round((RING.h * scale) / 2),
+                }}
+              >
+                <PixelSprite sprite={RING} scale={scale} testID={`spotRing-${id}`} />
+              </View>
+            )}
+            <View
+              pointerEvents="none"
+              style={{
+                position: "absolute",
+                left: (touch.width - PIN.w * scale) / 2,
+                top: 0,
+              }}
+            >
+              <PixelSprite sprite={isSelected ? PIN_PICKED : PIN} scale={scale} />
             </View>
           </Pressable>
         );
@@ -92,14 +117,5 @@ const styles = StyleSheet.create({
     fontFamily: FONT_PIXEL,
     fontSize: 12,
     color: PALETTE.E,
-  },
-  flagTouch: {
-    position: "absolute",
-    width: FLAG_TOUCH.width,
-    height: FLAG_TOUCH.height,
-    marginLeft: -FLAG_TOUCH.width / 2,
-    marginTop: -FLAG_TOUCH.height + 4,
-    justifyContent: "flex-end",
-    alignItems: "flex-start",
   },
 });
