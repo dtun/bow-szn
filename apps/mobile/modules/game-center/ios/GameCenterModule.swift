@@ -34,6 +34,9 @@ public final class GameCenterModule: Module {
       guard let presenter = self.appContext?.utilities?.currentViewController() else {
         return "unavailable"
       }
+      if presenter is GKGameCenterViewController {
+        return "signed-in"
+      }
       let leaderboards = GKGameCenterViewController(state: .leaderboards)
       leaderboards.gameCenterDelegate = self.leaderboardCloser
       presenter.present(leaderboards, animated: true)
