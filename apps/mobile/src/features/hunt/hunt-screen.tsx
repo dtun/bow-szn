@@ -1,4 +1,5 @@
-import { WORLD_W } from "@bow-szn/core";
+import { WORLD_W, type HuntConfig } from "@bow-szn/core";
+import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { GestureDetector } from "react-native-gesture-handler";
@@ -8,8 +9,11 @@ import { BACKGROUND, FONT_PIXEL, FOREGROUND, NAVY } from "@/ui/theme";
 
 import { FieldCanvas } from "./field-canvas";
 import { huntConfigFor, type HuntParams } from "./hunt-config";
+import { overPanelFor } from "./hunt-over";
+import { HuntOverPanel } from "./hunt-over-panel";
 import { sceneFor } from "./hunt-scene";
 import { toScreen } from "./hunt-view";
+import { MapButton } from "./map-button";
 import { useHunt } from "./use-hunt";
 import { usePullGesture } from "./use-pull-gesture";
 
@@ -18,8 +22,16 @@ const RESULT_SIZE = 16;
 const POWER_LABEL_LEFT = WORLD_W - 84;
 const POWER_LABEL_RISE = 16;
 
-export function HuntScreen(params: HuntParams) {
-  let [config] = useState(() => huntConfigFor(params, Date.now()));
+function leaveForMap() {
+  router.dismissTo("/map");
+}
+
+type HuntRunProps = {
+  config: HuntConfig;
+  onAgain: (seed: number) => void;
+};
+
+function HuntRun({ config, onAgain }: HuntRunProps) {
   let { state, dispatch } = useHunt(config);
   let { width, height } = useWindowDimensions();
   let insets = useSafeAreaInsets();
@@ -31,13 +43,14 @@ export function HuntScreen(params: HuntParams) {
   });
   let { scale } = scene.view;
   let pull = usePullGesture(dispatch, scale);
+  let over = overPanelFor(state);
   let powerAt = toScreen(scene.view, {
     x: POWER_LABEL_LEFT,
     y: scene.view.safeBottom - POWER_LABEL_RISE,
   });
 
   return (
-    <View testID="huntScreen" style={styles.screen}>
+    <>
       <GestureDetector gesture={pull}>
         <View style={styles.fill}>
           <View style={[styles.fill, styles.inert]}>
@@ -53,13 +66,6 @@ export function HuntScreen(params: HuntParams) {
                 {scene.powerLabel}
               </Text>
             )}
-            {scene.overLabel === null ? null : (
-              <View style={styles.centered}>
-                <Text style={[styles.label, { fontSize: LABEL_SIZE * scale }]}>
-                  {scene.overLabel}
-                </Text>
-              </View>
-            )}
           </View>
         </View>
       </GestureDetector>
@@ -73,6 +79,29 @@ export function HuntScreen(params: HuntParams) {
           <Text style={[styles.label, { fontSize: RESULT_SIZE * scale }]}>{scene.resultLabel}</Text>
         </Pressable>
       )}
+      {over === null ? null : (
+        <HuntOverPanel
+          panel={over}
+          scale={scale}
+          onAgain={() => onAgain(state.rng)}
+          onMap={leaveForMap}
+        />
+      )}
+      <MapButton view={scene.view} onPress={leaveForMap} />
+    </>
+  );
+}
+
+export function HuntScreen(params: HuntParams) {
+  let [config, setConfig] = useState(() => huntConfigFor(params, Date.now()));
+
+  return (
+    <View testID="huntScreen" style={styles.screen}>
+      <HuntRun
+        key={config.seed}
+        config={config}
+        onAgain={(seed) => setConfig({ ...config, seed })}
+      />
     </View>
   );
 }

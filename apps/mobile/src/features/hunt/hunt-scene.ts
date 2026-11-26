@@ -49,7 +49,6 @@ export type Scene = {
   air: Mark[];
   powerLabel: string | null;
   resultLabel: string | null;
-  overLabel: string | null;
 };
 
 const SHADOW_COLOR = "rgba(11,15,26,0.28)";
@@ -189,13 +188,6 @@ function resultLabel(phase: HuntPhase): string | null {
   return phase.outcome.kind === "harvest" ? "HIT!" : "MISS";
 }
 
-function overLabel(phase: HuntPhase): string | null {
-  if (phase.kind !== "over") {
-    return null;
-  }
-  return phase.reason === "dusk" ? "DUSK" : "OUT OF ARROWS";
-}
-
 export function sceneFor(state: HuntState, screen: Screen): Scene {
   let animals = byDepth(state.animals);
   return {
@@ -209,6 +201,5 @@ export function sceneFor(state: HuntState, screen: Screen): Scene {
     ],
     powerLabel: powerLabel(state),
     resultLabel: resultLabel(state.phase),
-    overLabel: overLabel(state.phase),
   };
 }

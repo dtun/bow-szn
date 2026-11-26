@@ -333,18 +333,9 @@ test("shows no aim and no arrow when the hunt is ready", () => {
   expect(keys(scene.air)).toEqual(["hunter"]);
 });
 
-test("an ended hunt says why, in place of a shot result", () => {
-  let dusk = sceneOf(huntWith([], { kind: "over", reason: "dusk" }));
-  let empty = sceneOf(huntWith([], { kind: "over", reason: "quiver-empty" }));
+test("an ended hunt shows no shot result and no power", () => {
+  let scene = sceneOf(huntWith([], { kind: "over", reason: "dusk" }));
 
-  expect(dusk.overLabel).toBe("DUSK");
-  expect(empty.overLabel).toBe("OUT OF ARROWS");
-  expect(dusk.resultLabel).toBe(null);
-  expect(dusk.powerLabel).toBe(null);
-});
-
-test("only an ended hunt carries the over label", () => {
-  let scene = sceneOf(huntWith([], { kind: "ready" }));
-
-  expect(scene.overLabel).toBe(null);
+  expect(scene.resultLabel).toBe(null);
+  expect(scene.powerLabel).toBe(null);
 });

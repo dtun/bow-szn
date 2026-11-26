@@ -1,8 +1,10 @@
 import { act, fireEvent, render, screen } from "@testing-library/react-native";
+import { router } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { HuntScreen } from "./hunt-screen";
 import { dragBackAndLetGo, dragBackAndLoseTheTouch, holdBack, letGo } from "./test-support/pan";
+import { shootIntoTheDirt } from "./test-support/quiver";
 import { PULL_TO_DOE, PULL_TO_EMPTY_GROUND, STANDING_DOE } from "./test-support/standing-doe";
 
 function renderHunt() {
@@ -25,7 +27,14 @@ beforeEach(() => {
 
 afterEach(() => {
   jest.useRealTimers();
+  jest.restoreAllMocks();
 });
+
+const EASY_QUIVER = 6;
+
+function watchTheWayOut() {
+  return jest.spyOn(router, "dismissTo").mockImplementation(() => undefined);
+}
 
 test("opens ready to draw, with no shot result", () => {
   renderHunt();
@@ -101,4 +110,74 @@ test("a gesture the system cancels shoots nothing", () => {
 
   expect(screen.queryByTestId("shotResult")).not.toBeOnTheScreen();
   expect(screen.queryByText(/POWER/)).not.toBeOnTheScreen();
+});
+
+test("MAP leaves the hunt for the county map", () => {
+  let dismissTo = watchTheWayOut();
+  renderHunt();
+
+  fireEvent.press(screen.getByTestId("mapBtn"));
+
+  expect(dismissTo).toHaveBeenCalledWith("/map");
+});
+
+test("MAP stays in reach with the bow drawn", () => {
+  let dismissTo = watchTheWayOut();
+  renderHunt();
+  holdBack(30);
+
+  fireEvent.press(screen.getByTestId("mapBtn"));
+
+  expect(dismissTo).toHaveBeenCalledWith("/map");
+});
+
+test("loosing the last arrow ends the hunt with the morning's tally", () => {
+  renderHunt();
+
+  shootIntoTheDirt(EASY_QUIVER - 1);
+
+  expect(screen.queryByTestId("huntOverPanel")).not.toBeOnTheScreen();
+
+  shootIntoTheDirt(1);
+
+  expect(screen.getByTestId("huntOverPanel")).toHaveTextContent(
+    "OUT OF ARROWSNO TAGS THIS MORNINGFREEZER0 LBHUNT AGAINMAP"
+  );
+});
+
+test("MAP on the game-over panel leaves the hunt", () => {
+  let dismissTo = watchTheWayOut();
+  renderHunt();
+  shootIntoTheDirt(EASY_QUIVER);
+
+  fireEvent.press(screen.getByTestId("overMapBtn"));
+
+  expect(dismissTo).toHaveBeenCalledWith("/map");
+});
+
+test("the HUD's MAP still leaves once the hunt is over", () => {
+  let dismissTo = watchTheWayOut();
+  renderHunt();
+  shootIntoTheDirt(EASY_QUIVER);
+
+  fireEvent.press(screen.getByTestId("mapBtn"));
+
+  expect(dismissTo).toHaveBeenCalledWith("/map");
+});
+
+test("HUNT AGAIN starts a fresh hunt with a full quiver", () => {
+  renderHunt();
+  shootIntoTheDirt(EASY_QUIVER);
+
+  fireEvent.press(screen.getByTestId("huntAgainBtn"));
+
+  expect(screen.queryByTestId("huntOverPanel")).not.toBeOnTheScreen();
+
+  shootIntoTheDirt(EASY_QUIVER - 1);
+
+  expect(screen.queryByTestId("huntOverPanel")).not.toBeOnTheScreen();
+
+  shootIntoTheDirt(1);
+
+  expect(screen.getByTestId("huntOverPanel")).toBeOnTheScreen();
 });
