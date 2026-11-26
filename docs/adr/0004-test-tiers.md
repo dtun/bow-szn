@@ -23,7 +23,7 @@ Tests fall into five tiers. The file suffix picks the tier, so a tier is a glob,
 
 - `apps/mobile` runs Jest `projects` named `unit`, `ui`, `integration`, and `snapshot`, each with its own `testMatch`. The `ui` project ignores `.integration.` and `.snapshot.` files, so every `.tsx` test lands in exactly one tier.
 - `npm test` runs unit, ui, and integration. `npm run test:snapshot` runs snapshots. `npm run test:all` runs everything and backs `vibecheck`.
-- CI runs `test-core`, `test-mobile`, and `test-mobile-snapshot` as separate jobs. A red snapshot job reads as a visual change, and a red behavior job reads as a broken behavior.
+- CI runs `test-core`, one `test-mobile-<project>` job each for unit, ui, and integration, and `test-mobile-snapshot` as separate jobs. A red snapshot job reads as a visual change, and a red behavior job reads as a broken behavior.
 - ESLint restricts the matchers. In every test file, `jest/no-restricted-matchers` bans the hollow matchers (`toBeTruthy`, `toBeFalsy`, `toBeDefined`, `toBeUndefined`, and their `not.` forms) and the snapshot matchers. A later config block for `*.snapshot.test.{ts,tsx}` re-declares the rule with only the hollow matchers, because flat config replaces rule options instead of merging them.
 - Existence assertions use `toBeOnTheScreen()` or `not.toBeOnTheScreen()`. Content assertions use `toHaveTextContent` or an exact matcher on the value the contract promises.
 - Snapshots never stand in for ui or integration tests. A snapshot of a rendered tree is allowed only as a visual-regression check beside real behavior tests.
