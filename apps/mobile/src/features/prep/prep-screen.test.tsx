@@ -175,6 +175,20 @@ test("a flier after a good arrow keeps the good arrow", () => {
   expect(screen.getByLabelText("2 arrows in the bale")).toBeOnTheScreen();
 });
 
+test("a tap where the last good arrow landed is a flier, because the face moved on", () => {
+  startPrep();
+  let [staleStart, staleEnd] = reference.zone;
+  tapInTheGold();
+  expect(reference.markerPos).toBeGreaterThanOrEqual(staleStart);
+  expect(reference.markerPos).toBeLessThanOrEqual(staleEnd);
+  expect(markerIsInGold()).toBe(false);
+
+  tapNow();
+
+  expect(screen.getByTestId("prepMessage")).toHaveTextContent("FLIER!");
+  expect(screen.getByTestId("prepCount")).toHaveTextContent("1/3");
+});
+
 test("a flier is pulled from the bale when the next arrow is shot", () => {
   startPrep();
   tapNow();
