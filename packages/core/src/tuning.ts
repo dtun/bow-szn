@@ -74,6 +74,11 @@ export const TUNING = {
     stuckMs: 4000,
     popRisePxPerSec: 12,
   },
+  hud: {
+    spotTitleMs: 2500,
+    lastCallMin: 15,
+    calloutMs: 1600,
+  },
   prep: {
     needed: 3,
     markerBarsPerSec: 1,
