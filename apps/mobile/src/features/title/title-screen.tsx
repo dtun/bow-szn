@@ -1,22 +1,14 @@
-import { SPOTS } from "@bow-szn/core";
 import { SPRITES } from "@bow-szn/pixels";
-import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PixelSprite } from "@/art/pixel-sprite";
-import {
-  nextDifficulty,
-  nextSeason,
-  updatePreferences,
-  usePreferences,
-} from "@/platform/preferences";
 import { preloadSfx } from "@/platform/sfx";
-import { PixelButton } from "@/ui/pixel-button";
 import { BACKGROUND, FONT_PIXEL, FOREGROUND } from "@/ui/theme";
 
 import { DawnSceneView } from "./dawn-scene-view";
+import { TitleMenu } from "./title-menu";
 
 const LOGO = SPRITES["logo-wordmark"];
 const SCENE_CELLS_ACROSS = 90;
@@ -28,7 +20,6 @@ type Size = { width: number; height: number };
 export function TitleScreen() {
   let insets = useSafeAreaInsets();
   let { width } = useWindowDimensions();
-  let { difficulty, season, spot } = usePreferences();
   let [sceneSize, setSceneSize] = useState<Size | null>(null);
   let [seed] = useState(() => Date.now());
 
@@ -61,42 +52,7 @@ export function TitleScreen() {
           <Text style={styles.tagline}>8-BIT BOW HUNTING</Text>
         </View>
       </View>
-      <View style={[styles.menu, { paddingBottom: insets.bottom + 16 }]}>
-        <PixelButton
-          label="GO HUNTING"
-          testID="goHuntingBtn"
-          onPress={() => router.push("/map")}
-          style={styles.wide}
-        />
-        <PixelButton
-          label={`LEVEL: ${difficulty.toUpperCase()}`}
-          accessibilityLabel={`Level, ${difficulty}`}
-          accessibilityHint="Switches to the next level"
-          testID="levelBtn"
-          tone="navy"
-          onPress={() => updatePreferences({ difficulty: nextDifficulty(difficulty) })}
-          style={styles.wide}
-        />
-        <PixelButton
-          label={`SEASON: ${season.toUpperCase()}`}
-          accessibilityLabel={`Season, ${season}`}
-          accessibilityHint="Switches to the next season"
-          testID="seasonBtn"
-          tone="brown"
-          onPress={() => updatePreferences({ season: nextSeason(season) })}
-          style={styles.wide}
-        />
-        <PixelButton
-          label="JOURNAL"
-          testID="journalBtn"
-          tone="navy"
-          onPress={() => router.push("/journal")}
-          style={styles.wide}
-        />
-        <Text testID="lastHuntLabel" style={styles.footer}>
-          {`${SPOTS[spot].name} - ${season.toUpperCase()}`}
-        </Text>
-      </View>
+      <TitleMenu />
     </View>
   );
 }
@@ -112,14 +68,5 @@ const styles = StyleSheet.create({
     textShadowColor: BACKGROUND,
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 0,
-  },
-  menu: { paddingHorizontal: SCREEN_MARGIN, paddingTop: 16, gap: 12 },
-  wide: { alignSelf: "stretch" },
-  footer: {
-    fontFamily: FONT_PIXEL,
-    fontSize: 8,
-    color: FOREGROUND,
-    textAlign: "center",
-    opacity: 0.7,
   },
 });
