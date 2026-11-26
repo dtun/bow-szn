@@ -62,6 +62,13 @@ export function preloadSfx(): void {
   }
 }
 
+function isSilenced(): boolean {
+  return process.env.EXPO_PUBLIC_SFX === "off";
+}
+
 export function playSfx(id: SfxId): void {
+  if (isSilenced()) {
+    return;
+  }
   void restartAndPlay(id);
 }

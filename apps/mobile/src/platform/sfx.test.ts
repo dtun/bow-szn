@@ -88,3 +88,23 @@ test("a player that cannot rewind fails quietly", async () => {
   expect(() => sfx.playSfx("ui-select")).not.toThrow();
   await settle();
 });
+
+describe("with EXPO_PUBLIC_SFX=off", () => {
+  beforeEach(() => {
+    process.env.EXPO_PUBLIC_SFX = "off";
+  });
+
+  afterEach(() => {
+    delete process.env.EXPO_PUBLIC_SFX;
+  });
+
+  test("no sound plays", async () => {
+    let { sfx, createAudioPlayer } = freshSfx();
+
+    sfx.playSfx("fanfare");
+    sfx.playSfx("creak");
+    await settle();
+
+    expect(createAudioPlayer).not.toHaveBeenCalled();
+  });
+});

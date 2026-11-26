@@ -101,6 +101,8 @@ From `apps/mobile`:
 - `npm run start` starts the Expo dev server. Press `i` for the iOS simulator.
 - `npm run ios` builds and runs the native iOS app.
 
+Simulator sound plays through the Mac's speakers. Start Metro with `EXPO_PUBLIC_SFX=off npx expo start` for any simulator or Maestro run on a shared machine. The sound-effects adapter then skips every playback, and the switch is read when Metro bundles, so restart Metro to change it.
+
 npm 12 blocks dependency install scripts until they are approved, and the install script of `@shopify/react-native-skia` is blocked on a fresh `npm install`. Approve it with `npm install-scripts approve @shopify/react-native-skia` so it runs before a native build.
 
 ### Testing
