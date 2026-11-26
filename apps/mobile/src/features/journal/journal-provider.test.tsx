@@ -137,7 +137,7 @@ describe("Game Center", () => {
       { kind: "authenticate" },
       {
         kind: "submit",
-        scores: { "bowseason.best_buck": 14 * 10 + 60, "bowseason.freezer_total": 564 },
+        scores: { "bowseason.best_buck": 10 * 10 + 20, "bowseason.freezer_total": 564 },
       },
     ]);
   });
