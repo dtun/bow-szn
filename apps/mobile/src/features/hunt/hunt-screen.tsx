@@ -18,7 +18,7 @@ import { overPanelFor } from "./hunt-over";
 import { HuntOverPanel } from "./hunt-over-panel";
 import { sceneFor } from "./hunt-scene";
 import { MapButton } from "./map-button";
-import { arrowsLeftLabel, HudStatus, tagsFilledLabel } from "./hud-status";
+import { arrowsLeftLabel, DrawStatus, HudStatus, tagsFilledLabel } from "./hud-status";
 import { SceneLabels } from "./scene-labels";
 import { useHunt } from "./use-hunt";
 import { usePullGesture } from "./use-pull-gesture";
@@ -57,9 +57,6 @@ function HuntRun({ config, onAgain }: HuntRunProps) {
             <FieldCanvas scene={scene} />
             <SceneLabels labels={scene.labels} view={scene.view} shake={scene.shake} />
             <SceneLabels labels={scene.hud.labels} view={scene.view} />
-            {scene.power === null ? null : (
-              <SceneLabels labels={scene.power.labels} view={scene.view} testID="powerPanel" />
-            )}
           </View>
         </View>
       </GestureDetector>
@@ -92,6 +89,7 @@ function HuntRun({ config, onAgain }: HuntRunProps) {
         view={scene.view}
         box={scene.hud.quiver}
       />
+      {scene.draw === null ? null : <DrawStatus view={scene.view} gauge={scene.draw} />}
       <HudStatus
         testID="tags"
         label={tagsFilledLabel(state.harvests.length)}

@@ -153,6 +153,13 @@ test.each([
   expect(Math.abs(arrowHeading(drawingScene(pull)) - heading)).toBeLessThan(0.1);
 });
 
+test("a harder draw bends the bow's limbs back toward the hunter", () => {
+  let light = markNamed(drawingScene({ x: 0, y: 15 }), "bow-limb-tip-0");
+  let full = markNamed(drawingScene({ x: 0, y: 60 }), "bow-limb-tip-0");
+
+  expect(full?.y).toBeGreaterThan(light?.y ?? Infinity);
+});
+
 test("a harder draw brings the string back toward the hunter", () => {
   let light = markNamed(drawingScene({ x: 0, y: 15 }), "bow-nock");
   let full = markNamed(drawingScene({ x: 0, y: 60 }), "bow-nock");
@@ -323,7 +330,7 @@ test("a pull inside the dead zone shows no aim", () => {
   expect(keysStartingWith(scene, "reticle")).toEqual([]);
   expect(keysStartingWith(scene, "zone")).toEqual([]);
   expect(scene.labels).toEqual([]);
-  expect(scene.power).toBe(null);
+  expect(scene.draw).toBe(null);
 });
 
 test("an arrow at the top of its arc rides above its shadow, pointing up-field", () => {
@@ -341,7 +348,7 @@ test("an arrow at the top of its arc rides above its shadow, pointing up-field",
   expect(markNamed(scene, "arrow")).toMatchObject({ id: "arrow", x: 90, y: 220 });
   expect(markNamed(scene, "arrow")).toHaveProperty("rotate", 0);
   expect(keysStartingWith(scene, "arrow-trail-")).toHaveLength(3);
-  expect(scene.power).toBe(null);
+  expect(scene.draw).toBe(null);
 });
 
 test("an arrow loosed to the right turns to follow its line across the field", () => {
@@ -481,11 +488,11 @@ test("shows no aim and no arrow when the hunt is ready", () => {
   expect(keys(scene.air)).toEqual(["hunter"]);
 });
 
-test("an ended hunt shows no aim and no power", () => {
+test("an ended hunt shows no aim and no draw gauge", () => {
   let scene = sceneOf(huntWith([], { kind: "over", reason: "dusk" }));
 
   expect(scene.labels).toEqual([]);
-  expect(scene.power).toBe(null);
+  expect(scene.draw).toBe(null);
 });
 
 test.each([
@@ -498,7 +505,7 @@ test.each([
   ["over", huntWith([], { kind: "over", reason: "quiver-empty" })],
 ])("every label reads at 12pt or more on a 390x844 phone while %s", (_, hunt) => {
   let scene = sceneFor(hunt, STILL, PHONE);
-  let labels = [...scene.labels, ...scene.hud.labels, ...(scene.power?.labels ?? [])];
+  let labels = [...scene.labels, ...scene.hud.labels];
 
   expect(labels.length).toBeGreaterThan(0);
   expect(labels.filter((each) => each.size * scene.view.scale < 12)).toEqual([]);

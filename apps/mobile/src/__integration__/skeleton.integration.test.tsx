@@ -47,7 +47,10 @@ test("hunt, draw and release at a doe, DOE!, it clears itself, ready again", asy
 
   holdBack(30);
 
-  expect(screen.getByTestId("powerPanel")).toHaveTextContent("POWER50%STEADY");
+  expect(screen.getByTestId("powerPanel")).toHaveAccessibilityValue({
+    now: 50,
+    text: "50%, steady",
+  });
 });
 
 test("a hunt opened with a seed in its url plays the same whatever the clock says", async () => {

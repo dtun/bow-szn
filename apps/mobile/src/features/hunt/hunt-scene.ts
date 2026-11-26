@@ -18,11 +18,11 @@ import { aimMarks } from "./aim-marks";
 import { animalPose, glintFrame, rackTip } from "./animal-art";
 import { airborneAt, headingAt } from "./arrow-path";
 import { bowMarks } from "./bow-marks";
+import { drawGauge, type DrawGauge } from "./draw-gauge";
 import { hudFor, type Hud } from "./hud";
 import { isFrozen, type Juice } from "./hunt-session";
 import { huntView, type Bounds, type HuntView, type Screen } from "./hunt-view";
 import { burstMarks, popLabel, shakeOffset } from "./juice-marks";
-import { powerFor, type PowerMeter } from "./power-meter";
 import { resultFor, type ResultView } from "./result-view";
 import { sunArc } from "./sun-arc";
 import {
@@ -47,7 +47,7 @@ export type Scene = {
   air: Mark[];
   labels: Label[];
   hud: Hud;
-  power: PowerMeter | null;
+  draw: DrawGauge | null;
   result: ResultView;
 };
 
@@ -226,6 +226,7 @@ export function sceneFor(state: HuntState, juice: Juice, screen: Screen): Scene 
   let result = resultFor(state, juice);
   let pop = result.kind === "card" ? null : popLabel(state, juice);
   let sun = sunArc(state.clockMin, view);
+  let draw = drawGauge(state);
   let hud = hudFor(state, view);
   return {
     view,
@@ -239,6 +240,7 @@ export function sceneFor(state: HuntState, juice: Juice, screen: Screen): Scene 
     sky: sun.marks,
     air: [
       ...animals.flatMap((animal) => glintMarks(animal, state.elapsedMs)),
+      ...(draw?.marks ?? []),
       ...hunterMarks(state),
       ...(aim?.sight ?? []),
       ...slowMoMarks(state, view.bounds),
@@ -252,7 +254,7 @@ export function sceneFor(state: HuntState, juice: Juice, screen: Screen): Scene 
       ...alertLabels(animals, state.elapsedMs),
     ]),
     hud: { ...hud, labels: [...hud.labels, ...sun.labels] },
-    power: powerFor(state, view),
+    draw,
     result,
   };
 }

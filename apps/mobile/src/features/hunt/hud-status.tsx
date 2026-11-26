@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
 
+import type { DrawGauge } from "./draw-gauge";
 import type { Box } from "./hud";
 import { toScreen, type HuntView } from "./hunt-view";
 
@@ -16,6 +17,31 @@ export function arrowsLeftLabel(arrows: number): string {
 
 export function tagsFilledLabel(tags: number): string {
   return tags === 1 ? "1 tag filled" : `${tags} tags filled`;
+}
+
+export function DrawStatus({ view, gauge }: { view: HuntView; gauge: DrawGauge }) {
+  let { box } = gauge;
+  let at = toScreen(view, box);
+
+  return (
+    <View
+      testID="powerPanel"
+      accessible
+      accessibilityRole="progressbar"
+      accessibilityLabel="Draw"
+      accessibilityValue={{
+        min: 0,
+        max: 100,
+        now: gauge.percent,
+        text: `${gauge.percent}%, ${gauge.feel}`,
+      }}
+      pointerEvents="none"
+      style={[
+        styles.status,
+        { left: at.x, top: at.y, width: box.width * view.scale, height: box.height * view.scale },
+      ]}
+    />
+  );
 }
 
 export function HudStatus({ testID, label, view, box }: HudStatusProps) {

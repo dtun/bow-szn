@@ -10,9 +10,10 @@ const CHEST: Vec2 = { x: 90, y: 297 };
 const SHOULDER_PX = 6;
 const GRIP_REACH = 11;
 const LIMB_PX = 9;
-const LIMB_BEND = 3;
+const LIMB_REST_BEND = 2;
+const LIMB_DRAW_BEND = 3;
 const LIMB_STEPS = 6;
-const STRING_REST = 3;
+const STRING_REST = LIMB_REST_BEND;
 const STRING_DRAW = 7;
 const ARROW_PX = 14;
 const UP_FIELD: Vec2 = { x: 0, y: -1 };
@@ -43,9 +44,10 @@ export function bowMarks(aim: Aim | null): Mark[] {
   let power = aim?.power ?? 0;
   let across = { x: -dir.y, y: dir.x };
   let grip = along(HEAD, dir, GRIP_REACH);
+  let flex = LIMB_REST_BEND + LIMB_DRAW_BEND * power;
   let limb = Array.from({ length: LIMB_STEPS * 2 + 1 }, (_, index) => {
     let bend = index / LIMB_STEPS - 1;
-    return along(along(grip, across, bend * LIMB_PX), dir, -LIMB_BEND * bend * bend);
+    return along(along(grip, across, bend * LIMB_PX), dir, -flex * bend * bend);
   });
   let nock = along(grip, dir, -(STRING_REST + STRING_DRAW * power));
   let tip = along(nock, dir, ARROW_PX);
@@ -57,6 +59,8 @@ export function bowMarks(aim: Aim | null): Mark[] {
     ...limb.slice(1).flatMap((point, index) => line(limb[index], point, PALETTE.B)),
     ...line(nock, tip, PALETTE.L),
     pixelAt(grip, PALETTE.P),
+    pixelAt(limb[0], PALETTE.B, "bow-limb-tip-0"),
+    pixelAt(limb[limb.length - 1], PALETTE.B, "bow-limb-tip-1"),
     pixelAt(tip, PALETTE.H, "bow-arrow-tip"),
     pixelAt(nock, RED, "bow-nock"),
   ];

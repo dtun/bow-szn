@@ -101,9 +101,6 @@ export function FieldCanvas({ scene }: { scene: Scene }) {
         {scene.hud.marks.map((mark) => (
           <MarkView key={mark.key} mark={mark} />
         ))}
-        {scene.power?.marks.map((mark) => (
-          <MarkView key={mark.key} mark={mark} />
-        ))}
       </Group>
     </Canvas>
   );

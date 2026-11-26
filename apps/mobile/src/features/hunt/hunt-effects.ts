@@ -16,7 +16,7 @@ import type { SfxId } from "@/platform/sfx";
 
 import { headingAt } from "./arrow-path";
 import { tagName } from "./hunt-over";
-import { powerSegments } from "./power-meter";
+import { powerSegments } from "./draw-gauge";
 
 export type HuntSound = Extract<
   SfxId,

@@ -88,7 +88,10 @@ test("shows the power while the bow is drawn and clears it on release", () => {
 
   holdBack(30);
 
-  expect(screen.getByTestId("powerPanel")).toHaveTextContent("POWER50%STEADY");
+  expect(screen.getByTestId("powerPanel")).toHaveAccessibilityValue({
+    now: 50,
+    text: "50%, steady",
+  });
 
   letGo();
 
@@ -153,7 +156,10 @@ test("the result clears itself after a beat and the bow is ready again", () => {
 
   holdBack(30);
 
-  expect(screen.getByTestId("powerPanel")).toHaveTextContent("POWER50%STEADY");
+  expect(screen.getByTestId("powerPanel")).toHaveAccessibilityValue({
+    now: 50,
+    text: "50%, steady",
+  });
 });
 
 test("drawing again shrugs off the result at once", () => {
@@ -164,7 +170,10 @@ test("drawing again shrugs off the result at once", () => {
   holdBack(30);
 
   expect(screen.queryByTestId("shotResult")).not.toBeOnTheScreen();
-  expect(screen.getByTestId("powerPanel")).toHaveTextContent("POWER50%STEADY");
+  expect(screen.getByTestId("powerPanel")).toHaveAccessibilityValue({
+    now: 50,
+    text: "50%, steady",
+  });
 });
 
 test("a pull inside the dead zone shoots nothing", () => {
