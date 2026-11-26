@@ -244,6 +244,13 @@ function townSprites(): SceneSprite[] {
 
 type Box = { x: number; y: number; w: number; h: number };
 
+const STAMP_CORNER: Box = {
+  x: COUNTY_COLS - 44,
+  y: COUNTY_ROWS - 26,
+  w: 44,
+  h: 26,
+};
+
 function boxesOverlap(a: Box, b: Box): boolean {
   return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 }
@@ -280,7 +287,7 @@ function reservedBoxes(): Box[] {
     w: 3,
     h: 3,
   }));
-  return [...spots, ...labels, ...houses, ...roads];
+  return [...spots, ...labels, ...houses, ...roads, STAMP_CORNER];
 }
 
 function placedAround(center: Cell, offsets: readonly Cell[], sprite: Sprite): SceneSprite[] {

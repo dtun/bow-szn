@@ -148,3 +148,12 @@ test.each(TOWNS)("no sketch crosses where $name's name is printed", (town) => {
 
   expect(under.filter((color) => GRAPHITE.includes(color ?? ""))).toEqual([]);
 });
+
+test("the bottom-right corner is left clear for the season stamp", () => {
+  let layers = countyMap();
+  let corner = [48, 56, 64, 72, 78].flatMap((column) =>
+    [72, 78, 84, 90, 94].map((row) => colorAt(layers, column, row))
+  );
+
+  expect(corner.filter((color) => GRAPHITE.includes(color ?? ""))).toEqual([]);
+});
