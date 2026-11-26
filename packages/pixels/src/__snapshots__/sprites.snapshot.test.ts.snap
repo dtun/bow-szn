@@ -1456,6 +1456,50 @@ exports[`sprite art mount-elk-bull 1`] = `
 "
 `;
 
+exports[`sprite art pencil-ring 1`] = `
+"
+....hhhhhhh....
+..hh.......hh..
+.h...........h.
+h.............h
+.h...........hh
+..hh.......hh..
+....hhhhhhh....
+"
+`;
+
+exports[`sprite art pushpin 1`] = `
+"
+..NNN..
+.NnnnN.
+NnlnnnN
+NnlnnnN
+NnnnnnN
+.NnnnN.
+..NNN..
+...H...
+...H...
+...h...
+...h...
+"
+`;
+
+exports[`sprite art pushpin-picked 1`] = `
+"
+..MMM..
+.MRRRM.
+MRVRRRM
+MRVRRRM
+MRRRRRM
+.MRRRM.
+..MMM..
+...H...
+...H...
+...h...
+...h...
+"
+`;
+
 exports[`sprite art rabbit-down 1`] = `
 "
 .b..b.....b...

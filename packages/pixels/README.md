@@ -26,6 +26,7 @@ Props are sprites for the menus and the sighting-in range. They follow the same 
 
 - `bale-target` is an 80 by 44 straw bale seen head-on, ragged at the edges and bound by two twine bands. The scene paints the target face over it.
 - `bale-arrow` is a practice arrow stuck in the bale. Its bottom-center pixel is where it entered.
+- `pushpin` and `pushpin-picked` mark a spot on the plat map. Their needle tip is the bottom-center pixel. `pencil-ring` circles the picked spot.
 - `sight-pin` is the swaying aim dot. Its center pixel is red and is the point that counts.
 
 ## Conventions
