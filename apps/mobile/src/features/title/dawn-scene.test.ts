@@ -54,7 +54,7 @@ test("the hunter stands on the stand's plank", () => {
 });
 
 test("the clouds keep below the logo and the tagline once the scene knows where they end", () => {
-  let scene = dawnScene(PHONE.cols, PHONE.rows, 36);
+  let scene = dawnScene(PHONE.cols, PHONE.rows, { skyTopRow: 36 });
   let clouds = scene
     .ambient(titleAmbience(0, 1, PHONE.cols))
     .sprites.filter((placed) => placed.sprite.name === "title-cloud");
@@ -63,6 +63,25 @@ test("the clouds keep below the logo and the tagline once the scene knows where 
   for (let cloud of clouds) {
     expect(cloud.y).toBeGreaterThanOrEqual(36);
   }
+});
+
+test("the horizon sits where the caller puts it, with the field running on to the bottom", () => {
+  let scene = dawnScene(PHONE.cols, PHONE.rows, { horizonRow: 70 });
+
+  expect(scene.horizonRow).toBe(70);
+  expect(paintedAt(scene, 5, 69)).not.toBe(FIELD_GREEN);
+  expect(paintedAt(scene, PHONE.cols - 1, PHONE.rows - 1)).toBe(FIELD_GREEN);
+});
+
+test("the hunter's stand and the doe move with the horizon", () => {
+  let scene = dawnScene(PHONE.cols, PHONE.rows, { horizonRow: 70 });
+  let hunter = allSprites(scene).find((placed) => placed.sprite.name === "title-hunter");
+  let doe = scene
+    .ambient(titleAmbience(0, 1, PHONE.cols))
+    .sprites.find((placed) => placed.sprite === SPRITES["doe-graze"]);
+
+  expect(hunter?.y).toBe(70 + 6 - 10);
+  expect(doe?.y).toBe(70 + 14 - 9);
 });
 
 test.each([PHONE, SMALL_PHONE])("every flat shape fits inside a $cols by $rows picture", (size) => {

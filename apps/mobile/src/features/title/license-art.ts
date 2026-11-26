@@ -38,6 +38,7 @@ export const TAG_EDGE = 2;
 const TAG_HOLE_X = 5;
 export const TAG_LABEL_X = TAG_HOLE_X + 4;
 const HOLE_CENTER = 5;
+const LICENSE_ROWS = STAMPS_Y + STAMP.h + PERFORATION_GAP + TAG_GAP + GO_TAG_ROWS + PAD;
 
 export const NOTEBOOK: Sprite = {
   name: "title-notebook",
@@ -92,6 +93,11 @@ function perforationDots(cols: number, row: number): SceneRect[] {
   return dots;
 }
 
+export function menuHeight(insetBottom: number): number {
+  let stack = (LICENSE_ROWS + JOURNAL_TAG_ROWS) * LICENSE_CELL + MENU_GAP;
+  return MENU_MARGIN + stack + insetBottom + MENU_MARGIN;
+}
+
 export function licenseCols(screenWidth: number): number {
   let room = Math.floor((screenWidth - MENU_MARGIN * 2) / LICENSE_CELL);
   return Math.max(MIN_LICENSE_COLS, Math.min(MAX_LICENSE_COLS, room));
@@ -100,7 +106,7 @@ export function licenseCols(screenWidth: number): number {
 export function licenseLayout(cols: number): LicenseLayout {
   let perforationRow = STAMPS_Y + STAMP.h + PERFORATION_GAP;
   let tagY = perforationRow + TAG_GAP;
-  let rows = tagY + GO_TAG_ROWS + PAD;
+  let rows = LICENSE_ROWS;
   let levelX = Math.floor(cols / 4 - STAMP.w / 2);
   let seasonX = Math.floor((cols * 3) / 4 - STAMP.w / 2);
 

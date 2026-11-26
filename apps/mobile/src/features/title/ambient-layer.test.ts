@@ -4,10 +4,9 @@ import { ambientLayer } from "./ambient-layer";
 import { CLOUD } from "./dawn-cloud";
 import type { TitleAmbience } from "./title-ambience";
 
-const PHONE = { rows: 113, horizonRow: 68, skyTopRow: 30 };
-const SMALL_PHONE = { rows: 80, horizonRow: 48, skyTopRow: 22 };
-const TALL_PHONE = { rows: 213, horizonRow: 101, skyTopRow: 42 };
-const SHORT_PHONE = { rows: 167, horizonRow: 100, skyTopRow: 40 };
+const PHONE = { horizonRow: 68, skyTopRow: 30 };
+const TALL_PHONE = { horizonRow: 101, skyTopRow: 42 };
+const SHORT_PHONE = { horizonRow: 100, skyTopRow: 40 };
 const CLOUD_HEIGHT = 3;
 
 const AT_REST: TitleAmbience = {
@@ -92,10 +91,10 @@ test("a hopping rabbit is drawn last, on top, with its feet lifted by the hop", 
   let { sprites } = ambientLayer(hopping, PHONE);
 
   expect(sprites).toHaveLength(4);
-  expect(sprites[3]).toEqual({ sprite: SPRITES["rabbit-flee"], x: 40, y: 104 - 8 - 3 });
+  expect(sprites[3]).toEqual({ sprite: SPRITES["rabbit-flee"], x: 40, y: 93 - 8 - 3 });
 });
 
-test("a rabbit on the ground stands with its feet on the foreground row", () => {
+test("a rabbit on the ground stands with its feet on the grass, 25 rows under the horizon", () => {
   let landed: TitleAmbience = {
     ...AT_REST,
     rabbit: { frame: "rabbit-walk-1", x: 20, lift: 0, facing: 1 },
@@ -103,7 +102,7 @@ test("a rabbit on the ground stands with its feet on the foreground row", () => 
 
   let { sprites } = ambientLayer(landed, PHONE);
 
-  expect(sprites[3].y + sprites[3].sprite.h).toBe(104);
+  expect(sprites[3].y + sprites[3].sprite.h).toBe(68 + 25);
 });
 
 test("a rabbit running left is mirrored", () => {
@@ -118,14 +117,13 @@ test("a rabbit running left is mirrored", () => {
   expect(sprites[3].x).toBe(70);
 });
 
-test("on a short phone the rabbit's feet still land inside the picture", () => {
-  let hopping: TitleAmbience = {
+test("the rabbit's feet follow the horizon, so it always runs on the grass above the license", () => {
+  let landed: TitleAmbience = {
     ...AT_REST,
     rabbit: { frame: "rabbit-walk-1", x: 20, lift: 0, facing: 1 },
   };
 
-  let { sprites } = ambientLayer(hopping, SMALL_PHONE);
+  let tall = ambientLayer(landed, TALL_PHONE).sprites[3];
 
-  expect(sprites[3].y + sprites[3].sprite.h).toBe(74);
-  expect(sprites[3].y + sprites[3].sprite.h).toBeLessThanOrEqual(SMALL_PHONE.rows);
+  expect(tall.y + tall.sprite.h).toBe(101 + 25);
 });

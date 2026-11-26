@@ -5,10 +5,10 @@ import type { SceneLayer, SceneSprite } from "@/art/scene";
 import { CLOUD } from "./dawn-cloud";
 import type { Facing, TitleAmbience } from "./title-ambience";
 
-export type AmbientGeometry = { rows: number; horizonRow: number; skyTopRow: number };
+export type AmbientGeometry = { horizonRow: number; skyTopRow: number };
 
 const DOE_FEET_BELOW_HORIZON = 14;
-const RABBIT_FEET_DEPTH = 0.8;
+const RABBIT_FEET_BELOW_HORIZON = 25;
 const CLOUD_TOP_MARGIN = 2;
 const SUN_AND_HILLS_CLEARANCE = 24;
 
@@ -41,7 +41,7 @@ export function ambientLayer(
   { clouds, doe, rabbit }: TitleAmbience,
   geometry: AmbientGeometry
 ): SceneLayer {
-  let { rows, horizonRow } = geometry;
+  let { horizonRow } = geometry;
   let sprites: SceneSprite[] = clouds.map(({ x, down }) => ({
     sprite: CLOUD,
     x,
@@ -57,7 +57,7 @@ export function ambientLayer(
 
   if (rabbit) {
     let rabbitSprite = facing(rabbit.frame, rabbit.facing);
-    let feetRow = horizonRow + Math.round((rows - horizonRow) * RABBIT_FEET_DEPTH);
+    let feetRow = horizonRow + RABBIT_FEET_BELOW_HORIZON;
     sprites.push({ sprite: rabbitSprite, x: rabbit.x, y: feetRow - rabbitSprite.h - rabbit.lift });
   }
 

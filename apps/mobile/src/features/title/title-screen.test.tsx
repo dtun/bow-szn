@@ -81,6 +81,18 @@ test("paints the dawn once the screen knows how big its sky is", async () => {
   expect(screen.getByTestId("dawnAmbience")).toBeOnTheScreen();
 });
 
+test("lets the field run on behind the menu instead of stopping above it", () => {
+  render(<TitleScreen />);
+
+  expect(screen.getByTestId("titleScene")).toHaveStyle({
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  });
+});
+
 describe("level", () => {
   test("starts on easy and cycles medium, hard, then back to easy", () => {
     render(<TitleScreen />);

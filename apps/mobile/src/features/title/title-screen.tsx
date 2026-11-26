@@ -9,7 +9,8 @@ import { BACKGROUND, FONT_PIXEL, FOREGROUND } from "@/ui/theme";
 
 import { DawnSceneView } from "./dawn-scene-view";
 import { TitleMenu } from "./title-menu";
-import { sceneGrid, type Size } from "./title-layout";
+import { menuHeight } from "./license-art";
+import { horizonRowFor, sceneGrid, type Size } from "./title-layout";
 
 const LOGO = SPRITES["logo-wordmark"];
 const SCREEN_MARGIN = 16;
@@ -36,6 +37,15 @@ export function TitleScreen() {
 
   let logoScale = Math.max(2, Math.floor((width - SCREEN_MARGIN * 2) / LOGO.w));
   let grid = sceneSize ? sceneGrid(sceneSize) : null;
+  let skyTopRow = grid ? Math.ceil(brandBottom / grid.cell) : 0;
+  let horizonRow = grid
+    ? horizonRowFor({
+        rows: grid.rows,
+        cell: grid.cell,
+        menuHeight: menuHeight(insets.bottom),
+        skyTopRow,
+      })
+    : 0;
 
   return (
     <View testID="titleScreen" style={styles.screen}>
@@ -46,19 +56,20 @@ export function TitleScreen() {
             rows={grid.rows}
             cell={grid.cell}
             seed={seed}
-            skyTopRow={Math.ceil(brandBottom / grid.cell)}
+            skyTopRow={skyTopRow}
+            horizonRow={horizonRow}
           />
         ) : null}
-        <View
-          testID="titleBrand"
-          style={[styles.brand, { paddingTop: insets.top + 20 }]}
-          onLayout={measureBrand}
-        >
-          <View accessible accessibilityRole="header" accessibilityLabel="BOW SEASON">
-            <PixelSprite sprite={LOGO} scale={logoScale} testID="titleLogo" />
-          </View>
-          <Text style={styles.tagline}>8-BIT BOW HUNTING</Text>
+      </View>
+      <View
+        testID="titleBrand"
+        style={[styles.brand, { paddingTop: insets.top + 20 }]}
+        onLayout={measureBrand}
+      >
+        <View accessible accessibilityRole="header" accessibilityLabel="BOW SEASON">
+          <PixelSprite sprite={LOGO} scale={logoScale} testID="titleLogo" />
         </View>
+        <Text style={styles.tagline}>8-BIT BOW HUNTING</Text>
       </View>
       <TitleMenu />
     </View>
@@ -66,8 +77,8 @@ export function TitleScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: BACKGROUND },
-  scene: { flex: 1, overflow: "hidden" },
+  screen: { flex: 1, justifyContent: "space-between", backgroundColor: BACKGROUND },
+  scene: { ...StyleSheet.absoluteFillObject, overflow: "hidden" },
   brand: { alignItems: "center", gap: 14 },
   tagline: {
     fontFamily: FONT_PIXEL,

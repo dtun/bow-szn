@@ -6,6 +6,7 @@ import {
   NOTEBOOK,
   licenseCols,
   licenseLayout,
+  menuHeight,
   tagLayer,
   type Box,
 } from "./license-art";
@@ -67,6 +68,16 @@ describe("licenseCols", () => {
 
     expect(Math.abs(levelCenter - PHONE_COLS / 4)).toBeLessThanOrEqual(1);
     expect(Math.abs(seasonCenter - (PHONE_COLS * 3) / 4)).toBeLessThanOrEqual(1);
+  });
+});
+
+describe("menuHeight", () => {
+  test("adds the license, the journal tag, the gap between them, and the margins above and below", () => {
+    expect(menuHeight(0)).toBe(16 + 53 * 4 + 8 + 12 * 4 + 16);
+  });
+
+  test("grows by the safe area under the home indicator", () => {
+    expect(menuHeight(34)).toBe(menuHeight(0) + 34);
   });
 });
 

@@ -5,6 +5,8 @@ import type { SceneLayer, SceneRect, SceneSprite } from "@/art/scene";
 import { ambientLayer } from "./ambient-layer";
 import type { TitleAmbience } from "./title-ambience";
 
+export type DawnOptions = { skyTopRow?: number; horizonRow?: number };
+
 export type DawnScene = {
   layers: SceneLayer[];
   horizonRow: number;
@@ -150,8 +152,11 @@ function standLayer(cols: number, horizon: number): SceneLayer {
   };
 }
 
-export function dawnScene(cols: number, rows: number, skyTopRow: number = 0): DawnScene {
-  let horizonRow = Math.round(rows * HORIZON_AT);
+export function dawnScene(
+  cols: number,
+  rows: number,
+  { skyTopRow = 0, horizonRow = Math.round(rows * HORIZON_AT) }: DawnOptions = {}
+): DawnScene {
   let tufts = TUFT_SPOTS.map(({ across, below }) => ({
     sprite: SPRITES["grass-tuft-1"],
     x: Math.round(cols * across),
@@ -172,7 +177,7 @@ export function dawnScene(cols: number, rows: number, skyTopRow: number = 0): Da
     horizonRow,
     layers: [backdrop, standLayer(cols, horizonRow)],
     ambient(ambience) {
-      return ambientLayer(ambience, { rows, horizonRow, skyTopRow });
+      return ambientLayer(ambience, { horizonRow, skyTopRow });
     },
   };
 }

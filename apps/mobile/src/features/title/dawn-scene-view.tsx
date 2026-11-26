@@ -18,6 +18,7 @@ type DawnSceneViewProps = {
   cell: number;
   seed: number;
   skyTopRow?: number;
+  horizonRow?: number;
   reduceMotion?: ReduceMotionSource;
 };
 
@@ -42,9 +43,13 @@ export function DawnSceneView({
   cell,
   seed,
   skyTopRow = 0,
+  horizonRow,
   reduceMotion = deviceReduceMotion,
 }: DawnSceneViewProps) {
-  let scene = useMemo(() => dawnScene(cols, rows, skyTopRow), [cols, rows, skyTopRow]);
+  let scene = useMemo(
+    () => dawnScene(cols, rows, { skyTopRow, horizonRow }),
+    [cols, rows, skyTopRow, horizonRow]
+  );
   let reduced = useReduceMotion(reduceMotion);
   let focused = useIsFocused();
 
