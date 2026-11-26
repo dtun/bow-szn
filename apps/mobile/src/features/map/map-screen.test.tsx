@@ -118,3 +118,54 @@ describe("BACK", () => {
     expect(replace).toHaveBeenCalledWith("/");
   });
 });
+
+describe("season", () => {
+  test("cycles early, rut, late, then back to early", () => {
+    render(<MapScreen />);
+
+    expect(screen.getByTestId("seasonBtn")).toHaveTextContent("SEASON: EARLY");
+
+    fireEvent.press(screen.getByTestId("seasonBtn"));
+    expect(screen.getByTestId("seasonBtn")).toHaveTextContent("SEASON: RUT");
+
+    fireEvent.press(screen.getByTestId("seasonBtn"));
+    expect(screen.getByTestId("seasonBtn")).toHaveTextContent("SEASON: LATE");
+
+    fireEvent.press(screen.getByTestId("seasonBtn"));
+    expect(screen.getByTestId("seasonBtn")).toHaveTextContent("SEASON: EARLY");
+  });
+
+  test("is saved, and brings the elk to High Ridge when the rut starts", () => {
+    updatePreferences({ spot: "high-ridge" });
+    render(<MapScreen />);
+
+    fireEvent.press(screen.getByTestId("seasonBtn"));
+
+    expect(readPreferences().season).toBe("rut");
+    expect(screen.getByTestId("spotSpecies")).toHaveTextContent("SPECIES: ELK, WHITETAIL");
+  });
+
+  test("is read aloud with its current value", () => {
+    render(<MapScreen />);
+
+    expect(screen.getByRole("button", { name: "Season, early" })).toBeOnTheScreen();
+  });
+});
+
+describe("HUNT!", () => {
+  test("heads to the prep bench", () => {
+    let push = jest.spyOn(router, "push").mockImplementation(() => undefined);
+    render(<MapScreen />);
+
+    fireEvent.press(screen.getByTestId("huntBtn"));
+
+    expect(push).toHaveBeenCalledTimes(1);
+    expect(push).toHaveBeenCalledWith("/prep");
+  });
+
+  test("is announced as a button", () => {
+    render(<MapScreen />);
+
+    expect(screen.getByRole("button", { name: "HUNT!" })).toBeOnTheScreen();
+  });
+});

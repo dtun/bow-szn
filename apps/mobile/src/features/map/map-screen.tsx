@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { updatePreferences, usePreferences } from "@/platform/preferences";
+import { nextSeason, updatePreferences, usePreferences } from "@/platform/preferences";
 import { PixelButton } from "@/ui/pixel-button";
 import { ACCENT, BACKGROUND, FONT_PIXEL, FOREGROUND, NAVY, SKY } from "@/ui/theme";
 
@@ -74,7 +74,23 @@ export function MapScreen() {
           onPress={leaveMap}
           style={styles.back}
         />
+        <PixelButton
+          label={`SEASON: ${season.toUpperCase()}`}
+          accessibilityLabel={`Season, ${season}`}
+          accessibilityHint="Switches to the next season"
+          testID="seasonBtn"
+          tone="brown"
+          size="small"
+          onPress={() => updatePreferences({ season: nextSeason(season) })}
+          style={styles.season}
+        />
       </View>
+      <PixelButton
+        label="HUNT!"
+        testID="huntBtn"
+        onPress={() => router.push("/prep")}
+        style={styles.hunt}
+      />
     </View>
   );
 }
@@ -100,4 +116,6 @@ const styles = StyleSheet.create({
   panelText: { fontFamily: FONT_PIXEL, fontSize: 8, lineHeight: 12, color: FOREGROUND },
   buttons: { alignSelf: "stretch", flexDirection: "row", gap: 10 },
   back: { flex: 1 },
+  season: { flex: 2 },
+  hunt: { alignSelf: "stretch" },
 });
