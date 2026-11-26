@@ -23,7 +23,15 @@ jobs:
         working-directory: packages/core
 
   test-mobile:
+    name: test-mobile-${{ matrix.project }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - unit
+          - ui
+          - integration
     steps:
       - name: Setup repo
         uses: actions/checkout@v6
@@ -35,13 +43,13 @@ jobs:
         uses: actions/cache@v6
         with:
           path: apps/mobile/.jest-cache
-          key: jest-${{ runner.os }}-${{ hashFiles('package-lock.json', 'apps/mobile/jest.config.js') }}-${{ github.sha }}
+          key: jest-matrix-${{ runner.os }}-${{ matrix.project }}-${{ hashFiles('package-lock.json', 'apps/mobile/jest.config.js') }}-${{ github.sha }}
           restore-keys: |
-            jest-${{ runner.os }}-${{ hashFiles('package-lock.json', 'apps/mobile/jest.config.js') }}-
-            jest-${{ runner.os }}-
+            jest-matrix-${{ runner.os }}-${{ matrix.project }}-${{ hashFiles('package-lock.json', 'apps/mobile/jest.config.js') }}-
+            jest-matrix-${{ runner.os }}-${{ matrix.project }}-
 
-      - name: Run unit, ui, and integration tests
-        run: npm test
+      - name: Run ${{ matrix.project }} tests
+        run: npx jest --selectProjects ${{ matrix.project }}
         working-directory: apps/mobile
 
   test-mobile-snapshot:
