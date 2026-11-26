@@ -1,4 +1,5 @@
 import { SPOTS, type SpotId } from "@bow-szn/core";
+import { PALETTE } from "@bow-szn/pixels";
 import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -6,14 +7,13 @@ import { PixelSprite } from "@/art/pixel-sprite";
 import { SceneView } from "@/art/scene-view";
 import { lightTap } from "@/platform/haptics";
 import { playSfx } from "@/platform/sfx";
-import { FONT_PIXEL, FOREGROUND, NAVY } from "@/ui/theme";
+import { FONT_PIXEL, NAVY } from "@/ui/theme";
 
-import { COUNTY_COLS, COUNTY_ROWS, countyMap, TOWNS } from "./county-map";
+import { COUNTY_COLS, COUNTY_ROWS, countyMap, TOWN_LABEL_TOP_CELLS, TOWNS } from "./county-map";
 import { FLAG_IDLE, FLAG_PICKED } from "./spot-flag";
 
 const FLAG_TOUCH = { width: 44, height: 48 };
-const TOWN_LABEL_WIDTH = 100;
-const TOWN_LABEL_DROP_CELLS = 5;
+const TOWN_LABEL_WIDTH = 140;
 
 type CountyMapViewProps = {
   cell: number;
@@ -23,7 +23,7 @@ type CountyMapViewProps = {
 
 export function CountyMapView({ cell, selected, onSelect }: CountyMapViewProps) {
   let layers = useMemo(countyMap, []);
-  let flagScale = Math.max(2, Math.round(cell / 3));
+  let flagScale = Math.max(2, Math.round(cell / 2));
 
   function pick(spot: SpotId) {
     lightTap();
@@ -46,7 +46,7 @@ export function CountyMapView({ cell, selected, onSelect }: CountyMapViewProps) 
             {
               left: `${town.at.x * 100}%`,
               top: `${town.at.y * 100}%`,
-              marginTop: cell * TOWN_LABEL_DROP_CELLS,
+              marginTop: cell * TOWN_LABEL_TOP_CELLS,
             },
           ]}
         >
@@ -90,11 +90,8 @@ const styles = StyleSheet.create({
     marginLeft: -TOWN_LABEL_WIDTH / 2,
     textAlign: "center",
     fontFamily: FONT_PIXEL,
-    fontSize: 8,
-    color: FOREGROUND,
-    textShadowColor: NAVY,
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 0,
+    fontSize: 12,
+    color: PALETTE.E,
   },
   flagTouch: {
     position: "absolute",
