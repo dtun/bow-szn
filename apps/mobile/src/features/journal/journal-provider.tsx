@@ -16,13 +16,14 @@ import {
   type ReactNode,
 } from "react";
 
-import { deviceGameCenter, type GameCenter } from "@/platform/game-center";
+import { deviceGameCenter, type GameCenter, type GameCenterStatus } from "@/platform/game-center";
 import { deviceJournalStore, type JournalStore } from "@/platform/journal-store";
 
 export type JournalApi = {
   journal: Journal;
   record(harvest: Harvest): void;
   mount(harvestId: string): void;
+  showLeaderboards(): Promise<GameCenterStatus>;
 };
 
 const JournalContext = createContext<JournalApi | null>(null);
@@ -83,7 +84,17 @@ export function JournalProvider({
     [commit]
   );
 
-  let api = useMemo(() => ({ journal, record, mount }), [journal, record, mount]);
+  let showLeaderboards = useCallback(
+    function showLeaderboards() {
+      return gameCenter.showLeaderboards();
+    },
+    [gameCenter]
+  );
+
+  let api = useMemo(
+    () => ({ journal, record, mount, showLeaderboards }),
+    [journal, record, mount, showLeaderboards]
+  );
 
   return <JournalContext.Provider value={api}>{children}</JournalContext.Provider>;
 }

@@ -1,10 +1,11 @@
 import { freezerLb, personalBests, type SpeciesId } from "@bow-szn/core";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { PixelButton } from "@/ui/pixel-button";
+import { PixelToast } from "@/ui/pixel-toast";
 import { BACKGROUND, FONT_PIXEL, FOREGROUND } from "@/ui/theme";
 
 import { FreezerPanel } from "./freezer-panel";
@@ -12,6 +13,8 @@ import { HarvestList } from "./harvest-list";
 import { useJournal } from "./journal-provider";
 import { SPECIES_ORDER } from "./species-art";
 import { SpeciesCard } from "./species-card";
+
+const SIGN_IN_TOAST = "SIGN IN TO GAME CENTER IN SETTINGS";
 
 function leaveJournal() {
   if (router.canGoBack()) {
@@ -22,9 +25,20 @@ function leaveJournal() {
 }
 
 export function JournalScreen() {
-  let { journal } = useJournal();
+  let { journal, showLeaderboards } = useJournal();
   let [openSpecies, setOpenSpecies] = useState<SpeciesId | null>(null);
+  let [signInHint, setSignInHint] = useState(false);
   let bests = personalBests(journal);
+
+  let hideSignInHint = useCallback(function hideSignInHint() {
+    setSignInHint(false);
+  }, []);
+
+  async function openLeaderboards() {
+    if ((await showLeaderboards()) !== "signed-in") {
+      setSignInHint(true);
+    }
+  }
 
   return (
     <SafeAreaView testID="journalScreen" style={styles.screen}>
@@ -42,6 +56,13 @@ export function JournalScreen() {
           tone="brown"
           accessibilityHint="Shows your mounted bucks"
           onPress={() => router.push("/trophy-room")}
+        />
+        <PixelButton
+          label="LEADERBOARDS"
+          testID="leaderboardsBtn"
+          tone="navy"
+          accessibilityHint="Opens the Game Center leaderboards"
+          onPress={openLeaderboards}
         />
         {openSpecies === null ? (
           <View style={styles.grid}>
@@ -63,6 +84,9 @@ export function JournalScreen() {
           />
         )}
       </ScrollView>
+      {signInHint ? (
+        <PixelToast testID="leaderboardsToast" message={SIGN_IN_TOAST} onDone={hideSignInHint} />
+      ) : null}
     </SafeAreaView>
   );
 }

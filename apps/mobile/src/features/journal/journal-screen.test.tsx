@@ -1,6 +1,11 @@
 import type { Journal, SpeciesId } from "@bow-szn/core";
-import { fireEvent, render, screen, within } from "@testing-library/react-native";
+import { act, fireEvent, render, screen, within } from "@testing-library/react-native";
 
+import {
+  createFakeGameCenter,
+  type GameCenter,
+  type GameCenterStatus,
+} from "@/platform/game-center";
 import { createMemoryJournalStore } from "@/platform/journal-store";
 
 import { JournalProvider } from "./journal-provider";
@@ -9,9 +14,9 @@ import { DOE, EMPTY_JOURNAL, SEEDED_JOURNAL } from "./test-support/harvests";
 
 const ALL_SPECIES: SpeciesId[] = ["whitetail", "elk", "turkey", "rabbit"];
 
-function renderJournal(journal: Journal) {
+function renderJournal(journal: Journal, gameCenter?: GameCenter) {
   render(
-    <JournalProvider store={createMemoryJournalStore(journal)}>
+    <JournalProvider store={createMemoryJournalStore(journal)} gameCenter={gameCenter}>
       <JournalScreen />
     </JournalProvider>
   );
@@ -148,4 +153,31 @@ test("a species with only a doe shows no rack yet", () => {
   expect(card("whitetail").getByText("NO RACK YET")).toBeOnTheScreen();
   expect(card("whitetail").queryByText(/BEST RACK/)).not.toBeOnTheScreen();
   expect(screen.getByTestId("freezerTotal")).toHaveTextContent("FREEZER 54 LB");
+});
+
+describe("leaderboards", () => {
+  test("LEADERBOARDS opens the Game Center boards for a signed-in player", async () => {
+    let gameCenter = createFakeGameCenter("signed-in");
+    renderJournal(EMPTY_JOURNAL, gameCenter);
+
+    expect(screen.getByTestId("leaderboardsBtn")).toHaveTextContent("LEADERBOARDS");
+    fireEvent.press(screen.getByTestId("leaderboardsBtn"));
+    await act(async () => {});
+
+    expect(gameCenter.calls).toEqual([{ kind: "authenticate" }, { kind: "show" }]);
+    expect(screen.queryByTestId("leaderboardsToast")).not.toBeOnTheScreen();
+  });
+
+  test.each<GameCenterStatus>(["signed-out", "unavailable"])(
+    "a press while %s says where to sign in",
+    async (status) => {
+      renderJournal(EMPTY_JOURNAL, createFakeGameCenter(status));
+
+      fireEvent.press(screen.getByTestId("leaderboardsBtn"));
+
+      expect(await screen.findByTestId("leaderboardsToast")).toHaveTextContent(
+        "SIGN IN TO GAME CENTER IN SETTINGS"
+      );
+    }
+  );
 });
