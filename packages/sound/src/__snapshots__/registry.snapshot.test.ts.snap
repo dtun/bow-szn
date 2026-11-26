@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`rendered sounds creak keeps its recorded fingerprint 1`] = `
+{
+  "samples": 4851,
+  "sha256": "52403878f9631b719197a017aec644bfe20e7813415217e91330636195500659",
+}
+`;
+
+exports[`rendered sounds fanfare keeps its recorded fingerprint 1`] = `
+{
+  "samples": 58800,
+  "sha256": "d83ac0670c5adfad0fc289f32eac45e6074189d75a7b4c578a046d8e7a2221c5",
+}
+`;
+
+exports[`rendered sounds full-draw keeps its recorded fingerprint 1`] = `
+{
+  "samples": 2095,
+  "sha256": "d0f8a7ea86c1135b8c82b8bdc6dbb9af8aa1b52754ad4d42f39eac7e0561fcc6",
+}
+`;
+
+exports[`rendered sounds glint keeps its recorded fingerprint 1`] = `
+{
+  "samples": 7718,
+  "sha256": "4343d16a949aeeb5ea85836f4003bfd82ee3811786042c881665bb061da998e2",
+}
+`;
+
+exports[`rendered sounds hit keeps its recorded fingerprint 1`] = `
+{
+  "samples": 6395,
+  "sha256": "2042d11ffba79d390568cdc9ac7d44a4f843844491955c9a0b75f71c2b44ef18",
+}
+`;
+
+exports[`rendered sounds jingle-title keeps its recorded fingerprint 1`] = `
+{
+  "samples": 453600,
+  "sha256": "15bff1727085342750c7d31cc82e4d8d2ce499c20edda344fb288da7020c9344",
+}
+`;
+
+exports[`rendered sounds spook keeps its recorded fingerprint 1`] = `
+{
+  "samples": 12669,
+  "sha256": "266da7f9ab98e9d0687beaf2b8560e7c5d020aabaa56a00551a27b765979211d",
+}
+`;
+
+exports[`rendered sounds tap-hit keeps its recorded fingerprint 1`] = `
+{
+  "samples": 5292,
+  "sha256": "5fe8b490c8c4a88d985bb3d7cdfc7872778465dd551b99a9a760e8021b851829",
+}
+`;
+
+exports[`rendered sounds tap-slip keeps its recorded fingerprint 1`] = `
+{
+  "samples": 6174,
+  "sha256": "472b35e8d38aba96fc2f752e598e5f8cb7d608703b324b61630c589b0e18c470",
+}
+`;
+
+exports[`rendered sounds thunk keeps its recorded fingerprint 1`] = `
+{
+  "samples": 5954,
+  "sha256": "06b707de093315106787f056ef345de4ca0ea12f8f33e2e3e41e4532c8d6da4e",
+}
+`;
+
+exports[`rendered sounds twang keeps its recorded fingerprint 1`] = `
+{
+  "samples": 10584,
+  "sha256": "dbceed06113c2d9ce5cbdcd2f4a1085c2cd2ec6006d324a4695e5ace8a5ceac4",
+}
+`;
+
+exports[`rendered sounds ui-select keeps its recorded fingerprint 1`] = `
+{
+  "samples": 2646,
+  "sha256": "3984332dca9820c0fd304d2a67cf4b47071c1f69b581114cd9c98e0f6a710225",
+}
+`;
+
+exports[`rendered sounds whiff keeps its recorded fingerprint 1`] = `
+{
+  "samples": 16317,
+  "sha256": "b9796d4d5dffc4f5e6020dc2b61156d78d873a8635aefa5f17531651d2bc59ae",
+}
+`;
+
+exports[`rendered sounds whoosh keeps its recorded fingerprint 1`] = `
+{
+  "samples": 9041,
+  "sha256": "013ef9335f3a1ce12dca5be448adb6466b421410074e61d35773c4cc4193d5c6",
+}
+`;
