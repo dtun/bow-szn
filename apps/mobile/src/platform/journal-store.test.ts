@@ -116,6 +116,13 @@ test("mounted ids that name a doe, a missing harvest, or a repeat are dropped on
   expect(journal.mountedIds).toEqual(["42-3"]);
 });
 
+test("mounted ids keep the order the bucks were mounted in", () => {
+  let other: Harvest = { ...BUCK, id: "42-9" };
+  let journal: Journal = { harvests: [BUCK, DOE, other], mountedIds: ["42-9", "42-3"] };
+
+  expect(createMemoryJournalStore(journal).load()).toEqual(journal);
+});
+
 test("a harvest with extra fields loads with only the fields of a harvest", () => {
   let journal = storedWith(payload({ harvests: [{ ...BUCK, nickname: "Big Joe" }] })).load();
 

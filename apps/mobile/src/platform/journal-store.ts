@@ -107,10 +107,11 @@ function mountableIds(harvests: Harvest[], mountedIds: unknown): string[] {
   if (!Array.isArray(mountedIds)) {
     return [];
   }
+  let mountable = harvests.filter(canMount).map((harvest) => harvest.id);
   let ids: string[] = [];
-  for (let harvest of harvests) {
-    if (canMount(harvest) && mountedIds.includes(harvest.id) && !ids.includes(harvest.id)) {
-      ids.push(harvest.id);
+  for (let id of mountedIds) {
+    if (mountable.includes(id) && !ids.includes(id)) {
+      ids.push(id);
     }
   }
   return ids;
