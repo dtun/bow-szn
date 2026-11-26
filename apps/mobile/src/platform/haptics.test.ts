@@ -1,12 +1,19 @@
 import * as Haptics from "expo-haptics";
 
-import { lightTap, success } from "./haptics";
+import { lightTap, mediumTap, success } from "./haptics";
 
 test("lightTap gives a light impact", () => {
   lightTap();
 
   expect(Haptics.impactAsync).toHaveBeenCalledTimes(1);
   expect(Haptics.impactAsync).toHaveBeenCalledWith("light");
+});
+
+test("mediumTap gives a medium impact", () => {
+  mediumTap();
+
+  expect(Haptics.impactAsync).toHaveBeenCalledTimes(1);
+  expect(Haptics.impactAsync).toHaveBeenCalledWith("medium");
 });
 
 test("success gives the success notification", () => {
@@ -23,6 +30,7 @@ test("a device without haptics fails quietly", async () => {
   });
 
   expect(() => lightTap()).not.toThrow();
+  expect(() => mediumTap()).not.toThrow();
   expect(() => success()).not.toThrow();
   await Promise.resolve();
 });
