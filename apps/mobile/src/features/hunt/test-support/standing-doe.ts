@@ -7,7 +7,7 @@ export type Standing = { seed: string; pos: Vec2; id: number };
 const EMPTY_GROUND_RANGE_PX = 30;
 const ELBOW_ROOM_PX = 30;
 
-function findStanding(
+export function findStanding(
   params: Omit<HuntParams, "seed">,
   wanted: (animal: Animal) => boolean,
   grazeMs: number
@@ -36,7 +36,7 @@ function findStanding(
   throw new Error("no seed puts a lone animal dead ahead in calm air");
 }
 
-function pullForRange(rangePx: number): number {
+export function pullForRange(rangePx: number): number {
   return (rangePx * TUNING.aim.maxPullPx) / TUNING.aim.maxRangePx;
 }
 
