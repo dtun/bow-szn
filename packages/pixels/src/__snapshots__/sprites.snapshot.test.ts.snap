@@ -1638,6 +1638,58 @@ KWWWK
 "
 `;
 
+exports[`sprite art sign-knot 1`] = `
+"
+.UUU.
+UBbBU
+.UUU.
+"
+`;
+
+exports[`sprite art sign-nail 1`] = `
+"
+HHh
+Hhh
+hhh
+"
+`;
+
+exports[`sprite art sign-point-left 1`] = `
+"
+......U
+.....Ub
+....UBB
+...UBBB
+..UBBBB
+.UBBBBB
+UBBBBBB
+.UBBBBB
+..UBBBB
+...UBBB
+....UBB
+.....UB
+......U
+"
+`;
+
+exports[`sprite art sign-point-right 1`] = `
+"
+U......
+bU.....
+BBU....
+BBBU...
+BBBBU..
+BBBBBU.
+BBBBBBU
+BBBBBU.
+BBBBU..
+BBBU...
+BBU....
+BU.....
+U......
+"
+`;
+
 exports[`sprite art spike-down 1`] = `
 "
 E.E.....E.E.......

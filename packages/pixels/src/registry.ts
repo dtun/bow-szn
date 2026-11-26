@@ -22,6 +22,8 @@ import { SIGHT_IN_SPRITES } from "./sprites/sight-in.ts";
 import type { SightInSpriteId } from "./sprites/sight-in.ts";
 import { TERRAIN_SPRITES } from "./sprites/terrain.ts";
 import type { TerrainSpriteId } from "./sprites/terrain.ts";
+import { TRAIL_SIGN_SPRITES } from "./sprites/trail-sign.ts";
+import type { TrailSignSpriteId } from "./sprites/trail-sign.ts";
 import { TURKEY_SPRITES } from "./sprites/turkey.ts";
 import type { TurkeySpriteId } from "./sprites/turkey.ts";
 import type { Sprite } from "./types.ts";
@@ -35,6 +37,7 @@ export type SpriteId =
   | TerrainSpriteId
   | SightInSpriteId
   | PlatMapSpriteId
+  | TrailSignSpriteId
   | FxSpriteId
   | IconSpriteId
   | MountSpriteId
@@ -50,6 +53,7 @@ export const SPRITES: Record<SpriteId, Sprite> = {
   ...TERRAIN_SPRITES,
   ...SIGHT_IN_SPRITES,
   ...PLAT_MAP_SPRITES,
+  ...TRAIL_SIGN_SPRITES,
   ...FX_SPRITES,
   ...ICON_SPRITES,
   ...MOUNT_SPRITES,
