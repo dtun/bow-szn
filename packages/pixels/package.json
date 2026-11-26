@@ -11,8 +11,9 @@
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
-    "vibecheck": "npm run lint && npm run typecheck && npm run test"
+    "test": "jest --selectProjects unit",
+    "test:snapshot": "jest --selectProjects snapshot",
+    "vibecheck": "npm run lint && npm run typecheck && npm run test && npm run test:snapshot"
   },
   "devDependencies": {
     "@types/jest": "29.5.14",
