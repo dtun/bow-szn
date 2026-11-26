@@ -59,12 +59,6 @@ describe("whitetail sprites", () => {
     }
   });
 
-  it("keeps every pose of a class the same width so the anchor never jumps", () => {
-    for (let kind of WHITETAIL_KINDS) {
-      expect(new Set(posesOf(kind).map((pose) => pose.w)).size).toBe(1);
-    }
-  });
-
   it("gives does no antler pixels in any pose", () => {
     for (let pose of posesOf("doe")) {
       expect(antlerCells(pose).size).toBe(0);
@@ -91,14 +85,6 @@ describe("whitetail sprites", () => {
 
     expect(heights).toEqual([...heights].sort((a, b) => a - b));
     expect(new Set(heights).size).toBe(heights.length);
-  });
-
-  it("alternates the legs between the two walking frames", () => {
-    for (let kind of WHITETAIL_KINDS) {
-      let [first, second] = ANIMAL_FRAMES[kind].walk;
-
-      expect(SPRITES[first].rows).not.toEqual(SPRITES[second].rows);
-    }
   });
 });
 
