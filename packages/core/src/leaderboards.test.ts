@@ -65,9 +65,15 @@ test("the buck board takes the best rack score, mounted or not", () => {
   });
 });
 
-test("a bull elk's rack counts on the buck board", () => {
+test("a bull elk stays off the buck board, but its meat fills the freezer", () => {
   expect(leaderboardScores(journalOf([TEN_POINT, BULL_ELK]))).toEqual({
-    "bowseason.best_buck": 14 * 10 + 61,
+    "bowseason.best_buck": 10 * 10 + 24,
     "bowseason.freezer_total": 108 + 256,
+  });
+});
+
+test("a bull elk alone posts no buck score", () => {
+  expect(leaderboardScores(journalOf([BULL_ELK]))).toEqual({
+    "bowseason.freezer_total": 256,
   });
 });

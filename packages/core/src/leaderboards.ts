@@ -12,7 +12,9 @@ export type LeaderboardScores = Partial<Record<LeaderboardId, number>>;
 
 export function leaderboardScores(journal: Journal): LeaderboardScores {
   let scores: LeaderboardScores = {};
-  let racks = journal.harvests.filter(canMount);
+  let racks = journal.harvests.filter(
+    (harvest) => harvest.species === "whitetail" && canMount(harvest)
+  );
   if (racks.length > 0) {
     scores[LEADERBOARDS.bestBuck] = Math.max(...racks.map(trophyScore));
   }
