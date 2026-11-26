@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Bow Season",
+    "slug": "bow-season",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "bowseason",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0b0f1a",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.paperstreetapp.bowseason",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.paperstreetapp.bowseason"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0b0f1a"
+        }
+      ],
+      "expo-font",
+      "expo-sqlite",
+      "expo-audio"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "owner": "paperstreetappllc"
+  }
+}
