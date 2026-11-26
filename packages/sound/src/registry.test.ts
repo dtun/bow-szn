@@ -57,5 +57,12 @@ describe("the sound registry", () => {
     it.each(SOUND_IDS.filter((id) => SOUNDS[id].kind === "sfx"))("%s stays short", (id) => {
       expect(samplesOf(id).length / SOUND_SAMPLE_RATE).toBeLessThanOrEqual(LONGEST_EFFECT_SEC);
     });
+
+    it("keeps the arrow in flight about 400 ms", () => {
+      let seconds = samplesOf("whoosh").length / SOUND_SAMPLE_RATE;
+
+      expect(seconds).toBeGreaterThanOrEqual(0.35);
+      expect(seconds).toBeLessThanOrEqual(0.45);
+    });
   });
 });
