@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { peak } from "./measure.ts";
 import { SOUNDS, SOUND_SAMPLE_RATE } from "./registry.ts";
 import { render } from "./render.ts";
@@ -12,6 +13,10 @@ const LONGEST_EFFECT_SEC = 1;
 const LOOP_SEAM = 0.001;
 
 let rendered = new Map<SoundId, Float32Array>();
+
+function digest(samples: Float32Array): string {
+  return createHash("sha256").update(samples).digest("hex");
+}
 
 function samplesOf(id: SoundId): Float32Array {
   let samples = rendered.get(id) ?? render(SOUNDS[id], SOUND_SAMPLE_RATE);
@@ -51,7 +56,7 @@ describe("the sound registry", () => {
     });
 
     it("renders the same samples every time", () => {
-      expect(render(SOUNDS[id], SOUND_SAMPLE_RATE)).toEqual(samplesOf(id));
+      expect(digest(render(SOUNDS[id], SOUND_SAMPLE_RATE))).toBe(digest(samplesOf(id)));
     });
   });
 
