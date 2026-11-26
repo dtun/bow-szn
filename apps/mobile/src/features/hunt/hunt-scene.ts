@@ -15,6 +15,7 @@ import { HUNTER_FRAMES, SPRITES } from "@bow-szn/pixels";
 
 import { aimMarks } from "./aim-marks";
 import { animalPose, glintFrame, rackTip } from "./animal-art";
+import { airborneAt, headingAt } from "./arrow-path";
 import { hudFor, type Hud } from "./hud";
 import { huntView, type HuntView, type Screen } from "./hunt-view";
 import { powerFor, type PowerMeter } from "./power-meter";
@@ -38,7 +39,6 @@ const TRAIL_COLOR = "rgba(255,255,255,0.45)";
 
 export const HUNTER_ANCHOR: Vec2 = { x: HUNTER_POS.x, y: WORLD_H - 2 };
 
-const TANGENT_STEP = 0.02;
 const TRAIL_STEP = 0.03;
 const TRAIL_DOTS = 3;
 
@@ -76,17 +76,10 @@ function hunterMark(phase: HuntPhase): Mark {
   return sprite("hunter", frame, HUNTER_ANCHOR);
 }
 
-function airborneAt(arrow: Arrow, progress: number): Vec2 {
-  let { ground, height } = arrowAt({ ...arrow, elapsedMs: arrow.durationMs * progress });
-  return { x: ground.x, y: ground.y - height };
-}
-
 function flightMarks(arrow: Arrow): Mark[] {
   let progress = Math.min(1, arrow.elapsedMs / arrow.durationMs);
   let { ground } = arrowAt(arrow);
-  let from = airborneAt(arrow, Math.max(0, progress - TANGENT_STEP));
-  let to = airborneAt(arrow, Math.min(1, progress + TANGENT_STEP));
-  let heading = Math.atan2(to.x - from.x, from.y - to.y);
+  let heading = headingAt(arrow, progress);
   let trail = Array.from({ length: TRAIL_DOTS }, (_, index) =>
     centeredRect(
       `arrow-trail-${index}`,
