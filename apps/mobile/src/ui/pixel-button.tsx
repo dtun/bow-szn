@@ -14,12 +14,14 @@ import {
 } from "@/ui/theme";
 
 export type ButtonTone = "primary" | "brown" | "navy";
+export type ButtonSize = "normal" | "small";
 
 type PixelButtonProps = {
   label: string;
   onPress: () => void;
   testID: string;
   tone?: ButtonTone;
+  size?: ButtonSize;
   accessibilityLabel?: string;
   accessibilityHint?: string;
   style?: StyleProp<ViewStyle>;
@@ -31,16 +33,23 @@ const TONES: Record<ButtonTone, { face: string; edge: string }> = {
   navy: { face: NAVY, edge: SKY },
 };
 
+const SIZES: Record<ButtonSize, { padding: number; fontSize: number }> = {
+  normal: { padding: 14, fontSize: 14 },
+  small: { padding: 10, fontSize: 10 },
+};
+
 export function PixelButton({
   label,
   onPress,
   testID,
   tone = "primary",
+  size = "normal",
   accessibilityLabel,
   accessibilityHint,
   style,
 }: PixelButtonProps) {
   let { face, edge } = TONES[tone];
+  let { padding, fontSize } = SIZES[size];
 
   function handlePress() {
     lightTap();
@@ -57,23 +66,22 @@ export function PixelButton({
       onPress={handlePress}
       style={({ pressed }) => [
         styles.button,
-        { backgroundColor: face, borderColor: edge },
+        { backgroundColor: face, borderColor: edge, paddingVertical: padding },
         pressed && styles.pressed,
         style,
       ]}
     >
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, { fontSize }]}>{label}</Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: 14,
     paddingHorizontal: 20,
     borderWidth: 4,
     borderBottomWidth: 8,
   },
   pressed: { transform: [{ translateY: 4 }], opacity: 0.9 },
-  label: { fontFamily: FONT_PIXEL, fontSize: 14, color: FOREGROUND, textAlign: "center" },
+  label: { fontFamily: FONT_PIXEL, color: FOREGROUND, textAlign: "center" },
 });

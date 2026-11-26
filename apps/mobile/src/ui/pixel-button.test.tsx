@@ -75,3 +75,15 @@ test("a layout style from the caller reaches the button", () => {
 
   expect(screen.getByTestId("backBtn")).toHaveStyle({ flex: 1 });
 });
+
+test("a small button prints a smaller label than a normal one", () => {
+  render(
+    <>
+      <PixelButton label="NORMAL" onPress={jest.fn()} testID="normalBtn" />
+      <PixelButton label="SMALL" size="small" onPress={jest.fn()} testID="smallBtn" />
+    </>
+  );
+
+  expect(screen.getByText("NORMAL")).toHaveStyle({ fontSize: 14 });
+  expect(screen.getByText("SMALL")).toHaveStyle({ fontSize: 10 });
+});
