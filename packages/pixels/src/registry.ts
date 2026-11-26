@@ -1,3 +1,5 @@
+import { BRAND_SPRITES } from "./sprites/brand.ts";
+import type { BrandSpriteId } from "./sprites/brand.ts";
 import { DEER_SPRITES } from "./sprites/deer.ts";
 import type { DeerSpriteId } from "./sprites/deer.ts";
 import { ELK_SPRITES } from "./sprites/elk.ts";
@@ -30,7 +32,8 @@ export type SpriteId =
   | FxSpriteId
   | IconSpriteId
   | MountSpriteId
-  | LogoSpriteId;
+  | LogoSpriteId
+  | BrandSpriteId;
 
 export const SPRITES: Record<SpriteId, Sprite> = {
   ...HUNTER_SPRITES,
@@ -43,4 +46,5 @@ export const SPRITES: Record<SpriteId, Sprite> = {
   ...ICON_SPRITES,
   ...MOUNT_SPRITES,
   ...LOGO_SPRITES,
+  ...BRAND_SPRITES,
 };
