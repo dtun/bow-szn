@@ -1,23 +1,26 @@
-import { isPrepDone, type PrepState } from "@bow-szn/core";
+import { isPrepDone } from "@bow-szn/core";
 import { router } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import type { SceneLayer } from "@/art/scene";
 import { SceneView } from "@/art/scene-view";
 import { lightTap, success } from "@/platform/haptics";
 import { usePreferences, type Preferences } from "@/platform/preferences";
 import { playSfx } from "@/platform/sfx";
-import { PixelButton } from "@/ui/pixel-button";
+import { SignArrow } from "@/ui/sign-arrow";
 import { ACCENT, BACKGROUND, FONT_PIXEL, FOREGROUND, PRIMARY } from "@/ui/theme";
 
-import { BAR_ROWS, BENCH_ROWS, benchScene, prepBarScene } from "./prep-scene";
+import { stuckArrows } from "./landings";
+import { prepMessage } from "./prep-message";
+import { baleScene, pinScene, SIGHT_COLS, SIGHT_ROWS } from "./sight-scene";
 import { usePrep } from "./use-prep";
 
 const SCREEN_MARGIN = 16;
-const CELLS_ACROSS = 60;
 const MIN_CELL = 3;
-const WAXED_BEAT_MS = 500;
+const DIALED_IN_BEAT_MS = 500;
+const MESSAGE_COLORS = { none: FOREGROUND, hit: ACCENT, slip: PRIMARY };
 
 function leavePrep() {
   if (router.canGoBack()) {
@@ -31,43 +34,27 @@ function startHunt({ spot, season, difficulty }: Preferences) {
   router.replace({ pathname: "/hunt", params: { spot, season, difficulty } });
 }
 
-function messageFor(state: PrepState): string {
-  if (isPrepDone(state)) {
-    return "WAXED UP!";
-  }
-  switch (state.lastTap) {
-    case "slip":
-      return "SLIPPED!";
-    case "hit":
-      return "NICE! AGAIN!";
-    case "none":
-      return "TAP IN THE GREEN!";
-  }
-}
+const Bale = memo(function Bale({ layers, cell }: { layers: SceneLayer[]; cell: number }) {
+  return <SceneView layers={layers} cell={cell} />;
+});
 
 export function PrepScreen() {
   let insets = useSafeAreaInsets();
   let { width } = useWindowDimensions();
   let choice = usePreferences();
   let [seed] = useState(() => Date.now());
-  let { state, tap } = usePrep(choice.difficulty, seed);
+  let { state, landings, tap } = usePrep(choice.difficulty, seed);
 
-  let cell = Math.max(MIN_CELL, Math.floor(width / CELLS_ACROSS));
-  let cols = Math.floor(width / cell);
-  let bench = useMemo(
-    () => benchScene(cols, state.hits, state.needed),
-    [cols, state.hits, state.needed]
-  );
-  let barCols = cols - 2 * Math.ceil(SCREEN_MARGIN / cell);
-  let bar = prepBarScene(state, barCols);
-
+  let cell = Math.max(MIN_CELL, Math.floor((width - SCREEN_MARGIN * 2) / SIGHT_COLS));
+  let bale = useMemo(() => baleScene(state.zone, landings), [state.zone, landings]);
+  let arrows = stuckArrows(landings).length;
   let done = isPrepDone(state);
 
   useEffect(() => {
     if (!done) {
       return;
     }
-    let timer = setTimeout(() => startHunt(choice), WAXED_BEAT_MS);
+    let timer = setTimeout(() => startHunt(choice), DIALED_IN_BEAT_MS);
     return () => clearTimeout(timer);
   }, [done, choice]);
 
@@ -88,7 +75,7 @@ export function PrepScreen() {
       <Pressable
         testID="prepTapArea"
         accessibilityRole="button"
-        accessibilityLabel="Tap when the marker is in the green zone"
+        accessibilityLabel="Loose an arrow when the pin is in the gold"
         onPressIn={attempt}
         style={StyleSheet.absoluteFill}
       />
@@ -97,40 +84,40 @@ export function PrepScreen() {
         style={[styles.content, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }]}
       >
         <Text accessibilityRole="header" style={styles.heading}>
-          WAX THE STRING
+          SIGHT IN
         </Text>
-        <SceneView
-          layers={bench}
-          cell={cell}
-          style={{ width: cols * cell, height: BENCH_ROWS * cell }}
-        />
-        <SceneView
-          layers={bar}
-          cell={cell}
-          style={{ width: barCols * cell, height: BAR_ROWS * cell }}
-        />
-        <Text testID="prepMessage" style={styles.message}>
-          {messageFor(state)}
+        <View
+          testID="prepBale"
+          accessible
+          accessibilityLabel={`${arrows} ${arrows === 1 ? "arrow" : "arrows"} in the bale`}
+          style={{ width: SIGHT_COLS * cell, height: SIGHT_ROWS * cell }}
+        >
+          <Bale layers={bale} cell={cell} />
+          <SceneView layers={pinScene(state.markerPos)} cell={cell} />
+        </View>
+        <Text
+          testID="prepMessage"
+          style={[styles.message, { color: MESSAGE_COLORS[done ? "hit" : state.lastTap] }]}
+        >
+          {prepMessage(state)}
         </Text>
         <Text testID="prepCount" style={styles.count}>
-          {`(${state.hits}/${state.needed})`}
+          {`${state.hits}/${state.needed}`}
         </Text>
       </View>
       <View pointerEvents="box-none" style={[styles.topRow, { paddingTop: insets.top + 8 }]}>
-        <PixelButton
+        <SignArrow
           label="BACK"
+          direction="left"
           accessibilityHint="Returns to the county map"
           testID="prepBackBtn"
-          tone="navy"
-          size="small"
           onPress={leavePrep}
         />
-        <PixelButton
+        <SignArrow
           label="SKIP"
-          accessibilityHint="Skips waxing the string and starts the hunt"
+          direction="right"
+          accessibilityHint="Skips sighting in and starts the hunt"
           testID="skipPrepBtn"
-          tone="navy"
-          size="small"
           onPress={() => startHunt(choice)}
         />
       </View>
@@ -148,9 +135,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: SCREEN_MARGIN,
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "flex-start",
   },
   content: { flex: 1, alignItems: "center", justifyContent: "center", gap: 16 },
   heading: { fontFamily: FONT_PIXEL, fontSize: 16, color: ACCENT },
-  message: { fontFamily: FONT_PIXEL, fontSize: 14, color: FOREGROUND, textAlign: "center" },
-  count: { fontFamily: FONT_PIXEL, fontSize: 14, color: PRIMARY },
+  message: { fontFamily: FONT_PIXEL, fontSize: 14, textAlign: "center" },
+  count: { fontFamily: FONT_PIXEL, fontSize: 12, color: FOREGROUND },
 });

@@ -8,13 +8,16 @@ import {
 } from "@bow-szn/core";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import type { Landing } from "./landings";
+
 const MAX_FRAME_MS = 50;
 
 export function usePrep(
   difficulty: Difficulty,
   seed: number
-): { state: PrepState; tap: () => PrepState } {
+): { state: PrepState; landings: Landing[]; tap: () => PrepState } {
   let [state, setState] = useState(() => createPrep(difficulty, seed));
+  let [landings, setLandings] = useState<Landing[]>([]);
   let latest = useRef(state);
 
   let apply = useCallback((event: PrepEvent): PrepState => {
@@ -30,7 +33,10 @@ export function usePrep(
 
     function onFrame(nowMs: number) {
       if (previousMs !== null) {
-        apply({ type: "tick", dtMs: Math.min(nowMs - previousMs, MAX_FRAME_MS) });
+        apply({
+          type: "tick",
+          dtMs: Math.min(nowMs - previousMs, MAX_FRAME_MS),
+        });
       }
       previousMs = nowMs;
       if (!isPrepDone(latest.current)) {
@@ -42,7 +48,14 @@ export function usePrep(
     return () => cancelAnimationFrame(frame);
   }, [apply]);
 
-  let tap = useCallback(() => apply({ type: "tap" }), [apply]);
+  let tap = useCallback(() => {
+    let before = latest.current;
+    let next = apply({ type: "tap" });
+    if (!isPrepDone(before)) {
+      setLandings((landed) => [...landed, { pos: before.markerPos, hit: next.lastTap === "hit" }]);
+    }
+    return next;
+  }, [apply]);
 
-  return { state, tap };
+  return { state, landings, tap };
 }

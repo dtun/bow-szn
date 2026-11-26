@@ -2,6 +2,7 @@ import { createPrep, prepReducer, type PrepState } from "@bow-szn/core";
 import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
+import { StyleSheet } from "react-native";
 
 import { updatePreferences } from "@/platform/preferences";
 import { playSfx } from "@/platform/sfx";
@@ -12,7 +13,7 @@ jest.mock("@/platform/sfx");
 
 const SEED = 424242;
 const FRAME_MS = 16;
-const GREEN_MARGIN = 0.02;
+const GOLD_MARGIN = 0.02;
 const MAX_FRAMES_TO_WAIT = 4000;
 
 type FrameCallback = (nowMs: number) => void;
@@ -34,9 +35,9 @@ function sweepOneFrame() {
   reference = prepReducer(reference, { type: "tick", dtMs: FRAME_MS });
 }
 
-function markerIsInGreen(): boolean {
+function markerIsInGold(): boolean {
   let [start, end] = reference.zone;
-  return reference.markerPos >= start + GREEN_MARGIN && reference.markerPos <= end - GREEN_MARGIN;
+  return reference.markerPos >= start + GOLD_MARGIN && reference.markerPos <= end - GOLD_MARGIN;
 }
 
 function tapNow() {
@@ -44,13 +45,13 @@ function tapNow() {
   reference = prepReducer(reference, { type: "tap" });
 }
 
-function tapInTheGreen() {
+function tapInTheGold() {
   let waited = 0;
-  while (!markerIsInGreen()) {
+  while (!markerIsInGold()) {
     sweepOneFrame();
     waited++;
     if (waited > MAX_FRAMES_TO_WAIT) {
-      throw new Error("the marker never reached the green zone");
+      throw new Error("the marker never reached the gold");
     }
   }
   tapNow();
@@ -104,67 +105,102 @@ function passTime(ms: number) {
   });
 }
 
-test("opens on the bench with nothing waxed yet", () => {
+test("opens on the straw bale with no arrows in it yet", () => {
   startPrep();
 
   expect(screen.getByTestId("prepScreen")).toBeOnTheScreen();
-  expect(screen.getByRole("header", { name: "WAX THE STRING" })).toBeOnTheScreen();
-  expect(screen.getByTestId("prepMessage")).toHaveTextContent("TAP IN THE GREEN!");
-  expect(screen.getByTestId("prepCount")).toHaveTextContent("(0/3)");
+  expect(screen.getByRole("header", { name: "SIGHT IN" })).toBeOnTheScreen();
+  expect(screen.getByTestId("prepMessage")).toHaveTextContent("TAP TO LOOSE!");
+  expect(screen.getByTestId("prepCount")).toHaveTextContent("0/3");
+  expect(screen.getByLabelText("0 arrows in the bale")).toBeOnTheScreen();
 });
 
 test("the whole screen is one big button for the tap", () => {
   startPrep();
 
   expect(
-    screen.getByRole("button", { name: "Tap when the marker is in the green zone" })
+    screen.getByRole("button", { name: "Loose an arrow when the pin is in the gold" })
   ).toBeOnTheScreen();
 });
 
-test("a tap in the green counts as a hit", () => {
+test("prints every word at 12 points or bigger", () => {
   startPrep();
+  tapNow();
 
-  tapInTheGreen();
+  let smallest = Math.min(
+    ...screen.getAllByText(/./).map((text) => StyleSheet.flatten(text.props.style)?.fontSize ?? 0)
+  );
 
-  expect(screen.getByTestId("prepCount")).toHaveTextContent("(1/3)");
-  expect(screen.getByTestId("prepMessage")).toHaveTextContent("NICE! AGAIN!");
+  expect(smallest).toBeGreaterThanOrEqual(12);
 });
 
-test("a tap outside the green slips and counts nothing", () => {
+test("an arrow in the gold counts, sticks in the bale, and is a clean shot", () => {
+  startPrep();
+
+  tapInTheGold();
+
+  expect(screen.getByTestId("prepCount")).toHaveTextContent("1/3");
+  expect(screen.getByTestId("prepMessage")).toHaveTextContent("CLEAN SHOT!");
+  expect(screen.getByLabelText("1 arrow in the bale")).toBeOnTheScreen();
+});
+
+test("the second arrow in the gold is grouped", () => {
+  startPrep();
+
+  tapInTheGold();
+  tapInTheGold();
+
+  expect(screen.getByTestId("prepCount")).toHaveTextContent("2/3");
+  expect(screen.getByTestId("prepMessage")).toHaveTextContent("GROUPED!");
+});
+
+test("an arrow outside the gold is a flier that counts nothing but still sticks", () => {
   startPrep();
 
   tapNow();
 
-  expect(screen.getByTestId("prepMessage")).toHaveTextContent("SLIPPED!");
-  expect(screen.getByTestId("prepCount")).toHaveTextContent("(0/3)");
+  expect(screen.getByTestId("prepMessage")).toHaveTextContent("FLIER!");
+  expect(screen.getByTestId("prepCount")).toHaveTextContent("0/3");
+  expect(screen.getByLabelText("1 arrow in the bale")).toBeOnTheScreen();
 });
 
-test("a slip after a hit keeps the hit", () => {
+test("a flier after a good arrow keeps the good arrow", () => {
   startPrep();
-  tapInTheGreen();
+  tapInTheGold();
 
   tapNow();
 
-  expect(screen.getByTestId("prepMessage")).toHaveTextContent("SLIPPED!");
-  expect(screen.getByTestId("prepCount")).toHaveTextContent("(1/3)");
+  expect(screen.getByTestId("prepMessage")).toHaveTextContent("FLIER!");
+  expect(screen.getByTestId("prepCount")).toHaveTextContent("1/3");
+  expect(screen.getByLabelText("2 arrows in the bale")).toBeOnTheScreen();
 });
 
-test("three hits wax the string", () => {
+test("a flier is pulled from the bale when the next arrow is shot", () => {
+  startPrep();
+  tapNow();
+
+  tapInTheGold();
+
+  expect(screen.getByLabelText("1 arrow in the bale")).toBeOnTheScreen();
+});
+
+test("three arrows in the gold dial the sight in", () => {
   startPrep();
 
-  tapInTheGreen();
-  tapInTheGreen();
-  tapInTheGreen();
+  tapInTheGold();
+  tapInTheGold();
+  tapInTheGold();
 
-  expect(screen.getByTestId("prepCount")).toHaveTextContent("(3/3)");
-  expect(screen.getByTestId("prepMessage")).toHaveTextContent("WAXED UP!");
+  expect(screen.getByTestId("prepCount")).toHaveTextContent("3/3");
+  expect(screen.getByTestId("prepMessage")).toHaveTextContent("DIALED IN!");
+  expect(screen.getByLabelText("3 arrows in the bale")).toBeOnTheScreen();
 });
 
-test("every tap ticks the phone, and hits and slips sound different", () => {
+test("every tap ticks the phone, and good arrows and fliers sound different", () => {
   startPrep();
 
   tapNow();
-  tapInTheGreen();
+  tapInTheGold();
 
   expect(Haptics.impactAsync).toHaveBeenCalledTimes(2);
   expect(Haptics.impactAsync).toHaveBeenCalledWith("light");
@@ -213,23 +249,23 @@ describe("finishing the prep", () => {
   test("the third hit buzzes success, and the first two do not", () => {
     startPrep();
 
-    tapInTheGreen();
-    tapInTheGreen();
+    tapInTheGold();
+    tapInTheGold();
     expect(Haptics.notificationAsync).not.toHaveBeenCalled();
 
-    tapInTheGreen();
+    tapInTheGold();
     expect(Haptics.notificationAsync).toHaveBeenCalledTimes(1);
     expect(Haptics.notificationAsync).toHaveBeenCalledWith("success");
   });
 
-  test("holds on WAXED UP! for a beat, then starts the hunt on its own", () => {
+  test("holds on DIALED IN! for a beat, then starts the hunt on its own", () => {
     let replace = replaceSpy();
     updatePreferences({ spot: "miller-bottoms", season: "late" });
     startPrep();
 
-    tapInTheGreen();
-    tapInTheGreen();
-    tapInTheGreen();
+    tapInTheGold();
+    tapInTheGold();
+    tapInTheGold();
     expect(replace).not.toHaveBeenCalled();
 
     passTime(1000);
@@ -245,25 +281,25 @@ describe("finishing the prep", () => {
     let replace = replaceSpy();
     startPrep();
 
-    tapInTheGreen();
-    tapInTheGreen();
+    tapInTheGold();
+    tapInTheGold();
     passTime(5000);
 
     expect(replace).not.toHaveBeenCalled();
   });
 
-  test("extra taps while waxed up change nothing and start the hunt once", () => {
+  test("extra taps once dialed in change nothing and start the hunt once", () => {
     let replace = replaceSpy();
     startPrep();
-    tapInTheGreen();
-    tapInTheGreen();
-    tapInTheGreen();
+    tapInTheGold();
+    tapInTheGold();
+    tapInTheGold();
 
     fireEvent(screen.getByTestId("prepTapArea"), "pressIn");
     passTime(1000);
 
-    expect(screen.getByTestId("prepCount")).toHaveTextContent("(3/3)");
-    expect(screen.getByTestId("prepMessage")).toHaveTextContent("WAXED UP!");
+    expect(screen.getByTestId("prepCount")).toHaveTextContent("3/3");
+    expect(screen.getByTestId("prepMessage")).toHaveTextContent("DIALED IN!");
     expect(Haptics.impactAsync).toHaveBeenCalledTimes(3);
     expect(replace).toHaveBeenCalledTimes(1);
   });
@@ -271,9 +307,9 @@ describe("finishing the prep", () => {
   test("leaving the screen before the beat ends cancels the automatic start", () => {
     let replace = replaceSpy();
     startPrep();
-    tapInTheGreen();
-    tapInTheGreen();
-    tapInTheGreen();
+    tapInTheGold();
+    tapInTheGold();
+    tapInTheGold();
 
     screen.unmount();
     passTime(1000);
@@ -293,7 +329,7 @@ describe("BACK", () => {
     expect(back).toHaveBeenCalledTimes(1);
   });
 
-  test("goes to the county map when the bench was opened directly", () => {
+  test("goes to the county map when sighting in was opened directly", () => {
     jest.spyOn(router, "canGoBack").mockReturnValue(false);
     let replace = replaceSpy();
     startPrep();
