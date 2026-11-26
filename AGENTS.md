@@ -127,7 +127,7 @@ Leaderboards work only in a native build: a simulator dev build or a TestFlight 
 EXPO_PUBLIC_SFX=off npx expo run:ios --device <udid>
 ```
 
-That generates `ios/`, installs the pods, builds the app, installs it on the simulator, and starts Metro. The build needs the Skia binaries, so approve the Skia install script first (see above). Add `--port <port>` when another Metro already holds 8081. A simulator with no Game Center account fails sign-in, and LEADERBOARDS then shows the sign-in toast. To see the leaderboards themselves, sign in to Game Center in the simulator's Settings app. Game Center also needs the app's leaderboards set up in App Store Connect.
+That generates `ios/`, installs the pods, builds the app, installs it on the simulator, and starts Metro. The build needs the Skia binaries, so approve the Skia install script first (see above). A simulator with no Game Center account fails sign-in, and LEADERBOARDS then shows the sign-in toast. To see the leaderboards themselves, sign in to Game Center in the simulator's Settings app. Game Center also needs the app's leaderboards set up in App Store Connect.
 
 ### Store listing and screenshots
 
