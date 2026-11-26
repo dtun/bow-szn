@@ -4,8 +4,6 @@ import { fireEvent, renderRouter, screen } from "expo-router/testing-library";
 
 const APP_DIR = path.resolve(__dirname, "../../app");
 
-jest.setTimeout(20_000);
-
 async function openMapFromTitle() {
   expect(await screen.findByTestId("titleScreen")).toBeOnTheScreen();
   fireEvent.press(screen.getByTestId("goHuntingBtn"));
