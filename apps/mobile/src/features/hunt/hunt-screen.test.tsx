@@ -1,3 +1,4 @@
+import { TUNING } from "@bow-szn/core";
 import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import { router } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -64,7 +65,7 @@ test("shows the power while the bow is drawn and clears it on release", () => {
   expect(screen.queryByTestId("powerPanel")).not.toBeOnTheScreen();
 });
 
-test("an arrow loosed at a standing doe flies, then lands as a HIT!", () => {
+test("an arrow loosed at a standing doe flies, then lands as DOE!", () => {
   renderHunt();
 
   dragBackAndLetGo(PULL_TO_DOE);
@@ -75,29 +76,44 @@ test("an arrow loosed at a standing doe flies, then lands as a HIT!", () => {
   passTime(1000);
 
   expect(screen.getByTestId("shotResult")).toBeOnTheScreen();
-  expect(screen.getByTestId("shotResult")).toHaveTextContent("HIT!");
+  expect(screen.getByTestId("shotResult")).toHaveTextContent("DOE!");
 });
 
-test("an arrow that lands on empty ground is a MISS", () => {
+test("an arrow that lands on empty ground gets a funny miss line", () => {
   renderHunt();
 
   dragBackAndLetGo(PULL_TO_EMPTY_GROUND);
   passTime(1500);
 
-  expect(screen.getByTestId("shotResult")).toHaveTextContent("MISS");
+  expect(screen.getByTestId("shotResult")).toHaveTextContent(
+    /^(WHIFF!|DIRT NAP!|SO CLOSE!|THAT \w+ SAW YOU\.)$/
+  );
 });
 
-test("tapping the result dismisses it and the bow is ready again", () => {
+test("the result clears itself after a beat and the bow is ready again", () => {
   renderHunt();
   dragBackAndLetGo(PULL_TO_EMPTY_GROUND);
-  passTime(1500);
+  passTime(400);
 
-  fireEvent.press(screen.getByTestId("shotResult"));
+  expect(screen.getByTestId("shotResult")).toBeOnTheScreen();
+
+  passTime(TUNING.juice.resultMs);
 
   expect(screen.queryByTestId("shotResult")).not.toBeOnTheScreen();
 
   holdBack(30);
 
+  expect(screen.getByTestId("powerPanel")).toHaveTextContent("POWER50%STEADY");
+});
+
+test("drawing again shrugs off the result at once", () => {
+  renderHunt();
+  dragBackAndLetGo(PULL_TO_EMPTY_GROUND);
+  passTime(400);
+
+  holdBack(30);
+
+  expect(screen.queryByTestId("shotResult")).not.toBeOnTheScreen();
   expect(screen.getByTestId("powerPanel")).toHaveTextContent("POWER50%STEADY");
 });
 

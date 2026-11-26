@@ -3,6 +3,7 @@ import {
   HUNTER_POS,
   isGlinting,
   SPOTS,
+  timeScale,
   WORLD_H,
   type Animal,
   type Arrow,
@@ -17,21 +18,23 @@ import { aimMarks } from "./aim-marks";
 import { animalPose, glintFrame, rackTip } from "./animal-art";
 import { airborneAt, headingAt } from "./arrow-path";
 import { hudFor, type Hud } from "./hud";
-import { huntView, type HuntView, type Screen } from "./hunt-view";
+import { isFrozen, type Juice } from "./hunt-session";
+import { huntView, type Bounds, type HuntView, type Screen } from "./hunt-view";
+import { burstMarks, popLabel, shakeOffset } from "./juice-marks";
 import { powerFor, type PowerMeter } from "./power-meter";
-import { centeredRect, sprite, type Label, type Mark } from "./scene-marks";
+import { centeredRect, label, rect, sprite, YELLOW, type Label, type Mark } from "./scene-marks";
 
 export type { Label, Mark, OvalMark, RectMark, SpriteMark } from "./scene-marks";
 
 export type Scene = {
   view: HuntView;
+  shake: Vec2;
   field: { terrain: Terrain; seed: number };
   ground: Mark[];
   air: Mark[];
   labels: Label[];
   hud: Hud;
   power: PowerMeter | null;
-  resultLabel: string | null;
 };
 
 const SHADOW_COLOR = "rgba(11,15,26,0.28)";
@@ -41,8 +44,38 @@ export const HUNTER_ANCHOR: Vec2 = { x: HUNTER_POS.x, y: WORLD_H - 2 };
 
 const TRAIL_STEP = 0.03;
 const TRAIL_DOTS = 3;
+const FELLED_FLASH_MS = 520;
+const FELLED_BLINK_MS = 70;
+const WHITE = "#ffffff";
+const DUST_COLORS = ["#c9a36b", "#9c7a45"];
+const DUST_STEP_MS = 70;
+const SLOW_MO_DIM = "rgba(8,12,40,0.3)";
+const FLASH = "rgba(255,255,255,0.6)";
+const BRACKET_REACH = 11;
+const OVERLAY_MARGIN = 8;
 
-function animalMarks(animal: Animal, elapsedMs: number): Mark[] {
+function felledFlash(animal: Animal, juice: Juice): string | null {
+  let pop = juice.pop;
+  if (pop === null || pop.animalId !== animal.id) {
+    return null;
+  }
+  let age = juice.nowMs - pop.startMs;
+  return age < FELLED_FLASH_MS && Math.floor(age / FELLED_BLINK_MS) % 2 === 0 ? WHITE : null;
+}
+
+function dustTrail(animal: Animal, elapsedMs: number): Mark[] {
+  if (animal.mode.kind !== "flee") {
+    return [];
+  }
+  let step = Math.floor(elapsedMs / DUST_STEP_MS);
+  return [0, 1, 2].map((index) => {
+    let behind = 6 + ((index * 3 + step) % 9);
+    let at = { x: animal.pos.x - animal.facing * behind, y: animal.pos.y - ((step + index) % 3) };
+    return centeredRect(`dust-trail-${animal.id}-${index}`, at, 1, 1, DUST_COLORS[index % 2]);
+  });
+}
+
+function animalMarks(animal: Animal, elapsedMs: number, juice: Juice): Mark[] {
   let pose = animalPose(animal, elapsedMs);
   if (pose === null) {
     return [];
@@ -50,11 +83,57 @@ function animalMarks(animal: Animal, elapsedMs: number): Mark[] {
   let width = SPRITES[pose.id].w - 4;
   return [
     centeredRect(`shadow-${animal.id}`, animal.pos, width, 2, SHADOW_COLOR),
+    ...dustTrail(animal, elapsedMs),
     sprite(`animal-${animal.id}`, pose.id, animal.pos, {
       flip: animal.facing === -1,
       rotate: pose.rotate,
+      tint: felledFlash(animal, juice),
     }),
   ];
+}
+
+function alertLabels(animals: Animal[], elapsedMs: number): Label[] {
+  return animals.flatMap((animal) => {
+    let pose = animalPose(animal, elapsedMs);
+    if (pose === null || animal.mode.kind !== "alert") {
+      return [];
+    }
+    let top = animal.pos.y - SPRITES[pose.id].h - 8;
+    return [label(`alert-${animal.id}`, "!", { x: animal.pos.x, y: top }, 6, YELLOW, "center")];
+  });
+}
+
+function overlay(key: string, bounds: Bounds, color: string): Mark {
+  return rect(
+    key,
+    bounds.left - OVERLAY_MARGIN,
+    bounds.top - OVERLAY_MARGIN,
+    bounds.right - bounds.left + OVERLAY_MARGIN * 2,
+    bounds.bottom - bounds.top + OVERLAY_MARGIN * 2,
+    color
+  );
+}
+
+function slowMoMarks(state: HuntState, bounds: Bounds): Mark[] {
+  if (state.phase.kind !== "flight" || timeScale(state) === 1) {
+    return [];
+  }
+  let target = state.phase.arrow.to;
+  let corners = [
+    [-1, -1],
+    [1, -1],
+    [-1, 1],
+    [1, 1],
+  ];
+  let brackets = corners.flatMap(([sx, sy], index) => {
+    let x = Math.round(target.x + sx * BRACKET_REACH);
+    let y = Math.round(target.y + sy * BRACKET_REACH);
+    return [
+      rect(`bracket-across-${index}`, sx > 0 ? x - 2 : x, y, 3, 1, YELLOW),
+      rect(`bracket-down-${index}`, x, sy > 0 ? y - 2 : y, 1, 3, YELLOW),
+    ];
+  });
+  return [overlay("slow-mo", bounds, SLOW_MO_DIM), ...brackets];
 }
 
 function glintMarks(animal: Animal, elapsedMs: number): Mark[] {
@@ -96,34 +175,38 @@ function flightMarks(arrow: Arrow): Mark[] {
   ];
 }
 
-function resultLabel(phase: HuntPhase): string | null {
-  if (phase.kind !== "result") {
-    return null;
-  }
-  return phase.outcome.kind === "harvest" ? "HIT!" : "MISS";
-}
-
-export function sceneFor(state: HuntState, screen: Screen): Scene {
+export function sceneFor(state: HuntState, juice: Juice, screen: Screen): Scene {
   let view = huntView(screen);
   let animals = byDepth(state.animals);
   let aim = aimMarks(state);
   let flight = state.phase.kind === "flight" ? flightMarks(state.phase.arrow) : [];
+  let bursts = burstMarks(juice);
+  let confetti = bursts.filter((mark) => mark.key.startsWith("confetti-"));
+  let pop = popLabel(state, juice);
   return {
     view,
+    shake: shakeOffset(juice),
     field: { terrain: SPOTS[state.config.spot].terrain, seed: state.config.seed },
     ground: [
       ...(aim?.zone ?? []),
-      ...animals.flatMap((animal) => animalMarks(animal, state.elapsedMs)),
+      ...bursts.filter((mark) => !mark.key.startsWith("confetti-")),
+      ...animals.flatMap((animal) => animalMarks(animal, state.elapsedMs, juice)),
     ],
     air: [
       ...animals.flatMap((animal) => glintMarks(animal, state.elapsedMs)),
       hunterMark(state.phase),
       ...(aim?.sight ?? []),
+      ...slowMoMarks(state, view.bounds),
       ...flight,
+      ...confetti,
+      ...(isFrozen(juice) ? [overlay("flash", view.bounds, FLASH)] : []),
     ],
-    labels: aim?.labels ?? [],
+    labels: [
+      ...(aim?.labels ?? []),
+      ...alertLabels(animals, state.elapsedMs),
+      ...(pop === null ? [] : [pop]),
+    ],
     hud: hudFor(state, view),
     power: powerFor(state, view),
-    resultLabel: resultLabel(state.phase),
   };
 }

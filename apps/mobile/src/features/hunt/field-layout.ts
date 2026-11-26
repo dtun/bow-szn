@@ -102,6 +102,10 @@ export const STAND: Box = {
   bottom: Infinity,
 };
 
+export function groundColor(terrain: Terrain): string {
+  return LOOKS[terrain].ground;
+}
+
 export function decorBox(decor: Decor): Box {
   let sprite = SPRITES[decor.id];
   let left = decor.x - Math.floor(sprite.w / 2);

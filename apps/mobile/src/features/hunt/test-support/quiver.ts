@@ -1,4 +1,5 @@
-import { act, fireEvent, screen } from "@testing-library/react-native";
+import { TUNING } from "@bow-szn/core";
+import { act } from "@testing-library/react-native";
 
 import { dragBackAndLetGo } from "./pan";
 import { PULL_TO_EMPTY_GROUND } from "./standing-doe";
@@ -9,8 +10,7 @@ export function shootIntoTheDirt(arrows: number) {
   for (let shot = 0; shot < arrows; shot++) {
     dragBackAndLetGo(PULL_TO_EMPTY_GROUND);
     act(() => {
-      jest.advanceTimersByTime(LANDED_MS);
+      jest.advanceTimersByTime(LANDED_MS + TUNING.juice.resultMs);
     });
-    fireEvent.press(screen.getByTestId("shotResult"));
   }
 }

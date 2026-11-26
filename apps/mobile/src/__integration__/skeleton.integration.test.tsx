@@ -1,7 +1,8 @@
 import path from "path";
 
+import { TUNING } from "@bow-szn/core";
 import { router } from "expo-router";
-import { act, fireEvent, renderRouter, screen } from "expo-router/testing-library";
+import { act, renderRouter, screen } from "expo-router/testing-library";
 
 import { dragBackAndLetGo, holdBack } from "@/features/hunt/test-support/pan";
 import { PULL_TO_DOE, STANDING_DOE } from "@/features/hunt/test-support/standing-doe";
@@ -23,7 +24,7 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-test("hunt, draw and release at a doe, HIT!, tap to dismiss, ready again", async () => {
+test("hunt, draw and release at a doe, DOE!, it clears itself, ready again", async () => {
   let app = renderRouter(APP_DIR);
   clockReads(Number(STANDING_DOE.seed));
 
@@ -38,9 +39,9 @@ test("hunt, draw and release at a doe, HIT!, tap to dismiss, ready again", async
   dragBackAndLetGo(PULL_TO_DOE);
   passTime(1500);
 
-  expect(screen.getByTestId("shotResult")).toHaveTextContent("HIT!");
+  expect(screen.getByTestId("shotResult")).toHaveTextContent("DOE!");
 
-  fireEvent.press(screen.getByTestId("shotResult"));
+  passTime(TUNING.juice.resultMs);
 
   expect(screen.queryByTestId("shotResult")).not.toBeOnTheScreen();
 
@@ -63,5 +64,5 @@ test("a hunt opened with a seed in its url plays the same whatever the clock say
   dragBackAndLetGo(PULL_TO_DOE);
   passTime(1500);
 
-  expect(screen.getByTestId("shotResult")).toHaveTextContent("HIT!");
+  expect(screen.getByTestId("shotResult")).toHaveTextContent("DOE!");
 });

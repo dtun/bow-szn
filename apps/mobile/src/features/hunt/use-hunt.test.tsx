@@ -89,3 +89,13 @@ test("stops asking for frames once the screen is gone", () => {
 
   expect(scheduled.size).toBe(0);
 });
+
+test("hands the effects of each step to the sink once", () => {
+  let sink = jest.fn();
+  let { result } = renderHook(() => useHunt(CONFIG, sink));
+
+  act(() => result.current.dispatch({ type: "draw-start" }));
+  act(() => result.current.dispatch({ type: "cancel" }));
+
+  expect(sink.mock.calls).toEqual([[[{ kind: "sound", sound: "creak" }]]]);
+});

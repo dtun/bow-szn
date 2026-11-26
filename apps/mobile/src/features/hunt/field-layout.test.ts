@@ -1,6 +1,6 @@
 import type { Terrain } from "@bow-szn/core";
 
-import { decorBox, fieldLayout, OPEN_MIDDLE, STAND, type Box } from "./field-layout";
+import { decorBox, fieldLayout, groundColor, OPEN_MIDDLE, STAND, type Box } from "./field-layout";
 import { huntView } from "./hunt-view";
 
 const TERRAINS: Terrain[] = ["hardwoods", "meadow", "marsh", "ridge"];
@@ -24,10 +24,10 @@ test("a new seed moves the dressing around", () => {
   );
 });
 
-test("the ground covers the whole screen, overscan included", () => {
+test("the ground covers the whole screen, overscan included, in the terrain's own green", () => {
   let [base] = fieldLayout("meadow", 7, TALL_PHONE).ground;
 
-  expect(base).toMatchObject({ x: -17, y: -129, width: 215, height: 466 });
+  expect(base).toEqual({ x: -17, y: -129, width: 215, height: 466, color: groundColor("meadow") });
 });
 
 test.each(TERRAINS)("%s keeps every prop out of the open middle where animals graze", (terrain) => {

@@ -43,6 +43,7 @@ export type Label = {
   size: number;
   color: string;
   align: "left" | "center" | "right";
+  testID?: string;
 };
 
 export const INK = "#1b1530";

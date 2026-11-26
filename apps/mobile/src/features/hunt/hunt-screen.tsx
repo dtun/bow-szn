@@ -1,11 +1,11 @@
 import type { HuntConfig } from "@bow-szn/core";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { StyleSheet, useWindowDimensions, View } from "react-native";
 import { GestureDetector } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { BACKGROUND, FONT_PIXEL, FOREGROUND, NAVY } from "@/ui/theme";
+import { BACKGROUND } from "@/ui/theme";
 
 import { FieldCanvas } from "./field-canvas";
 import { huntConfigFor, type HuntParams } from "./hunt-config";
@@ -17,8 +17,6 @@ import { SceneLabels } from "./scene-labels";
 import { useHunt } from "./use-hunt";
 import { usePullGesture } from "./use-pull-gesture";
 
-const RESULT_SIZE = 16;
-
 function leaveForMap() {
   router.dismissTo("/map");
 }
@@ -29,10 +27,10 @@ type HuntRunProps = {
 };
 
 function HuntRun({ config, onAgain }: HuntRunProps) {
-  let { state, dispatch } = useHunt(config);
+  let { state, juice, dispatch } = useHunt(config);
   let { width, height } = useWindowDimensions();
   let insets = useSafeAreaInsets();
-  let scene = sceneFor(state, {
+  let scene = sceneFor(state, juice, {
     width,
     height,
     insetTop: insets.top,
@@ -48,7 +46,7 @@ function HuntRun({ config, onAgain }: HuntRunProps) {
         <View style={styles.fill}>
           <View style={[styles.fill, styles.inert]}>
             <FieldCanvas scene={scene} />
-            <SceneLabels labels={scene.labels} view={scene.view} />
+            <SceneLabels labels={scene.labels} view={scene.view} shake={scene.shake} />
             <SceneLabels labels={scene.hud.labels} view={scene.view} />
             {scene.power === null ? null : (
               <SceneLabels labels={scene.power.labels} view={scene.view} testID="powerPanel" />
@@ -56,16 +54,6 @@ function HuntRun({ config, onAgain }: HuntRunProps) {
           </View>
         </View>
       </GestureDetector>
-      {scene.resultLabel === null ? null : (
-        <Pressable
-          testID="shotResult"
-          accessibilityRole="button"
-          onPress={() => dispatch({ type: "dismiss" })}
-          style={styles.centered}
-        >
-          <Text style={[styles.label, { fontSize: RESULT_SIZE * scale }]}>{scene.resultLabel}</Text>
-        </Pressable>
-      )}
       {over === null ? null : (
         <HuntOverPanel
           panel={over}
@@ -96,17 +84,5 @@ export function HuntScreen(params: HuntParams) {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: BACKGROUND },
   fill: StyleSheet.absoluteFillObject,
-  centered: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   inert: { pointerEvents: "none" },
-  label: {
-    fontFamily: FONT_PIXEL,
-    color: FOREGROUND,
-    textShadowColor: NAVY,
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 0,
-  },
 });

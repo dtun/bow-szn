@@ -10,6 +10,7 @@ import {
 
 import { fieldLayout } from "./field-layout";
 import { sceneFor, type Mark, type Scene } from "./hunt-scene";
+import { createSession, type Juice } from "./hunt-session";
 import type { Screen } from "./hunt-view";
 
 const DOE: Animal = {
@@ -37,6 +38,13 @@ const HARVEST: Harvest = {
 
 const GLINT_MS = 2161;
 
+const STILL: Juice = createSession({
+  spot: "cedar-hollow",
+  season: "early",
+  difficulty: "easy",
+  seed: 1,
+}).juice;
+
 const PHONE: Screen = { width: 390, height: 844, insetTop: 47, insetBottom: 34 };
 const BIG_PHONE: Screen = { width: 430, height: 932, insetTop: 59, insetBottom: 34 };
 
@@ -46,7 +54,7 @@ function huntWith(animals: Animal[], phase: HuntPhase, elapsedMs = 0): HuntState
 }
 
 function sceneOf(state: HuntState): Scene {
-  return sceneFor(state, PHONE);
+  return sceneFor(state, STILL, PHONE);
 }
 
 function keys(marks: Mark[]): string[] {
@@ -79,7 +87,7 @@ test.each([
   ["430x932", BIG_PHONE],
   ["393x852", { width: 393, height: 852, insetTop: 59, insetBottom: 34 }],
 ])("the field on a %s screen fills it edge to edge", (_, screen) => {
-  let scene = sceneFor(huntWith([], { kind: "ready" }), screen);
+  let scene = sceneFor(huntWith([], { kind: "ready" }), STILL, screen);
   let { bounds, scale } = scene.view;
   let [ground] = fieldLayout(scene.field.terrain, scene.field.seed, bounds).ground;
   let columns = Array.from({ length: screen.width }, (_, x) => Math.floor(x / scale) + bounds.left);
@@ -93,7 +101,7 @@ test.each([
 });
 
 test("the whole gameplay world sits on screen, stand at the bottom", () => {
-  let { bounds, safeBottom } = sceneFor(huntWith([], { kind: "ready" }), PHONE).view;
+  let { bounds, safeBottom } = sceneFor(huntWith([], { kind: "ready" }), STILL, PHONE).view;
 
   expect(bounds.left).toBeLessThanOrEqual(0);
   expect(bounds.right).toBeGreaterThanOrEqual(180);
@@ -317,20 +325,104 @@ test("an arrow at launch sits on the ground at the hunter", () => {
   expect(markNamed(scene, "arrow-shadow")).toMatchObject({ x: 89, y: 290 });
 });
 
-test("a harvest reads HIT!", () => {
-  let scene = sceneOf(
-    huntWith([], { kind: "result", outcome: { kind: "harvest", harvest: HARVEST } })
-  );
+test("a result floats its pop line over the spot, as the shot result", () => {
+  let juice: Juice = {
+    ...STILL,
+    pop: { text: "DOE!", at: { x: 90, y: 200 }, tone: "snack", animalId: 7, startMs: 0 },
+  };
+  let result = huntWith([], { kind: "result", outcome: { kind: "harvest", harvest: HARVEST } });
 
-  expect(scene.resultLabel).toBe("HIT!");
+  expect(sceneFor(result, juice, PHONE).labels).toContainEqual({
+    key: "pop",
+    text: "DOE!",
+    x: 90,
+    y: 179,
+    size: 7,
+    color: "#f4efe1",
+    align: "center",
+    testID: "shotResult",
+  });
 });
 
-test("a miss reads MISS, near or far", () => {
-  let far = sceneOf(huntWith([], { kind: "result", outcome: { kind: "miss", near: false } }));
-  let near = sceneOf(huntWith([], { kind: "result", outcome: { kind: "miss", near: true } }));
+test("the pop line goes once the bow is ready again", () => {
+  let juice: Juice = {
+    ...STILL,
+    pop: { text: "WHIFF!", at: { x: 40, y: 150 }, tone: "miss", animalId: null, startMs: 0 },
+  };
 
-  expect(far.resultLabel).toBe("MISS");
-  expect(near.resultLabel).toBe("MISS");
+  expect(sceneFor(huntWith([], { kind: "ready" }), juice, PHONE).labels).toEqual([]);
+});
+
+test("a felled animal blinks white the moment it drops", () => {
+  let down: Animal = { ...DOE, mode: { kind: "down" } };
+  let juice: Juice = {
+    ...STILL,
+    pop: { text: "DOE!", at: DOE.pos, tone: "snack", animalId: 7, startMs: 0 },
+  };
+
+  let scene = sceneFor(huntWith([down], { kind: "ready" }), juice, PHONE);
+
+  expect(markNamed(scene, "animal-7")).toHaveProperty("tint", "#ffffff");
+});
+
+test("the hit-stop flashes the field white", () => {
+  let frozen: Juice = { ...STILL, frozenUntilMs: 120 };
+
+  expect(
+    keysStartingWith(sceneFor(huntWith([], { kind: "ready" }), frozen, PHONE), "flash")
+  ).toEqual(["flash"]);
+  expect(keysStartingWith(sceneOf(huntWith([], { kind: "ready" })), "flash")).toEqual([]);
+});
+
+test("a fresh shake knocks the field down by its full size", () => {
+  let shaking: Juice = { ...STILL, bursts: [{ kind: "shake", px: 4, startMs: 0 }] };
+
+  expect(sceneFor(huntWith([], { kind: "ready" }), shaking, PHONE).shake).toEqual({ x: 0, y: 4 });
+  expect(sceneOf(huntWith([], { kind: "ready" })).shake).toEqual({ x: 0, y: 0 });
+});
+
+test("confetti bursts once its moment comes, one fleck per piece", () => {
+  let burst = { kind: "confetti", at: DOE.pos, count: 72, seed: 9, startMs: 100 } as const;
+  let waiting: Juice = { ...STILL, bursts: [burst] };
+  let flying: Juice = { ...STILL, nowMs: 300, bursts: [burst] };
+
+  let hunt = huntWith([], { kind: "ready" });
+
+  expect(keysStartingWith(sceneFor(hunt, waiting, PHONE), "confetti-")).toHaveLength(0);
+  expect(keysStartingWith(sceneFor(hunt, flying, PHONE), "confetti-")).toHaveLength(72);
+});
+
+test("slow-mo dims the field and brackets where a buck shot will land", () => {
+  let buck: Animal = { ...BIG_BUCK, pos: { x: 90, y: 200 } };
+  let flight: HuntPhase = {
+    kind: "flight",
+    arrow: {
+      from: { x: 90, y: 290 },
+      to: buck.pos,
+      durationMs: 400,
+      elapsedMs: 399,
+      peakHeight: 10,
+    },
+  };
+
+  let scene = sceneOf(huntWith([buck], flight));
+
+  expect(keysStartingWith(scene, "slow-mo")).toEqual(["slow-mo"]);
+  expect(keysStartingWith(scene, "bracket-")).toHaveLength(8);
+});
+
+test("an alert animal shows a yellow ! over its head", () => {
+  let alert: Animal = { ...DOE, mode: { kind: "alert", untilMs: 900 } };
+
+  expect(sceneOf(huntWith([alert], { kind: "ready" })).labels).toContainEqual({
+    key: "alert-7",
+    text: "!",
+    x: 90,
+    y: 158,
+    size: 6,
+    color: "#f7d44a",
+    align: "center",
+  });
 });
 
 test("shows no aim and no arrow when the hunt is ready", () => {
@@ -340,9 +432,9 @@ test("shows no aim and no arrow when the hunt is ready", () => {
   expect(keys(scene.air)).toEqual(["hunter"]);
 });
 
-test("an ended hunt shows no shot result and no power", () => {
+test("an ended hunt shows no aim and no power", () => {
   let scene = sceneOf(huntWith([], { kind: "over", reason: "dusk" }));
 
-  expect(scene.resultLabel).toBe(null);
+  expect(scene.labels).toEqual([]);
   expect(scene.power).toBe(null);
 });

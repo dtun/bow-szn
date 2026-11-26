@@ -1,5 +1,6 @@
 import {
   Canvas,
+  Fill,
   FilterMode,
   Group,
   Image,
@@ -10,7 +11,13 @@ import {
 } from "@shopify/react-native-skia";
 import { StyleSheet } from "react-native";
 
-import { canopyBlocks, fieldLayout, groundBlocks, type FieldLayout } from "./field-layout";
+import {
+  canopyBlocks,
+  fieldLayout,
+  groundBlocks,
+  groundColor,
+  type FieldLayout,
+} from "./field-layout";
 import type { Mark, Scene } from "./hunt-scene";
 import type { Bounds } from "./hunt-view";
 import { layerImage } from "./sprite-pictures";
@@ -72,15 +79,18 @@ export function FieldCanvas({ scene }: { scene: Scene }) {
 
   return (
     <Canvas style={StyleSheet.absoluteFill}>
+      <Fill color={groundColor(terrain)} />
       <Group transform={[{ scale }, { translateX: -bounds.left }, { translateY: -bounds.top }]}>
-        <LayerView image={ground} bounds={bounds} />
-        {scene.ground.map((mark) => (
-          <MarkView key={mark.key} mark={mark} />
-        ))}
-        <LayerView image={canopy} bounds={bounds} />
-        {scene.air.map((mark) => (
-          <MarkView key={mark.key} mark={mark} />
-        ))}
+        <Group transform={[{ translateX: scene.shake.x }, { translateY: scene.shake.y }]}>
+          <LayerView image={ground} bounds={bounds} />
+          {scene.ground.map((mark) => (
+            <MarkView key={mark.key} mark={mark} />
+          ))}
+          <LayerView image={canopy} bounds={bounds} />
+          {scene.air.map((mark) => (
+            <MarkView key={mark.key} mark={mark} />
+          ))}
+        </Group>
         {scene.hud.marks.map((mark) => (
           <MarkView key={mark.key} mark={mark} />
         ))}
