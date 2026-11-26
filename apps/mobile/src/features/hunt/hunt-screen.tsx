@@ -1,0 +1,110 @@
+import { WORLD_H, WORLD_W } from "@bow-szn/core";
+import { Canvas, Group, Rect } from "@shopify/react-native-skia";
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { GestureDetector } from "react-native-gesture-handler";
+
+import { BACKGROUND, FONT_PIXEL, FOREGROUND, NAVY } from "@/ui/theme";
+
+import { huntConfigFor, type SeedParam } from "./hunt-config";
+import { sceneFor } from "./hunt-scene";
+import { useHunt } from "./use-hunt";
+import { usePullGesture } from "./use-pull-gesture";
+import { worldScale } from "./world-scale";
+
+const LABEL_SIZE = 8;
+const RESULT_SIZE = 16;
+const POWER_LABEL_AT = { x: WORLD_W - 84, y: WORLD_H - 16 };
+
+type HuntScreenProps = {
+  seed?: SeedParam;
+};
+
+export function HuntScreen({ seed }: HuntScreenProps) {
+  let [config] = useState(() => huntConfigFor(seed, Date.now()));
+  let { state, dispatch } = useHunt(config);
+  let { width, height } = useWindowDimensions();
+  let scale = worldScale(width, height);
+  let scene = sceneFor(state);
+  let pull = usePullGesture(dispatch, scale);
+
+  return (
+    <View testID="huntScreen" style={styles.screen}>
+      <GestureDetector gesture={pull}>
+        <View style={styles.letterbox}>
+          <View style={[styles.inert, { width: WORLD_W * scale, height: WORLD_H * scale }]}>
+            <Canvas style={StyleSheet.absoluteFill}>
+              <Group transform={[{ scale }]}>
+                {scene.rects.map((rect) => (
+                  <Rect
+                    key={rect.key}
+                    x={rect.x}
+                    y={rect.y}
+                    width={rect.width}
+                    height={rect.height}
+                    color={rect.color}
+                  />
+                ))}
+              </Group>
+            </Canvas>
+            {scene.powerLabel === null ? null : (
+              <Text
+                style={[
+                  styles.label,
+                  styles.powerLabel,
+                  {
+                    left: POWER_LABEL_AT.x * scale,
+                    top: POWER_LABEL_AT.y * scale,
+                    fontSize: LABEL_SIZE * scale,
+                  },
+                ]}
+              >
+                {scene.powerLabel}
+              </Text>
+            )}
+            {scene.overLabel === null ? null : (
+              <View style={styles.centered}>
+                <Text style={[styles.label, { fontSize: LABEL_SIZE * scale }]}>
+                  {scene.overLabel}
+                </Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </GestureDetector>
+      {scene.resultLabel === null ? null : (
+        <Pressable
+          testID="shotResult"
+          accessibilityRole="button"
+          onPress={() => dispatch({ type: "dismiss" })}
+          style={styles.centered}
+        >
+          <Text style={[styles.label, { fontSize: RESULT_SIZE * scale }]}>{scene.resultLabel}</Text>
+        </Pressable>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: BACKGROUND },
+  letterbox: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  centered: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  inert: { pointerEvents: "none" },
+  powerLabel: { position: "absolute" },
+  label: {
+    fontFamily: FONT_PIXEL,
+    color: FOREGROUND,
+    textShadowColor: NAVY,
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 0,
+  },
+});
