@@ -12,6 +12,7 @@ export const SOUND_IDS = [
   "tap-slip",
   "ui-select",
   "fanfare",
+  "jingle-title",
 ] as const;
 
 export type SoundId = (typeof SOUND_IDS)[number];

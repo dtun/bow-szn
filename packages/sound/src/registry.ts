@@ -3,6 +3,7 @@ import type { SoundId } from "./sounds/ids.ts";
 import { FANFARE } from "./sounds/fanfare.ts";
 import { TAP_HIT, TAP_SLIP, UI_SELECT } from "./sounds/interface.ts";
 import { GLINT, SPOOK, WHIFF } from "./sounds/reactions.ts";
+import { JINGLE_TITLE } from "./sounds/title.ts";
 import { CREAK, FULL_DRAW, HIT, THUNK, TWANG, WHOOSH } from "./sounds/shot.ts";
 
 export const SOUND_SAMPLE_RATE = 22050;
@@ -21,4 +22,5 @@ export const SOUNDS: Record<SoundId, Sound> = {
   "tap-slip": TAP_SLIP,
   "ui-select": UI_SELECT,
   fanfare: FANFARE,
+  "jingle-title": JINGLE_TITLE,
 };

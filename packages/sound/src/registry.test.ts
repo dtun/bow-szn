@@ -2,12 +2,14 @@ import { peak } from "./measure.ts";
 import { SOUNDS, SOUND_SAMPLE_RATE } from "./registry.ts";
 import { render } from "./render.ts";
 import { SOUND_IDS } from "./sounds/ids.ts";
+import { JINGLE_TITLE } from "./sounds/title.ts";
 import type { SoundId } from "./sounds/ids.ts";
 
 const MIN_PEAK = 0.3;
 const MAX_PEAK = 0.98;
 const QUIET_EDGE = 0.01;
 const LONGEST_EFFECT_SEC = 1;
+const LOOP_SEAM = 0.001;
 
 let rendered = new Map<SoundId, Float32Array>();
 
@@ -72,6 +74,32 @@ describe("the sound registry", () => {
 
       expect(seconds).toBeGreaterThanOrEqual(2);
       expect(seconds).toBeLessThanOrEqual(3);
+    });
+
+    describe("the title loop", () => {
+      let barSamples = (JINGLE_TITLE.beatsPerBar * 60 * SOUND_SAMPLE_RATE) / JINGLE_TITLE.bpm;
+
+      it("has a bar that is a whole number of samples at its tempo", () => {
+        expect(Number.isInteger(barSamples)).toBe(true);
+      });
+
+      it("lasts a whole number of bars", () => {
+        expect(samplesOf("jingle-title").length % barSamples).toBe(0);
+      });
+
+      it("runs 8 to 16 bars", () => {
+        let bars = samplesOf("jingle-title").length / barSamples;
+
+        expect(bars).toBeGreaterThanOrEqual(8);
+        expect(bars).toBeLessThanOrEqual(16);
+      });
+
+      it("meets itself at silence so the loop point cannot click", () => {
+        let samples = samplesOf("jingle-title");
+
+        expect(Math.abs(samples[0])).toBeLessThan(LOOP_SEAM);
+        expect(Math.abs(samples[samples.length - 1])).toBeLessThan(LOOP_SEAM);
+      });
     });
   });
 });
