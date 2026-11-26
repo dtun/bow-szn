@@ -33,7 +33,7 @@ const HARVEST: Harvest = {
 
 function huntWith(animals: Animal[], phase: HuntPhase): HuntState {
   let opening = createHunt({ spot: "cedar-hollow", season: "early", difficulty: "easy", seed: 1 });
-  return { ...opening, animals, phase };
+  return { ...opening, wind: { dir: 1, strength: 0 }, animals, phase };
 }
 
 function rectNamed(scene: Scene, key: string): SceneRect | undefined {
