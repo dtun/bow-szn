@@ -50,9 +50,35 @@ export const TUNING = {
     maxLive: 5,
     everyMs: [6000, 12000],
   },
+  prep: {
+    needed: 3,
+    markerBarsPerSec: 1,
+    zoneWidth: 0.22,
+  },
   difficulty: {
-    easy: { arrows: 6, speedScale: 0.85, hitZoneScale: 1.25, wariness: 0.85 },
-    medium: { arrows: 5, speedScale: 1, hitZoneScale: 1, wariness: 1 },
-    hard: { arrows: 4, speedScale: 1.2, hitZoneScale: 0.8, wariness: 1.25 },
+    easy: {
+      arrows: 6,
+      speedScale: 0.85,
+      hitZoneScale: 1.25,
+      wariness: 0.85,
+      prepSpeedScale: 0.75,
+      prepZoneScale: 1.25,
+    },
+    medium: {
+      arrows: 5,
+      speedScale: 1,
+      hitZoneScale: 1,
+      wariness: 1,
+      prepSpeedScale: 1,
+      prepZoneScale: 1,
+    },
+    hard: {
+      arrows: 4,
+      speedScale: 1.2,
+      hitZoneScale: 0.8,
+      wariness: 1.25,
+      prepSpeedScale: 1.4,
+      prepZoneScale: 0.7,
+    },
   },
 } as const;
