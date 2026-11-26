@@ -19,3 +19,9 @@ export {
   trophyRoom,
   trophyScore,
 } from "./journal";
+export {
+  LEADERBOARDS,
+  leaderboardScores,
+  type LeaderboardId,
+  type LeaderboardScores,
+} from "./leaderboards";
