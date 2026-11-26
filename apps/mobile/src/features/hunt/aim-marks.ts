@@ -95,7 +95,6 @@ export function aimMarks(hunt: HuntState): AimMarks | null {
       ...ticks,
     ],
     labels: [
-      ...zone.labels,
       label(
         "yards",
         `${Math.round(reach * YARDS_PER_PX)}Y`,
@@ -104,6 +103,7 @@ export function aimMarks(hunt: HuntState): AimMarks | null {
         CREAM,
         "center"
       ),
+      ...zone.labels,
     ],
   };
 }

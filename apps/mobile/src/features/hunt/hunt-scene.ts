@@ -64,7 +64,33 @@ const DUST_STEP_MS = 70;
 const SLOW_MO_DIM = "rgba(8,12,40,0.3)";
 const FLASH = "rgba(255,255,255,0.6)";
 const BRACKET_REACH = 11;
+const LINE_HEIGHT = 1.2;
 const OVERLAY_MARGIN = 8;
+
+function labelBox(label: Label): Bounds {
+  let width = label.text.length * label.size;
+  let left =
+    label.align === "center"
+      ? label.x - width / 2
+      : label.align === "right"
+        ? label.x - width
+        : label.x;
+  return { left, top: label.y, right: left + width, bottom: label.y + label.size * LINE_HEIGHT };
+}
+
+function overlaps(a: Bounds, b: Bounds): boolean {
+  return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+}
+
+export function oneAtATime(labels: Label[]): Label[] {
+  let shown: Label[] = [];
+  for (let each of labels) {
+    if (!shown.some((kept) => overlaps(labelBox(kept), labelBox(each)))) {
+      shown.push(each);
+    }
+  }
+  return shown;
+}
 
 function felledFlash(animal: Animal, juice: Juice): string | null {
   let pop = juice.pop;
@@ -215,11 +241,11 @@ export function sceneFor(state: HuntState, juice: Juice, screen: Screen): Scene 
       ...confetti,
       ...(isFrozen(juice) ? [overlay("flash", view.bounds, FLASH)] : []),
     ],
-    labels: [
+    labels: oneAtATime([
+      ...(pop === null ? [] : [pop]),
       ...(aim?.labels ?? []),
       ...alertLabels(animals, state.elapsedMs),
-      ...(pop === null ? [] : [pop]),
-    ],
+    ]),
     hud: hudFor(state, view),
     power: powerFor(state, view),
     result,

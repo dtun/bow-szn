@@ -303,8 +303,8 @@ test("drawing back shows the kill zone, the dotted arc, and the reticle with its
   expect(markNamed(scene, "reticle")).toHaveProperty("tint", "#ffffff");
   expect(markNamed(scene, "zone")).toMatchObject({ x: -50, y: 150, width: 280, height: 280 });
   expect(scene.labels.map((each) => [each.text, each.x, each.y])).toEqual([
-    ["KILL ZONE", 90, 154],
     ["35Y", 90, 205],
+    ["KILL ZONE", 90, 154],
   ]);
 });
 
@@ -518,4 +518,52 @@ test.each([
   let pop = scene.labels.find((each) => each.key === "pop");
 
   expect((pop?.size ?? 0) * scene.view.scale).toBeGreaterThanOrEqual(12);
+});
+
+function onAlert(id: number, x: number, y: number): Animal {
+  return { ...DOE, id, pos: { x, y }, mode: { kind: "alert", untilMs: 9000 } };
+}
+
+function texts(scene: Scene): string[] {
+  return scene.labels.map((each) => each.text);
+}
+
+test("two animals on alert side by side raise one ! between them", () => {
+  let scene = sceneOf(huntWith([onAlert(7, 90, 180), onAlert(8, 93, 181)], { kind: "ready" }));
+
+  expect(texts(scene)).toEqual(["!"]);
+});
+
+test("animals on alert far apart each raise their own !", () => {
+  let scene = sceneOf(huntWith([onAlert(7, 40, 180), onAlert(8, 140, 180)], { kind: "ready" }));
+
+  expect(texts(scene)).toEqual(["!", "!"]);
+});
+
+test("a pop line wins over an alert ! it would cover", () => {
+  let alert = onAlert(7, 90, 180);
+  let bang = sceneOf(huntWith([alert], { kind: "ready" })).labels[0];
+  let juice: Juice = {
+    ...STILL,
+    pop: {
+      text: "WHIFF!",
+      tone: "miss",
+      at: { x: 90, y: bang.y + 20 },
+      animalId: null,
+      startMs: 0,
+    },
+  };
+  let hunt = huntWith([alert], { kind: "result", outcome: { kind: "miss", near: false } });
+
+  expect(bang.text).toBe("!");
+  expect(texts(sceneFor(hunt, juice, PHONE))).toEqual(["WHIFF!"]);
+});
+
+test("the yards over the reticle win over an alert ! they would cover", () => {
+  let target = huntWith([], { kind: "drawing", pull: { x: 0, y: 30 }, heldMs: 0 });
+  let yards = sceneOf(target).labels.find((each) => each.key === "yards");
+  let under = onAlert(7, 90, (yards?.y ?? 0) + 20);
+  let scene = sceneOf({ ...target, animals: [under] });
+
+  expect(texts(scene)).toEqual(["35Y", "KILL ZONE"]);
 });
