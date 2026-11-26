@@ -32,3 +32,14 @@ export function useFont() {
 export function createPicture() {
   return {};
 }
+
+export let Skia = {
+  Surface: {
+    Make() {
+      return null;
+    },
+  },
+};
+
+export let FilterMode = { Nearest: 0, Linear: 1 };
+export let MipmapMode = { None: 0, Nearest: 1, Linear: 2 };

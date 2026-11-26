@@ -8,7 +8,9 @@ import {
   type HuntState,
 } from "@bow-szn/core";
 
+import { fieldLayout } from "./field-layout";
 import { sceneFor, type Mark, type Scene } from "./hunt-scene";
+import type { Screen } from "./hunt-view";
 
 const DOE: Animal = {
   id: 7,
@@ -35,46 +37,91 @@ const HARVEST: Harvest = {
 
 const GLINT_MS = 2161;
 
+const PHONE: Screen = { width: 390, height: 844, insetTop: 47, insetBottom: 34 };
+const BIG_PHONE: Screen = { width: 430, height: 932, insetTop: 59, insetBottom: 34 };
+
 function huntWith(animals: Animal[], phase: HuntPhase, elapsedMs = 0): HuntState {
   let opening = createHunt({ spot: "cedar-hollow", season: "early", difficulty: "easy", seed: 1 });
   return { ...opening, wind: { dir: 1, strength: 0 }, animals, phase, elapsedMs };
 }
 
+function sceneOf(state: HuntState): Scene {
+  return sceneFor(state, PHONE);
+}
+
+function keys(marks: Mark[]): string[] {
+  return marks.map((mark) => mark.key);
+}
+
 function markNamed(scene: Scene, key: string): Mark | undefined {
-  return scene.marks.find((mark) => mark.key === key);
+  return [...scene.ground, ...scene.air].find((mark) => mark.key === key);
 }
 
 function keysStartingWith(scene: Scene, prefix: string): string[] {
-  return scene.marks.map((mark) => mark.key).filter((key) => key.startsWith(prefix));
+  return keys([...scene.ground, ...scene.air]).filter((key) => key.startsWith(prefix));
 }
 
 function animalArt(animal: Animal, elapsedMs = 0): Mark | undefined {
-  return markNamed(sceneFor(huntWith([animal], { kind: "ready" }, elapsedMs)), "animal-7");
+  return markNamed(sceneOf(huntWith([animal], { kind: "ready" }, elapsedMs)), "animal-7");
 }
 
 test("draws the field of the hunt's spot, laid out from the hunt's seed", () => {
   let hunt = huntWith([], { kind: "ready" });
 
-  expect(sceneFor({ ...hunt, config: { ...hunt.config, seed: 99 } }).field).toEqual({
+  expect(sceneOf({ ...hunt, config: { ...hunt.config, seed: 99 } }).field).toEqual({
     terrain: "hardwoods",
     seed: 99,
   });
 });
 
+test.each([
+  ["390x844", PHONE],
+  ["430x932", BIG_PHONE],
+  ["393x852", { width: 393, height: 852, insetTop: 59, insetBottom: 34 }],
+])("the field on a %s screen fills it edge to edge", (_, screen) => {
+  let scene = sceneFor(huntWith([], { kind: "ready" }), screen);
+  let { bounds, scale } = scene.view;
+  let [ground] = fieldLayout(scene.field.terrain, scene.field.seed, bounds).ground;
+  let columns = Array.from({ length: screen.width }, (_, x) => Math.floor(x / scale) + bounds.left);
+  let rows = Array.from({ length: screen.height }, (_, y) => Math.floor(y / scale) + bounds.top);
+
+  let bareColumns = columns.filter((x) => x < ground.x || x >= ground.x + ground.width);
+  let bareRows = rows.filter((y) => y < ground.y || y >= ground.y + ground.height);
+
+  expect(bareColumns).toEqual([]);
+  expect(bareRows).toEqual([]);
+});
+
+test("the whole gameplay world sits on screen, stand at the bottom", () => {
+  let { bounds, safeBottom } = sceneFor(huntWith([], { kind: "ready" }), PHONE).view;
+
+  expect(bounds.left).toBeLessThanOrEqual(0);
+  expect(bounds.right).toBeGreaterThanOrEqual(180);
+  expect(bounds.top).toBeLessThanOrEqual(0);
+  expect(safeBottom).toBe(320);
+});
+
+test("a big rack's glint shows over the treeline canopy, while the animal stays under it", () => {
+  let scene = sceneOf(huntWith([BIG_BUCK], { kind: "ready" }, GLINT_MS));
+
+  expect(keys(scene.ground)).toEqual(["shadow-7", "animal-7"]);
+  expect(keys(scene.air)).toEqual(["glint-7", "hunter"]);
+});
+
 test("a ready hunter stands idle in the stand at the bottom of the field", () => {
-  let scene = sceneFor(huntWith([], { kind: "ready" }));
+  let scene = sceneOf(huntWith([], { kind: "ready" }));
 
   expect(markNamed(scene, "hunter")).toMatchObject({ id: "hunter-idle", x: 90, y: 318 });
 });
 
 test("the hunter raises the bow while drawing", () => {
-  let scene = sceneFor(huntWith([], { kind: "drawing", pull: { x: 0, y: 30 }, heldMs: 0 }));
+  let scene = sceneOf(huntWith([], { kind: "drawing", pull: { x: 0, y: 30 }, heldMs: 0 }));
 
   expect(markNamed(scene, "hunter")).toMatchObject({ id: "hunter-draw", x: 90, y: 318 });
 });
 
 test("a grazing doe stands on its own spot with its head down, over its shadow", () => {
-  let scene = sceneFor(huntWith([DOE], { kind: "ready" }));
+  let scene = sceneOf(huntWith([DOE], { kind: "ready" }));
 
   expect(markNamed(scene, "animal-7")).toEqual({
     kind: "sprite",
@@ -160,23 +207,24 @@ test("a downed animal lies tipped onto its side, toward the way it faced", () =>
 test("drops an animal that has left the field, shadow and all", () => {
   let gone: Animal = { ...DOE, mode: { kind: "gone" } };
 
-  let scene = sceneFor(huntWith([gone], { kind: "ready" }));
+  let scene = sceneOf(huntWith([gone], { kind: "ready" }));
 
-  expect(scene.marks.map((mark) => mark.key)).toEqual(["hunter"]);
+  expect(keys(scene.ground)).toEqual([]);
+  expect(keys(scene.air)).toEqual(["hunter"]);
 });
 
 test("draws farther animals first so nearer ones overlap them", () => {
   let near: Animal = { ...DOE, id: 1, pos: { x: 60, y: 220 } };
   let far: Animal = { ...DOE, id: 2, pos: { x: 120, y: 140 } };
 
-  let scene = sceneFor(huntWith([near, far], { kind: "ready" }));
+  let scene = sceneOf(huntWith([near, far], { kind: "ready" }));
 
   expect(keysStartingWith(scene, "animal-")).toEqual(["animal-2", "animal-1"]);
 });
 
 test("a big rack glints at its tip for a moment every few seconds", () => {
-  let quiet = sceneFor(huntWith([BIG_BUCK], { kind: "ready" }, 0));
-  let glinting = sceneFor(huntWith([BIG_BUCK], { kind: "ready" }, GLINT_MS));
+  let quiet = sceneOf(huntWith([BIG_BUCK], { kind: "ready" }, 0));
+  let glinting = sceneOf(huntWith([BIG_BUCK], { kind: "ready" }, GLINT_MS));
 
   expect(keysStartingWith(quiet, "glint-")).toEqual([]);
   expect(markNamed(glinting, "glint-7")).toMatchObject({ id: "glint-1", x: 88, y: 167 });
@@ -185,13 +233,13 @@ test("a big rack glints at its tip for a moment every few seconds", () => {
 test("a small rack never glints", () => {
   let small: Animal = { ...DOE, antlers: { kind: "rack", points: 6 } };
 
-  let scene = sceneFor(huntWith([small], { kind: "ready" }, GLINT_MS));
+  let scene = sceneOf(huntWith([small], { kind: "ready" }, GLINT_MS));
 
   expect(keysStartingWith(scene, "glint-")).toEqual([]);
 });
 
 test("drawing back past the dead zone shows the dotted path, the reticle, and the power", () => {
-  let scene = sceneFor(huntWith([], { kind: "drawing", pull: { x: 0, y: 30 }, heldMs: 0 }));
+  let scene = sceneOf(huntWith([], { kind: "drawing", pull: { x: 0, y: 30 }, heldMs: 0 }));
 
   expect(keysStartingWith(scene, "aim-dot-")).toHaveLength(12);
   expect(markNamed(scene, "aim-dot-11")).toMatchObject({ x: 89, y: 219, width: 2, height: 2 });
@@ -201,13 +249,13 @@ test("drawing back past the dead zone shows the dotted path, the reticle, and th
 });
 
 test("a full draw reads 100% power", () => {
-  let scene = sceneFor(huntWith([], { kind: "drawing", pull: { x: 0, y: 90 }, heldMs: 0 }));
+  let scene = sceneOf(huntWith([], { kind: "drawing", pull: { x: 0, y: 90 }, heldMs: 0 }));
 
   expect(scene.powerLabel).toBe("POWER 100%");
 });
 
 test("a pull inside the dead zone shows no aim", () => {
-  let scene = sceneFor(huntWith([], { kind: "drawing", pull: { x: 0, y: 5 }, heldMs: 0 }));
+  let scene = sceneOf(huntWith([], { kind: "drawing", pull: { x: 0, y: 5 }, heldMs: 0 }));
 
   expect(keysStartingWith(scene, "aim-")).toEqual([]);
   expect(keysStartingWith(scene, "reticle-")).toEqual([]);
@@ -223,7 +271,7 @@ test("an arrow at the top of its arc rides above its shadow, pointing up-field",
     peakHeight: 20,
   };
 
-  let scene = sceneFor(huntWith([], { kind: "flight", arrow }));
+  let scene = sceneOf(huntWith([], { kind: "flight", arrow }));
 
   expect(markNamed(scene, "arrow-shadow")).toMatchObject({ x: 89, y: 240, width: 3, height: 1 });
   expect(markNamed(scene, "arrow")).toMatchObject({ id: "arrow", x: 90, y: 220 });
@@ -241,7 +289,7 @@ test("an arrow loosed to the right turns to follow its line across the field", (
     peakHeight: 20,
   };
 
-  let scene = sceneFor(huntWith([], { kind: "flight", arrow }));
+  let scene = sceneOf(huntWith([], { kind: "flight", arrow }));
   let mark = markNamed(scene, "arrow");
 
   expect(mark?.kind === "sprite" ? mark.rotate : null).toBeCloseTo(Math.atan2(40, 100));
@@ -256,14 +304,14 @@ test("an arrow at launch sits on the ground at the hunter", () => {
     peakHeight: 20,
   };
 
-  let scene = sceneFor(huntWith([], { kind: "flight", arrow }));
+  let scene = sceneOf(huntWith([], { kind: "flight", arrow }));
 
   expect(markNamed(scene, "arrow")).toMatchObject({ x: 90, y: 290 });
   expect(markNamed(scene, "arrow-shadow")).toMatchObject({ x: 89, y: 290 });
 });
 
 test("a harvest reads HIT!", () => {
-  let scene = sceneFor(
+  let scene = sceneOf(
     huntWith([], { kind: "result", outcome: { kind: "harvest", harvest: HARVEST } })
   );
 
@@ -271,22 +319,23 @@ test("a harvest reads HIT!", () => {
 });
 
 test("a miss reads MISS, near or far", () => {
-  let far = sceneFor(huntWith([], { kind: "result", outcome: { kind: "miss", near: false } }));
-  let near = sceneFor(huntWith([], { kind: "result", outcome: { kind: "miss", near: true } }));
+  let far = sceneOf(huntWith([], { kind: "result", outcome: { kind: "miss", near: false } }));
+  let near = sceneOf(huntWith([], { kind: "result", outcome: { kind: "miss", near: true } }));
 
   expect(far.resultLabel).toBe("MISS");
   expect(near.resultLabel).toBe("MISS");
 });
 
 test("shows no aim and no arrow when the hunt is ready", () => {
-  let scene = sceneFor(huntWith([], { kind: "ready" }));
+  let scene = sceneOf(huntWith([], { kind: "ready" }));
 
-  expect(scene.marks.map((mark) => mark.key)).toEqual(["hunter"]);
+  expect(keys(scene.ground)).toEqual([]);
+  expect(keys(scene.air)).toEqual(["hunter"]);
 });
 
 test("an ended hunt says why, in place of a shot result", () => {
-  let dusk = sceneFor(huntWith([], { kind: "over", reason: "dusk" }));
-  let empty = sceneFor(huntWith([], { kind: "over", reason: "quiver-empty" }));
+  let dusk = sceneOf(huntWith([], { kind: "over", reason: "dusk" }));
+  let empty = sceneOf(huntWith([], { kind: "over", reason: "quiver-empty" }));
 
   expect(dusk.overLabel).toBe("DUSK");
   expect(empty.overLabel).toBe("OUT OF ARROWS");
@@ -295,7 +344,7 @@ test("an ended hunt says why, in place of a shot result", () => {
 });
 
 test("only an ended hunt carries the over label", () => {
-  let scene = sceneFor(huntWith([], { kind: "ready" }));
+  let scene = sceneOf(huntWith([], { kind: "ready" }));
 
   expect(scene.overLabel).toBe(null);
 });

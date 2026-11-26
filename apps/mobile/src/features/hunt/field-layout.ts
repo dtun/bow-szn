@@ -9,13 +9,14 @@ import {
 } from "@bow-szn/core";
 import { PALETTE, SPRITES, type SpriteId } from "@bow-szn/pixels";
 
+import type { Bounds } from "./hunt-view";
 import { spriteBlocks, type Block } from "./sprite-pictures";
 
 export type Decor = { id: SpriteId; x: number; y: number };
 
-export type FieldLayout = { ground: Block[]; decor: Decor[] };
+export type FieldLayout = { ground: Block[]; decor: Decor[]; canopy: Decor[] };
 
-export type Box = { left: number; top: number; right: number; bottom: number };
+export type Box = Bounds;
 
 type Look = {
   ground: string;
@@ -72,17 +73,20 @@ const LOOKS: Record<Terrain, Look> = {
 };
 
 const MEADOW = TUNING.animals.meadow;
-const HUD_BOTTOM = 26;
-const TRAIL_TOP = 196;
-const SPECKLES = 360;
+const SPECKLES_PER_PX = 360 / (WORLD_W * WORLD_H);
 const SPECKS = 26;
+const TRAIL_TOP = 196;
 const TRAIL_PEBBLES = 40;
 const TREE_STEP = 14;
 const TREELINE_FLOOR = 44;
 const TREELINE_ROW_DROP = 9;
+const CANOPY_ROW_RISE = 11;
 const EDGE_TOP = 78;
 const EDGE_STEP: readonly [number, number] = [26, 40];
-const BOTTOM_DECOR_ROWS = [272, 304];
+const LOW_DECOR_TOP = 272;
+const LOW_DECOR_STEP = 32;
+const STAND_FLOOR = WORLD_H - 2;
+const LADDER_RUNG_STEP = 4;
 
 export const OPEN_MIDDLE: Box = {
   left: MEADOW.minX,
@@ -95,7 +99,7 @@ export const STAND: Box = {
   left: HUNTER_POS.x - 24,
   top: HUNTER_POS.y - 20,
   right: HUNTER_POS.x + 24,
-  bottom: WORLD_H,
+  bottom: Infinity,
 };
 
 export function decorBox(decor: Decor): Box {
@@ -104,11 +108,17 @@ export function decorBox(decor: Decor): Box {
   return { left, top: decor.y - sprite.h, right: left + sprite.w, bottom: decor.y };
 }
 
-function speckles(look: Look, roller: Roller): Block[] {
+function pickEdge(look: Look, roller: Roller): SpriteId {
+  return look.edge[roller.int(0, look.edge.length - 1)];
+}
+
+function speckles(look: Look, bounds: Bounds, roller: Roller): Block[] {
+  let width = bounds.right - bounds.left;
+  let height = bounds.bottom - bounds.top;
   let blocks: Block[] = [];
-  for (let index = 0; index < SPECKLES; index++) {
-    let x = roller.int(0, WORLD_W - 2);
-    let y = roller.int(HUD_BOTTOM, WORLD_H - 1);
+  for (let index = 0; index < Math.round(width * height * SPECKLES_PER_PX); index++) {
+    let x = roller.int(bounds.left, bounds.right - 2);
+    let y = roller.int(bounds.top + 1, bounds.bottom - 1);
     let color = roller.chance(0.55) ? look.light : look.dark;
     blocks.push({ x, y, width: 2, height: 1, color });
     blocks.push({ x: x + roller.int(0, 1), y: y - 1, width: 1, height: 1, color });
@@ -126,25 +136,41 @@ function speckles(look: Look, roller: Roller): Block[] {
   return blocks;
 }
 
-function trail(look: Look, roller: Roller): Block[] {
+function trail(look: Look, bounds: Bounds, roller: Roller): Block[] {
   let phase = roller.between(0, Math.PI * 2);
   let blocks: Block[] = [];
-  for (let y = TRAIL_TOP; y < WORLD_H; y++) {
-    let width = Math.round(20 - (WORLD_H - y) * 0.11);
+  for (let y = TRAIL_TOP; y < bounds.bottom; y++) {
+    let width = Math.min(24, Math.round(20 - (WORLD_H - y) * 0.11));
     let center = Math.round(HUNTER_POS.x + Math.sin(y * 0.045 + phase) * 7);
     blocks.push({ x: center - (width >> 1), y, width, height: 1, color: look.trail });
   }
   for (let index = 0; index < TRAIL_PEBBLES; index++) {
     let x = roller.int(HUNTER_POS.x - 12, HUNTER_POS.x + 12);
-    blocks.push({
-      x,
-      y: roller.int(TRAIL_TOP + 4, WORLD_H - 1),
-      width: 1,
-      height: 1,
-      color: PALETTE.t,
-    });
+    let y = roller.int(TRAIL_TOP + 4, bounds.bottom - 1);
+    blocks.push({ x, y, width: 1, height: 1, color: PALETTE.t });
   }
   return blocks;
+}
+
+function ladder(bounds: Bounds): Block[] {
+  let height = bounds.bottom - STAND_FLOOR;
+  if (height <= 0) {
+    return [];
+  }
+  let left = HUNTER_POS.x - 12;
+  let rails: Block[] = [
+    { x: left + 3, y: STAND_FLOOR, width: 1, height, color: PALETTE.E },
+    { x: left + 4, y: STAND_FLOOR, width: 1, height, color: PALETTE.b },
+    { x: left + 9, y: STAND_FLOOR, width: 1, height, color: PALETTE.E },
+    { x: left + 14, y: STAND_FLOOR, width: 1, height, color: PALETTE.E },
+    { x: left + 19, y: STAND_FLOOR, width: 1, height, color: PALETTE.b },
+    { x: left + 20, y: STAND_FLOOR, width: 1, height, color: PALETTE.E },
+  ];
+  let rungs: Block[] = [];
+  for (let y = STAND_FLOOR + 2; y < bounds.bottom; y += LADDER_RUNG_STEP) {
+    rungs.push({ x: left + 10, y, width: 4, height: 1, color: PALETTE.b });
+  }
+  return [...rails, ...rungs];
 }
 
 function puddle(center: { x: number; y: number }, roller: Roller): Block[] {
@@ -169,70 +195,99 @@ function puddles(look: Look, roller: Roller): Block[] {
   }).flat();
 }
 
-function treeline(look: Look, roller: Roller): Decor[] {
+function canopyRow(bounds: Bounds, y: number, shift: number, roller: Roller): Decor[] {
   let trees: Decor[] = [];
-  for (let row = 0; row < look.treelineRows; row++) {
-    for (let x = -8 + row * 7; x < WORLD_W + TREE_STEP; x += TREE_STEP) {
-      let y = TREELINE_FLOOR + row * TREELINE_ROW_DROP + roller.int(0, 4);
-      trees.push({ id: "tree-canopy", x: x + roller.int(0, 3), y });
-    }
+  for (let x = bounds.left - 8 + shift; x < bounds.right + TREE_STEP; x += TREE_STEP) {
+    trees.push({ id: "tree-canopy", x: x + roller.int(0, 3), y: y + roller.int(0, 4) });
   }
   return trees;
 }
 
-function edgeX(id: SpriteId, side: "left" | "right", roller: Roller): number {
-  let half = Math.ceil(SPRITES[id].w / 2);
-  return side === "left"
-    ? roller.int(half - 8, OPEN_MIDDLE.left - half)
-    : roller.int(OPEN_MIDDLE.right + half, WORLD_W + 8 - half);
+function canopy(look: Look, bounds: Bounds, roller: Roller): Decor[] {
+  let trees: Decor[] = [];
+  let row = 0;
+  for (let y = TREELINE_FLOOR - CANOPY_ROW_RISE; y > bounds.top; y -= CANOPY_ROW_RISE) {
+    row += 1;
+    trees.push(...canopyRow(bounds, y, (row % 2) * 7, roller));
+  }
+  for (let treeline = 0; treeline < look.treelineRows; treeline++) {
+    let y = TREELINE_FLOOR + treeline * TREELINE_ROW_DROP;
+    trees.push(...canopyRow(bounds, y, treeline * 7, roller));
+  }
+  return trees.sort((a, b) => a.y - b.y);
 }
 
-function edges(look: Look, roller: Roller): Decor[] {
+function edgeX(id: SpriteId, side: "left" | "right", bounds: Bounds, roller: Roller): number {
+  let half = Math.ceil(SPRITES[id].w / 2);
+  return side === "left"
+    ? roller.int(Math.max(bounds.left, half - 8), OPEN_MIDDLE.left - half)
+    : roller.int(OPEN_MIDDLE.right + half, Math.min(bounds.right, WORLD_W + 8 - half));
+}
+
+function edges(look: Look, bounds: Bounds, roller: Roller): Decor[] {
   let decor: Decor[] = [];
   for (let side of ["left", "right"] as const) {
     let y = EDGE_TOP + roller.int(0, 12);
     while (y <= MEADOW.maxY + 14) {
-      let id = look.edge[roller.int(0, look.edge.length - 1)];
-      decor.push({ id, x: edgeX(id, side, roller), y });
+      let id = pickEdge(look, roller);
+      decor.push({ id, x: edgeX(id, side, bounds, roller), y });
       y += roller.int(EDGE_STEP[0], EDGE_STEP[1]);
     }
   }
   return decor;
 }
 
-function bottomCorners(look: Look, roller: Roller): Decor[] {
-  return BOTTOM_DECOR_ROWS.flatMap((row) =>
-    (["left", "right"] as const).map((side) => {
-      let id = look.edge[roller.int(0, look.edge.length - 1)];
+function lowCorners(look: Look, bounds: Bounds, roller: Roller): Decor[] {
+  let decor: Decor[] = [];
+  for (let row = LOW_DECOR_TOP; row < bounds.bottom + 4; row += LOW_DECOR_STEP) {
+    for (let side of ["left", "right"] as const) {
+      let id = pickEdge(look, roller);
       let half = Math.ceil(SPRITES[id].w / 2);
       let x =
         side === "left"
-          ? roller.int(half - 6, STAND.left - half)
-          : roller.int(STAND.right + half, WORLD_W + 6 - half);
-      return { id, x, y: row + roller.int(0, 8) };
-    })
-  );
+          ? roller.int(Math.max(bounds.left, half - 6), STAND.left - half)
+          : roller.int(STAND.right + half, Math.min(bounds.right, WORLD_W + 6 - half));
+      decor.push({ id, x, y: row + roller.int(0, 8) });
+    }
+  }
+  return decor;
 }
 
-export function fieldLayout(terrain: Terrain, seed: number): FieldLayout {
+export function fieldLayout(terrain: Terrain, seed: number, bounds: Bounds): FieldLayout {
   let look = LOOKS[terrain];
   let roller = createRoller(seed);
   let ground: Block[] = [
-    { x: 0, y: 0, width: WORLD_W, height: WORLD_H, color: look.ground },
-    ...speckles(look, roller),
+    {
+      x: bounds.left,
+      y: bounds.top,
+      width: bounds.right - bounds.left,
+      height: bounds.bottom - bounds.top,
+      color: look.ground,
+    },
+    ...speckles(look, bounds, roller),
     ...puddles(look, roller),
-    ...trail(look, roller),
+    ...trail(look, bounds, roller),
+    ...ladder(bounds),
   ];
-  let decor = [...treeline(look, roller), ...edges(look, roller), ...bottomCorners(look, roller)];
-  return { ground, decor: decor.sort((a, b) => a.y - b.y) };
+  let decor = [...edges(look, bounds, roller), ...lowCorners(look, bounds, roller)];
+  return {
+    ground,
+    decor: decor.sort((a, b) => a.y - b.y),
+    canopy: canopy(look, bounds, roller),
+  };
 }
 
-export function fieldBlocks(layout: FieldLayout): Block[] {
-  return [
-    ...layout.ground,
-    ...layout.decor.flatMap((decor) => {
-      let box = decorBox(decor);
-      return spriteBlocks(SPRITES[decor.id], null, box.left, box.top);
-    }),
-  ];
+function decorBlocks(decor: Decor[]): Block[] {
+  return decor.flatMap((each) => {
+    let box = decorBox(each);
+    return spriteBlocks(SPRITES[each.id], null, box.left, box.top);
+  });
+}
+
+export function groundBlocks(layout: FieldLayout): Block[] {
+  return [...layout.ground, ...decorBlocks(layout.decor)];
+}
+
+export function canopyBlocks(layout: FieldLayout): Block[] {
+  return decorBlocks(layout.canopy);
 }

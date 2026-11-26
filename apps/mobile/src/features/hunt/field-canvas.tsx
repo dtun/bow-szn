@@ -1,15 +1,21 @@
-import { Canvas, Group, Picture, Rect } from "@shopify/react-native-skia";
+import {
+  Canvas,
+  FilterMode,
+  Group,
+  Image,
+  MipmapMode,
+  Rect,
+  type SkImage,
+} from "@shopify/react-native-skia";
 import { StyleSheet } from "react-native";
 
-import { fieldBlocks, fieldLayout } from "./field-layout";
+import { canopyBlocks, fieldLayout, groundBlocks, type FieldLayout } from "./field-layout";
 import type { Mark, Scene } from "./hunt-scene";
-import { cachedPicture } from "./sprite-pictures";
+import type { Bounds } from "./hunt-view";
+import { layerImage } from "./sprite-pictures";
 import { WorldSprite } from "./world-sprite";
 
-type FieldCanvasProps = {
-  scene: Scene;
-  scale: number;
-};
+const PIXELATED = { filter: FilterMode.Nearest, mipmap: MipmapMode.None };
 
 function MarkView({ mark }: { mark: Mark }) {
   switch (mark.kind) {
@@ -31,17 +37,43 @@ function MarkView({ mark }: { mark: Mark }) {
   }
 }
 
-export function FieldCanvas({ scene, scale }: FieldCanvasProps) {
-  let { terrain, seed } = scene.field;
-  let field = cachedPicture(`field:${terrain}:${seed}`, () =>
-    fieldBlocks(fieldLayout(terrain, seed))
+function LayerView({ image, bounds }: { image: SkImage | null; bounds: Bounds }) {
+  if (image === null) {
+    return null;
+  }
+  return (
+    <Image
+      image={image}
+      x={bounds.left}
+      y={bounds.top}
+      width={bounds.right - bounds.left}
+      height={bounds.bottom - bounds.top}
+      sampling={PIXELATED}
+    />
   );
+}
+
+export function FieldCanvas({ scene }: { scene: Scene }) {
+  let { bounds, scale } = scene.view;
+  let { terrain, seed } = scene.field;
+  let key = `${terrain}:${seed}:${bounds.left}:${bounds.top}:${bounds.right}:${bounds.bottom}`;
+  let layout: FieldLayout | null = null;
+  function laidOut(): FieldLayout {
+    layout ??= fieldLayout(terrain, seed, bounds);
+    return layout;
+  }
+  let ground = layerImage("ground", key, bounds, () => groundBlocks(laidOut()));
+  let canopy = layerImage("canopy", key, bounds, () => canopyBlocks(laidOut()));
 
   return (
     <Canvas style={StyleSheet.absoluteFill}>
-      <Group transform={[{ scale }]}>
-        <Picture picture={field} />
-        {scene.marks.map((mark) => (
+      <Group transform={[{ scale }, { translateX: -bounds.left }, { translateY: -bounds.top }]}>
+        <LayerView image={ground} bounds={bounds} />
+        {scene.ground.map((mark) => (
+          <MarkView key={mark.key} mark={mark} />
+        ))}
+        <LayerView image={canopy} bounds={bounds} />
+        {scene.air.map((mark) => (
           <MarkView key={mark.key} mark={mark} />
         ))}
       </Group>

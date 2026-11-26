@@ -17,6 +17,7 @@ import { HUNTER_FRAMES, SPRITES } from "@bow-szn/pixels";
 
 import { animalPose, glintFrame, rackTip } from "./animal-art";
 import type { ArtId } from "./hunt-art";
+import { huntView, type HuntView, type Screen } from "./hunt-view";
 
 export type SpriteMark = {
   kind: "sprite";
@@ -42,8 +43,10 @@ export type RectMark = {
 export type Mark = SpriteMark | RectMark;
 
 export type Scene = {
+  view: HuntView;
   field: { terrain: Terrain; seed: number };
-  marks: Mark[];
+  ground: Mark[];
+  air: Mark[];
   powerLabel: string | null;
   resultLabel: string | null;
   overLabel: string | null;
@@ -94,22 +97,24 @@ function animalMarks(animal: Animal, elapsedMs: number): Mark[] {
     return [];
   }
   let width = SPRITES[pose.id].w - 4;
-  let marks: Mark[] = [
+  return [
     rect(`shadow-${animal.id}`, animal.pos, width, 2, SHADOW_COLOR),
     sprite(`animal-${animal.id}`, pose.id, animal.pos, animal.facing === -1, pose.rotate),
   ];
-  if (isGlinting(animal, elapsedMs)) {
-    let frame = glintFrame(elapsedMs, animal);
-    let tip = rackTip(animal, pose);
-    marks.push(sprite(`glint-${animal.id}`, frame, { x: tip.x, y: tip.y + SPRITES[frame].h / 2 }));
-  }
-  return marks;
 }
 
-function fieldMarks(state: HuntState): Mark[] {
-  return [...state.animals]
-    .sort((a, b) => a.pos.y - b.pos.y)
-    .flatMap((animal) => animalMarks(animal, state.elapsedMs));
+function glintMarks(animal: Animal, elapsedMs: number): Mark[] {
+  let pose = animalPose(animal, elapsedMs);
+  if (pose === null || !isGlinting(animal, elapsedMs)) {
+    return [];
+  }
+  let frame = glintFrame(elapsedMs, animal);
+  let tip = rackTip(animal, pose);
+  return [sprite(`glint-${animal.id}`, frame, { x: tip.x, y: tip.y + SPRITES[frame].h / 2 })];
+}
+
+function byDepth(animals: Animal[]): Animal[] {
+  return [...animals].sort((a, b) => a.pos.y - b.pos.y);
 }
 
 function hunterMark(phase: HuntPhase): Mark {
@@ -191,10 +196,17 @@ function overLabel(phase: HuntPhase): string | null {
   return phase.reason === "dusk" ? "DUSK" : "OUT OF ARROWS";
 }
 
-export function sceneFor(state: HuntState): Scene {
+export function sceneFor(state: HuntState, screen: Screen): Scene {
+  let animals = byDepth(state.animals);
   return {
+    view: huntView(screen),
     field: { terrain: SPOTS[state.config.spot].terrain, seed: state.config.seed },
-    marks: [...fieldMarks(state), hunterMark(state.phase), ...phaseMarks(state)],
+    ground: animals.flatMap((animal) => animalMarks(animal, state.elapsedMs)),
+    air: [
+      ...animals.flatMap((animal) => glintMarks(animal, state.elapsedMs)),
+      hunterMark(state.phase),
+      ...phaseMarks(state),
+    ],
     powerLabel: powerLabel(state),
     resultLabel: resultLabel(state.phase),
     overLabel: overLabel(state.phase),
