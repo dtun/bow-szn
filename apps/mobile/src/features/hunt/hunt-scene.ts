@@ -24,7 +24,16 @@ import { huntView, type Bounds, type HuntView, type Screen } from "./hunt-view";
 import { burstMarks, popLabel, shakeOffset } from "./juice-marks";
 import { powerFor, type PowerMeter } from "./power-meter";
 import { resultFor, type ResultView } from "./result-view";
-import { centeredRect, label, rect, sprite, YELLOW, type Label, type Mark } from "./scene-marks";
+import {
+  centeredRect,
+  INK,
+  label,
+  rect,
+  sprite,
+  YELLOW,
+  type Label,
+  type Mark,
+} from "./scene-marks";
 
 export type { Label, Mark, OvalMark, RectMark, SpriteMark } from "./scene-marks";
 
@@ -91,6 +100,7 @@ function animalMarks(animal: Animal, elapsedMs: number, juice: Juice): Mark[] {
       flip: animal.facing === -1,
       rotate: pose.rotate,
       tint: felledFlash(animal, juice),
+      outline: INK,
     }),
   ];
 }

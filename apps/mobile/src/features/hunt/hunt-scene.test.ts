@@ -172,9 +172,25 @@ test("a grazing doe stands on its own spot with its head down, over its shadow",
     y: 180,
     flip: false,
     tint: null,
+    outline: "#1b1530",
     rotate: 0,
   });
   expect(keysStartingWith(scene, "shadow-")).toEqual(["shadow-7"]);
+});
+
+test.each([
+  ["grazing", DOE],
+  ["walking", { ...DOE, mode: { kind: "walk", target: { x: 10, y: 180 } } } as Animal],
+  ["fleeing", { ...DOE, mode: { kind: "flee", dir: { x: 1, y: 0 } } } as Animal],
+  ["downed", { ...DOE, mode: { kind: "down" } } as Animal],
+])("a %s animal wears a dark outline so it pops off the grass", (_, animal) => {
+  expect(animalArt(animal)).toMatchObject({ outline: "#1b1530" });
+});
+
+test("the hunter and the arrow wear no outline", () => {
+  let scene = sceneOf(huntWith([], { kind: "ready" }));
+
+  expect(markNamed(scene, "hunter")).toMatchObject({ outline: null });
 });
 
 test("an animal facing left is mirrored", () => {

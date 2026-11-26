@@ -15,6 +15,13 @@ export type Block = { x: number; y: number; width: number; height: number; color
 
 type Layer = { key: string; image: SkImage | null };
 
+const OUTLINE_OFFSETS: readonly [number, number][] = [
+  [-1, 0],
+  [1, 0],
+  [0, -1],
+  [0, 1],
+];
+
 let pictures = new Map<string, SkPicture>();
 let layers = new Map<string, Layer>();
 
@@ -42,11 +49,22 @@ function drawBlocks(canvas: SkCanvas, blocks: Block[]) {
   }
 }
 
-export function spritePicture(sprite: Sprite, tint: string | null): SkPicture {
-  let key = `${sprite.name}:${tint}`;
+function outlineBlocks(sprite: Sprite, outline: string | null): Block[] {
+  if (outline === null) {
+    return [];
+  }
+  return OUTLINE_OFFSETS.flatMap(([x, y]) => spriteBlocks(sprite, outline, x, y));
+}
+
+export function spritePicture(
+  sprite: Sprite,
+  tint: string | null,
+  outline: string | null = null
+): SkPicture {
+  let key = `${sprite.name}:${tint}:${outline}`;
   let picture = pictures.get(key);
   if (picture === undefined) {
-    let blocks = spriteBlocks(sprite, tint);
+    let blocks = [...outlineBlocks(sprite, outline), ...spriteBlocks(sprite, tint)];
     picture = createPicture((canvas) => drawBlocks(canvas, blocks));
     pictures.set(key, picture);
   }

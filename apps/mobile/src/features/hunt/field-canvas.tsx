@@ -35,6 +35,7 @@ function MarkView({ mark }: { mark: Mark }) {
           y={mark.y}
           flip={mark.flip}
           tint={mark.tint}
+          outline={mark.outline}
           rotate={mark.rotate}
         />
       );

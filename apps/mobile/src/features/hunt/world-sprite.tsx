@@ -9,10 +9,19 @@ type WorldSpriteProps = {
   y: number;
   flip?: boolean;
   tint?: string | null;
+  outline?: string | null;
   rotate?: number;
 };
 
-export function WorldSprite({ id, x, y, flip = false, tint = null, rotate = 0 }: WorldSpriteProps) {
+export function WorldSprite({
+  id,
+  x,
+  y,
+  flip = false,
+  tint = null,
+  outline = null,
+  rotate = 0,
+}: WorldSpriteProps) {
   let sprite = ART[id];
   return (
     <Group
@@ -25,7 +34,7 @@ export function WorldSprite({ id, x, y, flip = false, tint = null, rotate = 0 }:
         { translateY: -sprite.h },
       ]}
     >
-      <Picture picture={spritePicture(sprite, tint)} />
+      <Picture picture={spritePicture(sprite, tint, outline)} />
     </Group>
   );
 }

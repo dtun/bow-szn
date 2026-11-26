@@ -10,6 +10,7 @@ export type SpriteMark = {
   y: number;
   flip: boolean;
   tint: string | null;
+  outline: string | null;
   rotate: number;
 };
 
@@ -58,7 +59,7 @@ export function sprite(
   key: string,
   id: ArtId,
   at: Vec2,
-  options: { flip?: boolean; rotate?: number; tint?: string | null } = {}
+  options: { flip?: boolean; rotate?: number; tint?: string | null; outline?: string | null } = {}
 ): SpriteMark {
   return {
     kind: "sprite",
@@ -68,6 +69,7 @@ export function sprite(
     y: Math.round(at.y),
     flip: options.flip ?? false,
     tint: options.tint ?? null,
+    outline: options.outline ?? null,
     rotate: options.rotate ?? 0,
   };
 }
