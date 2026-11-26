@@ -7,7 +7,7 @@ export const HUNTER_FRAMES: { idle: SpriteId; draw: SpriteId } = {
   draw: "hunter-draw",
 };
 
-export type AnimalKind = DeerKind | ElkKind;
+export type AnimalKind = DeerKind | ElkKind | "turkey";
 
 export type AnimalFrames = {
   walk: readonly [SpriteId, SpriteId];
@@ -31,4 +31,5 @@ export const ANIMAL_FRAMES: Record<AnimalKind, AnimalFrames> = {
   "buck-large": poseFrames("buck-large"),
   "elk-cow": poseFrames("elk-cow"),
   "elk-bull": poseFrames("elk-bull"),
+  turkey: poseFrames("turkey"),
 };
