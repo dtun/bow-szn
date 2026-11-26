@@ -154,14 +154,14 @@ const LOWERED_RACKS: Record<Exclude<DeerKind, "doe">, Sprite> = {
 
 type Anchor = { x: number; y: number };
 
-const STANDING_ANCHORS: Record<"walk-1" | "walk-2" | "flee" | "graze", Anchor> = {
+const STANDING_ANCHORS: Record<"walk-1" | "walk-2" | "flee", Anchor> = {
   "walk-1": { x: 12, y: 1 },
   "walk-2": { x: 12, y: 1 },
   flee: { x: 12, y: 1 },
-  graze: { x: 12, y: 3 },
 };
 
-const LOWERED_ANCHORS: Record<"down", Anchor> = {
+const LOWERED_ANCHORS: Record<"graze" | "down", Anchor> = {
+  graze: { x: 15, y: 2 },
   down: { x: 15, y: 5 },
 };
 
@@ -173,19 +173,14 @@ function buildDeer(kind: DeerKind, pose: DeerPose): Sprite {
   if (kind === "doe") {
     return { ...body, name };
   }
-  if (pose === "down") {
-    let rack = erase(name, LOWERED_RACKS[kind], "a");
+  if (pose === "graze" || pose === "down") {
+    let rack = pose === "down" ? erase(name, LOWERED_RACKS[kind], "a") : LOWERED_RACKS[kind];
     let anchor = LOWERED_ANCHORS[pose];
     return overlay(name, rack, body, rack.w - 1 - anchor.x, rack.h - 1 - anchor.y);
   }
   let rack = RACKS[kind];
   let anchor = STANDING_ANCHORS[pose];
-  let x = anchor.x - rack.cx;
-  let y = anchor.y - rack.art.h;
-  if (pose === "graze") {
-    return overlay(name, rack.art, body, -x, -y);
-  }
-  return overlay(name, body, rack.art, x, y);
+  return overlay(name, body, rack.art, anchor.x - rack.cx, anchor.y - rack.art.h);
 }
 
 export const DEER_SPRITES = Object.fromEntries(

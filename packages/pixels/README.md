@@ -36,6 +36,7 @@ Props are sprites for the menus and the sighting-in range. They follow the same 
 - Animals face right. The renderer mirrors a sprite when an animal faces left.
 - A sprite is anchored by its bottom-center: the feet of an animal or the base of a prop sit on the last row. Every sprite paints its first and last row, so nothing floats.
 - All poses of one animal kind share a width, so switching frames never shifts the anchor.
+- A grazing buck or bull carries its rack on the lowered head, swept back over the neck.
 - A `down` animal lies on its side with its legs out. It is shorter than a standing one and paints no blood. A buck keeps its rack.
 - Antlers use the bone colors `A` and `a`. Does and cows have none, spikes have two straight tines, and each larger rack adds tines and height.
 - Tests check every sprite as an invariant: row count, row width, and palette membership.
