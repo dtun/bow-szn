@@ -15,7 +15,6 @@ appId: host.exp.Exponent
       visible: Continue
     commands:
       - tapOn: Continue
-- takeScreenshot: skeleton-title
 - tapOn:
     id: goHuntingBtn
 - assertVisible:
@@ -28,20 +27,24 @@ appId: host.exp.Exponent
     id: skipPrepBtn
 - assertVisible:
     id: huntScreen
-- takeScreenshot: skeleton-hunt
+- assertVisible:
+    id: mapBtn
+- takeScreenshot: hunt-e2e-ready
 - swipe:
-    start: 50%, 70%
-    end: 50%, 85%
-    duration: 700
+    start: 50%, 62%
+    end: 50%, 78%
+    duration: 900
 - extendedWaitUntil:
     visible:
       id: shotResult
     timeout: 5000
-- assertVisible:
-    id: shotResult
-- takeScreenshot: skeleton-result
+- takeScreenshot: hunt-e2e-result
+- extendedWaitUntil:
+    notVisible:
+      id: shotResult
+    timeout: 8000
 - tapOn:
-    id: shotResult
-- assertNotVisible:
-    id: shotResult
-- takeScreenshot: skeleton-ready-again
+    id: mapBtn
+- assertVisible:
+    id: mapScreen
+- takeScreenshot: hunt-e2e-back-on-map
