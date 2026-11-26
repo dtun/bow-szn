@@ -3,7 +3,7 @@ import { SPECIES } from "./species";
 import { HUNTER_POS, type Animal, type Harvest, type HuntState, type Vec2 } from "./types";
 import { distance } from "./vec";
 
-const YARDS_PER_PX = 0.5;
+export const YARDS_PER_PX = 0.5;
 
 export function buildHarvest(
   hunt: HuntState,
