@@ -30,8 +30,8 @@ describe("renderBrandFiles", () => {
     expect(icon.samples).toHaveLength(1024 * 1024 * 3);
   });
 
-  it("paints the icon's top-left corner in dawn orange", () => {
-    expect(Array.from(decoded("icon.png").samples.subarray(0, 3))).toEqual([0xf0, 0x8a, 0x4b]);
+  it("paints the icon's top-left corner in deep navy", () => {
+    expect(Array.from(decoded("icon.png").samples.subarray(0, 3))).toEqual([0x13, 0x21, 0x4a]);
   });
 
   it("renders the splash at 1024 by 1024 on the #0b0f1a background", () => {

@@ -6,97 +6,59 @@ export const ICON_GRID = 32;
 export const SPLASH_GRID = 64;
 export const FAVICON_GRID = 16;
 
-type SkyBand = { rows: number; chars: readonly [string, string] };
+const ADAPTIVE_GRID = 64;
 
-const ICON_SKY: readonly SkyBand[] = [
-  { rows: 7, chars: ["O", "O"] },
-  { rows: 2, chars: ["O", "P"] },
-  { rows: 6, chars: ["P", "P"] },
-  { rows: 2, chars: ["P", "Y"] },
-  { rows: 15, chars: ["Y", "Y"] },
-];
+type Cell = { x: number; y: number };
 
-const FAVICON_SKY: readonly SkyBand[] = [
-  { rows: 5, chars: ["O", "O"] },
-  { rows: 1, chars: ["O", "P"] },
-  { rows: 4, chars: ["P", "P"] },
-  { rows: 1, chars: ["P", "Y"] },
-  { rows: 5, chars: ["Y", "Y"] },
-];
-
-const SUN_CENTER = { x: 26, y: 19 };
-const SUN_RADIUS = 6;
-const SUN_CORE_RADIUS = 3;
-const DEER_AT = { x: 21, y: 14 };
-const ICON_BOW_AT = { x: 1, y: 2 };
+const ICON_SUN_RADIUS = ICON_GRID / 2 - 0.5;
+const ICON_BUCK_AT: Cell = { x: 3, y: 2 };
+const FAVICON_SUN_RADIUS = FAVICON_GRID / 2 - 0.5;
+const ADAPTIVE_SUN_RADIUS = 17.5;
+const ADAPTIVE_BUCK_AT: Cell = { x: 19, y: 18 };
 
 function centered(outer: number, inner: number): number {
   return Math.floor((outer - inner) / 2);
 }
 
-function dawnSky(name: string, size: number, bands: readonly SkyBand[]): Sprite {
-  let rows: string[] = [];
-  for (let band of bands) {
-    for (let i = 0; i < band.rows; i++) {
-      let y = rows.length;
-      rows.push(Array.from({ length: size }, (_, x) => band.chars[(x + y) % 2]).join(""));
-    }
-  }
-  return sprite(name, rows);
-}
-
-function dawnBackground(name: string): Sprite {
-  let trees = SPRITES["brand-treeline"];
-  let sky = dawnSky(name, ICON_GRID, ICON_SKY);
-  let sun = overlay(
-    name,
-    sky,
-    disc("sun", ICON_GRID, SUN_CENTER.x, SUN_CENTER.y, SUN_RADIUS, "C"),
-    0,
-    0
-  );
-  let core = overlay(
-    name,
-    sun,
-    disc("core", ICON_GRID, SUN_CENTER.x, SUN_CENTER.y, SUN_CORE_RADIUS, "W"),
-    0,
-    0
-  );
-  let wooded = overlay(name, core, trees, 0, ICON_GRID - trees.h);
-  return overlay(name, wooded, SPRITES["brand-deer"], DEER_AT.x, DEER_AT.y);
+function sunWithBuck(name: string, field: Sprite, radius: number, buck: Sprite, at: Cell): Sprite {
+  let center = (field.w - 1) / 2;
+  let sun = disc("sun", field.w, center, center, radius, "O");
+  return overlay(name, overlay(name, field, sun, 0, 0), buck, at.x, at.y);
 }
 
 export function iconScene(): Sprite {
-  return overlay(
+  return sunWithBuck(
     "icon",
-    dawnBackground("icon"),
-    SPRITES["brand-bow"],
-    ICON_BOW_AT.x,
-    ICON_BOW_AT.y
+    blank("icon", ICON_GRID, ICON_GRID, "N"),
+    ICON_SUN_RADIUS,
+    SPRITES["brand-icon-buck"],
+    ICON_BUCK_AT
   );
 }
 
 export function adaptiveBackgroundScene(): Sprite {
-  return dawnBackground("adaptive-background");
+  return blank("adaptive-background", ICON_GRID, ICON_GRID, "N");
 }
 
 export function adaptiveForegroundScene(): Sprite {
-  let bow = SPRITES["brand-bow-compact"];
-  return overlay(
+  return sunWithBuck(
     "adaptive-foreground",
-    blank("adaptive-foreground", ICON_GRID, ICON_GRID),
-    bow,
-    centered(ICON_GRID, bow.w),
-    centered(ICON_GRID, bow.h)
+    blank("adaptive-foreground", ADAPTIVE_GRID, ADAPTIVE_GRID),
+    ADAPTIVE_SUN_RADIUS,
+    SPRITES["brand-icon-buck"],
+    ADAPTIVE_BUCK_AT
   );
 }
 
 export function faviconScene(): Sprite {
-  let trees = SPRITES["brand-treeline-mini"];
-  let bow = SPRITES["brand-bow-mini"];
-  let sky = dawnSky("favicon", FAVICON_GRID, FAVICON_SKY);
-  let wooded = overlay("favicon", sky, trees, 0, FAVICON_GRID - trees.h);
-  return overlay("favicon", wooded, bow, 2, 2);
+  let buck = SPRITES["brand-icon-buck-mini"];
+  return sunWithBuck(
+    "favicon",
+    blank("favicon", FAVICON_GRID, FAVICON_GRID, "N"),
+    FAVICON_SUN_RADIUS,
+    buck,
+    { x: centered(FAVICON_GRID, buck.w), y: centered(FAVICON_GRID, buck.h) }
+  );
 }
 
 const BADGE_RING = 1;

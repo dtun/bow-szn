@@ -34,4 +34,19 @@ describe("brand sprites", () => {
     expect(colorsOf("brand-treeline")).toEqual(["N"]);
     expect(SPRITES["brand-treeline"].w).toBe(32);
   });
+
+  it("paints the icon buck and its mini twin as navy silhouettes", () => {
+    expect(colorsOf("brand-icon-buck")).toEqual(["N"]);
+    expect(colorsOf("brand-icon-buck-mini")).toEqual(["N"]);
+  });
+
+  it("draws every tine tip and hoof of the icon buck at least two cells wide so they survive 60 px", () => {
+    let { rows } = SPRITES["brand-icon-buck"];
+
+    for (let row of [rows[0], rows[rows.length - 1]]) {
+      let runs = row.split(".").filter((run) => run.length > 0);
+
+      expect(runs.filter((run) => run.length < 2)).toEqual([]);
+    }
+  });
 });

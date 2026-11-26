@@ -38,29 +38,93 @@ describe.each(OPAQUE_SCENES)("%s scene", (_name, scene, size) => {
   });
 });
 
-describe("adaptive foreground scene", () => {
-  let scene = adaptiveForegroundScene();
+function distanceFromCenter(scene: Sprite, x: number, y: number): number {
+  let center = (scene.w - 1) / 2;
+  return Math.hypot(x - center, y - center);
+}
 
-  it("is a 32 cell grid with clear corners so the background shows", () => {
-    expect([scene.w, scene.h]).toEqual([32, 32]);
+function colorsOf(scene: Sprite): string[] {
+  return [...new Set(scene.rows.join("").replaceAll(TRANSPARENT, ""))].sort();
+}
+
+function buckCells(scene: Sprite): [number, number][] {
+  return paintedCells(scene).filter(
+    ([x, y]) => scene.rows[y][x] === "N" && distanceFromCenter(scene, x, y) < scene.w / 2 - 0.5
+  );
+}
+
+describe("icon scene", () => {
+  let scene = iconScene();
+  let buck = buckCells(scene);
+
+  it("is a navy buck on a dawn orange sun over a navy field, and nothing else", () => {
+    expect(colorsOf(scene)).toEqual(["N", "O"]);
     for (let [x, y] of [
       [0, 0],
       [31, 0],
       [0, 31],
       [31, 31],
     ]) {
+      expect(scene.rows[y][x]).toBe("N");
+    }
+  });
+
+  it("stands the buck over most of the sun, from its antler tips down to its hooves", () => {
+    let top = Math.min(...buck.map(([, y]) => y));
+    let bottom = Math.max(...buck.map(([, y]) => y));
+
+    expect(bottom - top + 1).toBeGreaterThanOrEqual(0.8 * 31);
+  });
+
+  it("keeps a ring of sun around the buck so it never merges with the navy field", () => {
+    let ring = paintedCells(scene).filter(([x, y]) => {
+      let distance = distanceFromCenter(scene, x, y);
+      return distance > scene.w / 2 - 1.5 && distance <= scene.w / 2 - 0.5;
+    });
+
+    expect(ring.filter(([x, y]) => scene.rows[y][x] !== "O")).toEqual([]);
+  });
+});
+
+describe("adaptive foreground scene", () => {
+  let scene = adaptiveForegroundScene();
+
+  it("is a 64 cell grid with clear corners so the background shows", () => {
+    expect([scene.w, scene.h]).toEqual([64, 64]);
+    for (let [x, y] of [
+      [0, 0],
+      [63, 0],
+      [0, 63],
+      [63, 63],
+    ]) {
       expect(scene.rows[y][x]).toBe(TRANSPARENT);
     }
   });
 
   it("keeps every painted cell inside the 66 of 108 safe circle", () => {
-    let safeRadius = (32 * 66) / 108 / 2;
+    let safeRadius = (64 * 66) / 108 / 2;
     let cells = paintedCells(scene);
 
     expect(cells.length).toBeGreaterThan(0);
     for (let [x, y] of cells) {
-      expect(Math.hypot(x + 0.5 - 16, y + 0.5 - 16)).toBeLessThanOrEqual(safeRadius);
+      expect(Math.hypot(x + 0.5 - 32, y + 0.5 - 32)).toBeLessThanOrEqual(safeRadius);
     }
+  });
+
+  it("is the sun and the buck in the icon's two colors", () => {
+    expect(colorsOf(scene)).toEqual(["N", "O"]);
+  });
+});
+
+describe("adaptive background scene", () => {
+  it("is flat navy", () => {
+    expect(colorsOf(adaptiveBackgroundScene())).toEqual(["N"]);
+  });
+});
+
+describe("favicon scene", () => {
+  it("draws the buck and its sun in the icon's two colors", () => {
+    expect(colorsOf(faviconScene())).toEqual(["N", "O"]);
   });
 });
 

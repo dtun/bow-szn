@@ -6,6 +6,8 @@ export type BrandSpriteId =
   | "brand-bow-compact"
   | "brand-bow-mini"
   | "brand-deer"
+  | "brand-icon-buck"
+  | "brand-icon-buck-mini"
   | "brand-treeline"
   | "brand-treeline-mini";
 
@@ -83,6 +85,47 @@ export const BRAND_SPRITES: Record<BrandSpriteId, Sprite> = defineSprites({
     ".K.K...K.K.",
     ".K.K...K.K.",
     ".K.K...K.K.",
+  ],
+  "brand-icon-buck": [
+    ".........NN.NN.NN........",
+    ".........NN.NN.NN.NN.....",
+    ".........NN.NN.NN.NN.....",
+    ".........NNNNN.NN.NN.....",
+    "...........NNNNNN.NN.NN..",
+    ".............NNNN.NN.NN..",
+    "...............NNNNN.NN..",
+    ".................NNNNNNN.",
+    "...............NNNNNNNNN.",
+    "................NNNNNNNNN",
+    ".................NNNNNNNN",
+    "................NNNNNNN..",
+    "NN............NNNNNNNN...",
+    ".NNNNNNNNNNNNNNNNNNNN....",
+    "NNNNNNNNNNNNNNNNNNNNN....",
+    "NNNNNNNNNNNNNNNNNNNN.....",
+    "NNNNNNNNNNNNNNNNNNNN.....",
+    ".NNNNNNNNNNNNNNNNNN......",
+    "...NNNNNNNNNNNNNNN.......",
+    "....NNN.NNN.NNN.NNN......",
+    "....NN...NN.NN...NN......",
+    "....NN...NN.NN...NN......",
+    "....NN...NN.NN...NN......",
+    ".....NN..NN.NN...NN......",
+    ".....NN..NN.NN...NN......",
+    ".....NN..NN.NN...NN......",
+  ],
+  "brand-icon-buck-mini": [
+    "....N.N.N..",
+    "....N.N.N.N",
+    ".....NNNN.N",
+    "......NNNNN",
+    "....NNNNNNN",
+    "NNNNNNNNNN.",
+    "NNNNNNNNNN.",
+    "NNNNNNNNN..",
+    ".N.N..N.N..",
+    ".N.N..N.N..",
+    ".N.N..N.N..",
   ],
   "brand-treeline": [
     "..................N.............",
