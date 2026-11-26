@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from "react-native";
 
+import { lightTap } from "@/platform/haptics";
+import { playSfx } from "@/platform/sfx";
 import {
   BROWN,
   BROWN_DARK,
@@ -40,13 +42,19 @@ export function PixelButton({
 }: PixelButtonProps) {
   let { face, edge } = TONES[tone];
 
+  function handlePress() {
+    lightTap();
+    playSfx("ui-select");
+    onPress();
+  }
+
   return (
     <Pressable
       testID={testID}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityHint={accessibilityHint}
-      onPress={onPress}
+      onPress={handlePress}
       style={({ pressed }) => [
         styles.button,
         { backgroundColor: face, borderColor: edge },

@@ -1,6 +1,29 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
+import * as Haptics from "expo-haptics";
+
+import { playSfx } from "@/platform/sfx";
 
 import { PixelButton } from "./pixel-button";
+
+jest.mock("@/platform/sfx");
+
+test("a press ticks the phone and clicks once", () => {
+  render(<PixelButton label="LEVEL: EASY" onPress={jest.fn()} testID="levelBtn" />);
+
+  fireEvent.press(screen.getByTestId("levelBtn"));
+
+  expect(Haptics.impactAsync).toHaveBeenCalledTimes(1);
+  expect(Haptics.impactAsync).toHaveBeenCalledWith("light");
+  expect(playSfx).toHaveBeenCalledTimes(1);
+  expect(playSfx).toHaveBeenCalledWith("ui-select");
+});
+
+test("nothing ticks or clicks until the button is pressed", () => {
+  render(<PixelButton label="LEVEL: EASY" onPress={jest.fn()} testID="levelBtn" />);
+
+  expect(Haptics.impactAsync).not.toHaveBeenCalled();
+  expect(playSfx).not.toHaveBeenCalled();
+});
 
 test("shows its label and calls onPress once when pressed", () => {
   let onPress = jest.fn();
