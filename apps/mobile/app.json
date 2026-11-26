@@ -28,7 +28,14 @@
       ],
       "expo-font",
       "expo-sqlite",
-      "expo-audio",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundPlayback": false
+        }
+      ],
       "expo-sharing"
     ],
     "experiments": {
