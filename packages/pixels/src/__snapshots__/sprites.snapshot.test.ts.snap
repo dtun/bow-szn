@@ -630,6 +630,55 @@ exports[`sprite art hunter-idle 1`] = `
 "
 `;
 
+exports[`sprite art rabbit-flee 1`] = `
+"
+...........b.b
+...........bVb
+..bbbbbbbbbbbb
+CCBBBBBBBBBbKV
+CBBBBBBBBBbbb.
+..bBBLLLLb....
+.bb......bb...
+bb........bb..
+"
+`;
+
+exports[`sprite art rabbit-graze 1`] = `
+"
+...bbbbbbb....
+..CBBBBBBbbb..
+..CBBBBBBbbbb.
+...bBBLLLb.KV.
+...bbb.bb.....
+"
+`;
+
+exports[`sprite art rabbit-walk-1 1`] = `
+"
+.........b.b..
+.........bVb..
+.........bbb..
+...bbbbbbbbKV.
+..CBBBBBBbbb..
+..CBBBBBBbb...
+...bBBLLLb....
+...bbb.bb.....
+"
+`;
+
+exports[`sprite art rabbit-walk-2 1`] = `
+"
+.........b.b..
+.........bVb..
+.........bbb..
+...bbbbbbbbKV.
+..CBBBBBBbbb..
+..CBBBBBBbb...
+...bBBLLLb....
+..bbb...bb....
+"
+`;
+
 exports[`sprite art spike-flee 1`] = `
 "
 ..........a...A...

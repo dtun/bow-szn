@@ -3,6 +3,18 @@ import type { AnimalKind } from "./index.ts";
 
 const KINDS = Object.keys(ANIMAL_FRAMES) as AnimalKind[];
 
+function widthOf(kind: AnimalKind): number {
+  return SPRITES[ANIMAL_FRAMES[kind].walk[0]].w;
+}
+
+describe("animal sizes", () => {
+  it("draws species in the order of their hit radius: rabbit, turkey, whitetail, elk", () => {
+    expect(widthOf("rabbit")).toBeLessThan(widthOf("turkey"));
+    expect(widthOf("turkey")).toBeLessThan(widthOf("doe"));
+    expect(widthOf("doe")).toBeLessThan(widthOf("elk-cow"));
+  });
+});
+
 describe.each(KINDS)("%s frames", (kind) => {
   it("keeps every pose the same width so the anchor never jumps", () => {
     let { walk, graze, flee } = ANIMAL_FRAMES[kind];
