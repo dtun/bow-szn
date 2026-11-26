@@ -2,6 +2,8 @@ import { DEER_SPRITES } from "./sprites/deer.ts";
 import type { DeerSpriteId } from "./sprites/deer.ts";
 import { ELK_SPRITES } from "./sprites/elk.ts";
 import type { ElkSpriteId } from "./sprites/elk.ts";
+import { FX_SPRITES } from "./sprites/fx.ts";
+import type { FxSpriteId } from "./sprites/fx.ts";
 import { HUNTER_SPRITES } from "./sprites/hunter.ts";
 import type { HunterSpriteId } from "./sprites/hunter.ts";
 import { RABBIT_SPRITES } from "./sprites/rabbit.ts";
@@ -18,7 +20,8 @@ export type SpriteId =
   | ElkSpriteId
   | TurkeySpriteId
   | RabbitSpriteId
-  | TerrainSpriteId;
+  | TerrainSpriteId
+  | FxSpriteId;
 
 export const SPRITES: Record<SpriteId, Sprite> = {
   ...HUNTER_SPRITES,
@@ -27,4 +30,5 @@ export const SPRITES: Record<SpriteId, Sprite> = {
   ...TURKEY_SPRITES,
   ...RABBIT_SPRITES,
   ...TERRAIN_SPRITES,
+  ...FX_SPRITES,
 };

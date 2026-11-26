@@ -321,6 +321,65 @@ exports[`sprite art cattails 1`] = `
 "
 `;
 
+exports[`sprite art confetti-blue 1`] = `
+"
+ll
+lZ
+"
+`;
+
+exports[`sprite art confetti-cream 1`] = `
+"
+CC
+CL
+"
+`;
+
+exports[`sprite art confetti-red 1`] = `
+"
+RR
+RM
+"
+`;
+
+exports[`sprite art confetti-yellow 1`] = `
+"
+YY
+Yy
+"
+`;
+
+exports[`sprite art dirt-puff-1 1`] = `
+"
+..TT..
+.TTtT.
+TTtTTt
+.tttt.
+"
+`;
+
+exports[`sprite art dirt-puff-2 1`] = `
+"
+...TT.TT..
+.TTtTTtTT.
+TTt....tTT
+Tt......tT
+.TTt..tTT.
+..tTTTTt..
+"
+`;
+
+exports[`sprite art dirt-puff-3 1`] = `
+"
+.T....t..T..
+..t.T....t..
+T...t..T...t
+..T.....t.T.
+.t..T.t.....
+...t....T..t
+"
+`;
+
 exports[`sprite art doe-flee 1`] = `
 "
 .............U.U..
@@ -587,6 +646,32 @@ exports[`sprite art elk-cow-walk-2 1`] = `
 ..E...U....U...E........
 ..E...U....U...E........
 ..K...K....K...K........
+"
+`;
+
+exports[`sprite art glint-1 1`] = `
+"
+.W.
+WYW
+.W.
+"
+`;
+
+exports[`sprite art glint-2 1`] = `
+"
+..W..
+..Y..
+WYWYW
+..Y..
+..W..
+"
+`;
+
+exports[`sprite art glint-3 1`] = `
+"
+.Y.
+YWY
+.Y.
 "
 `;
 
