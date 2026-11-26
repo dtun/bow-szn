@@ -1,12 +1,13 @@
 import type { SpriteId } from "./registry.ts";
 import type { DeerKind } from "./sprites/deer.ts";
+import type { ElkKind } from "./sprites/elk.ts";
 
 export const HUNTER_FRAMES: { idle: SpriteId; draw: SpriteId } = {
   idle: "hunter-idle",
   draw: "hunter-draw",
 };
 
-export type AnimalKind = DeerKind;
+export type AnimalKind = DeerKind | ElkKind;
 
 export type AnimalFrames = {
   walk: readonly [SpriteId, SpriteId];
@@ -28,4 +29,6 @@ export const ANIMAL_FRAMES: Record<AnimalKind, AnimalFrames> = {
   "buck-small": poseFrames("buck-small"),
   "buck-medium": poseFrames("buck-medium"),
   "buck-large": poseFrames("buck-large"),
+  "elk-cow": poseFrames("elk-cow"),
+  "elk-bull": poseFrames("elk-bull"),
 };
