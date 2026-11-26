@@ -57,6 +57,12 @@
     "icon": "./assets/brand/icon.png",
     "web": {
       "favicon": "./assets/brand/favicon.png"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/e7663367-c007-4f5d-a3ab-0a129a9111f7"
     }
   }
 }
