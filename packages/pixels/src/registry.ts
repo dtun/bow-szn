@@ -16,6 +16,8 @@ import { MOUNT_SPRITES } from "./sprites/mounts.ts";
 import type { MountSpriteId } from "./sprites/mounts.ts";
 import { RABBIT_SPRITES } from "./sprites/rabbit.ts";
 import type { RabbitSpriteId } from "./sprites/rabbit.ts";
+import { SIGHT_IN_SPRITES } from "./sprites/sight-in.ts";
+import type { SightInSpriteId } from "./sprites/sight-in.ts";
 import { TERRAIN_SPRITES } from "./sprites/terrain.ts";
 import type { TerrainSpriteId } from "./sprites/terrain.ts";
 import { TURKEY_SPRITES } from "./sprites/turkey.ts";
@@ -29,6 +31,7 @@ export type SpriteId =
   | TurkeySpriteId
   | RabbitSpriteId
   | TerrainSpriteId
+  | SightInSpriteId
   | FxSpriteId
   | IconSpriteId
   | MountSpriteId
@@ -42,6 +45,7 @@ export const SPRITES: Record<SpriteId, Sprite> = {
   ...TURKEY_SPRITES,
   ...RABBIT_SPRITES,
   ...TERRAIN_SPRITES,
+  ...SIGHT_IN_SPRITES,
   ...FX_SPRITES,
   ...ICON_SPRITES,
   ...MOUNT_SPRITES,

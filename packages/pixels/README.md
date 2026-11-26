@@ -20,6 +20,14 @@ Frames name the sprites an animated thing cycles through, so the renderer never 
 - `WIND_FLAG_FRAMES` runs from a light wind to a strong one.
 - `MOUNT_FRAMES` maps a buck size or the elk bull to its trophy-room mount.
 
+## Props
+
+Props are sprites for the menus and the sighting-in range. They follow the same grid and anchor rules as the animals.
+
+- `bale-target` is an 80 by 44 straw bale seen head-on, ragged at the edges and bound by two twine bands. The scene paints the target face over it.
+- `bale-arrow` is a practice arrow stuck in the bale. Its bottom-center pixel is where it entered.
+- `sight-pin` is the swaying aim dot. Its center pixel is red and is the point that counts.
+
 ## Conventions
 
 - Animals face right. The renderer mirrors a sprite when an animal faces left.
