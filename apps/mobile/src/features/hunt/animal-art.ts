@@ -14,7 +14,6 @@ export type AnimalPose = { id: SpriteId; rotate: number };
 const WALK_FRAME_MS = 220;
 const FLEE_FRAME_MS = 90;
 const FRAME_STAGGER_MS = 97;
-const TIPPED_OVER = Math.PI / 2;
 
 export function animalKind(animal: { species: SpeciesId; antlers: Antlers }): AnimalKind {
   switch (animal.species) {
@@ -47,7 +46,7 @@ export function animalPose(animal: Animal, elapsedMs: number): AnimalPose | null
         rotate: 0,
       };
     case "down":
-      return { id: frames.graze, rotate: animal.facing * TIPPED_OVER };
+      return { id: frames.down, rotate: 0 };
     case "gone":
       return null;
   }

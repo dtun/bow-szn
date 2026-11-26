@@ -255,17 +255,31 @@ test("an alert animal stands with its head up", () => {
   });
 });
 
-test("a downed animal lies tipped onto its side, toward the way it faced", () => {
+test("a downed animal lies in its down pose, mirrored when it faced left", () => {
   let down: AnimalMode = { kind: "down" };
 
   expect(animalArt({ ...DOE, mode: down })).toMatchObject({
-    id: "doe-graze",
-    rotate: Math.PI / 2,
+    id: "doe-down",
+    rotate: 0,
+    flip: false,
   });
   expect(animalArt({ ...DOE, facing: -1, mode: down })).toMatchObject({
-    id: "doe-graze",
-    rotate: -Math.PI / 2,
+    id: "doe-down",
+    rotate: 0,
+    flip: true,
   });
+});
+
+test.each([
+  ["a buck", { ...DOE, antlers: { kind: "rack", points: 10 } } as Animal, "buck-large-down"],
+  [
+    "an elk bull",
+    { ...DOE, species: "elk", antlers: { kind: "rack", points: 12 } } as Animal,
+    "elk-bull-down",
+  ],
+  ["a turkey", { ...DOE, species: "turkey" } as Animal, "turkey-down"],
+])("%s goes down in its own down pose", (_, animal, id) => {
+  expect(animalArt({ ...animal, mode: { kind: "down" } })).toMatchObject({ id });
 });
 
 test("drops an animal that has left the field, shadow and all", () => {
