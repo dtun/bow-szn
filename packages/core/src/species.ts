@@ -32,8 +32,8 @@ export const SPECIES: Record<SpeciesId, Species> = {
     weightLb: [12, 25],
     meatYield: 0.6,
     headgear: NO_HEADGEAR,
-    seasons: ["early", "late"],
-    rarity: 4,
+    seasons: ["early", "rut", "late"],
+    rarity: 1,
   },
   rabbit: {
     id: "rabbit",

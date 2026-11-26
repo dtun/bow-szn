@@ -55,9 +55,17 @@ describe("opening animals", () => {
 
   test("rarity weights who shows up", () => {
     let animals = openers("cattail-marsh", "early");
-    expect(share(animals, (animal) => animal.species === "rabbit")).toBeCloseTo(6 / 15, 1);
-    expect(share(animals, (animal) => animal.species === "whitetail")).toBeCloseTo(5 / 15, 1);
-    expect(share(animals, (animal) => animal.species === "turkey")).toBeCloseTo(4 / 15, 1);
+    expect(share(animals, (animal) => animal.species === "rabbit")).toBeCloseTo(6 / 12, 1);
+    expect(share(animals, (animal) => animal.species === "whitetail")).toBeCloseTo(5 / 12, 1);
+    expect(share(animals, (animal) => animal.species === "turkey")).toBeCloseTo(1 / 12, 1);
+  });
+
+  test("turkeys are a rare sight in every season", () => {
+    for (let season of ["early", "rut", "late"] as const) {
+      let turkeys = share(openers("cedar-hollow", season), (animal) => animal.species === "turkey");
+      expect(turkeys).toBeGreaterThan(0);
+      expect(turkeys).toBeLessThan(0.15);
+    }
   });
 
   test("antlered game rolls doe, spike, or buck from the season's odds", () => {
