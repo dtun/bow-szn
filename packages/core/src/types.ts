@@ -143,3 +143,10 @@ export type PrepState = {
 export type PrepEvent = { type: "tick"; dtMs: number } | { type: "tap" };
 
 export type Journal = { harvests: Harvest[]; mountedIds: string[] };
+
+export type PersonalBest = {
+  count: number;
+  bestWeightLb: number;
+  bestPoints: number;
+  bestScore: number;
+};
