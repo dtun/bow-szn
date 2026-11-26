@@ -1,6 +1,6 @@
 import { SPRITES } from "@bow-szn/pixels";
 
-import { spriteRuns } from "@/art/sprite-runs";
+import { colorAt } from "@/art/test-support/color-at";
 
 import { dawnScene, type DawnScene } from "./dawn-scene";
 
@@ -12,23 +12,7 @@ const PHONE = { cols: 98, rows: 113 };
 const SMALL_PHONE = { cols: 60, rows: 80 };
 
 function paintedAt(scene: DawnScene, x: number, y: number): string | null {
-  let painted: string | null = null;
-  for (let layer of scene.layers) {
-    for (let rect of layer.rects) {
-      if (x >= rect.x && x < rect.x + rect.width && y >= rect.y && y < rect.y + rect.height) {
-        painted = rect.color;
-      }
-    }
-    for (let { sprite, x: spriteX, y: spriteY } of layer.sprites) {
-      for (let run of spriteRuns(sprite)) {
-        let runY = spriteY + run.y;
-        if (y === runY && x >= spriteX + run.x && x < spriteX + run.x + run.width) {
-          painted = run.color;
-        }
-      }
-    }
-  }
-  return painted;
+  return colorAt(scene.layers, x, y);
 }
 
 function allSprites(scene: DawnScene) {
