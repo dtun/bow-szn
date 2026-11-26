@@ -1,6 +1,6 @@
 appId: host.exp.Exponent
 ---
-- openLink: exp://127.0.0.1:8081
+- openLink: ${METRO_URL || 'exp://127.0.0.1:8081'}
 - runFlow:
     when:
       visible: Open
@@ -36,13 +36,10 @@ appId: host.exp.Exponent
     duration: 900
 - extendedWaitUntil:
     visible:
-      id: shotResult
-    timeout: 5000
-- takeScreenshot: hunt-e2e-result
-- extendedWaitUntil:
-    notVisible:
-      id: shotResult
+      id: quiver
+      text: 5 arrows left
     timeout: 8000
+- takeScreenshot: hunt-e2e-after-shot
 - tapOn:
     id: mapBtn
 - assertVisible:
