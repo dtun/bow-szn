@@ -1,10 +1,12 @@
 import { TUNING } from "@bow-szn/core";
 import { act, fireEvent, render, screen } from "@testing-library/react-native";
+import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { JournalProvider } from "@/features/journal";
 import { createMemoryJournalStore, type JournalStore } from "@/platform/journal-store";
+import { playSfx } from "@/platform/sfx";
 
 import { HuntScreen } from "./hunt-screen";
 import type { HuntParams } from "./hunt-config";
@@ -18,6 +20,12 @@ import {
   STANDING_BUCK,
   STANDING_DOE,
 } from "./test-support/standing-doe";
+
+jest.mock("@/platform/sfx", () => ({ playSfx: jest.fn(), preloadSfx: jest.fn() }));
+
+function soundsPlayed(): string[] {
+  return jest.mocked(playSfx).mock.calls.map(([id]) => id);
+}
 
 function renderHunt(params: HuntParams = { seed: STANDING_DOE.seed }): JournalStore {
   let store = createMemoryJournalStore();
@@ -286,4 +294,23 @@ test("a harvest goes into the journal the moment it happens", () => {
   expect(store.load().harvests.map((harvest) => [harvest.id, harvest.species])).toEqual([
     [`${STANDING_DOE.seed}-${STANDING_DOE.id}`, "whitetail"],
   ]);
+});
+
+test("drawing creaks the bow, and loosing twangs and whooshes with a kick in the hand", () => {
+  renderHunt();
+
+  dragBackAndLetGo(PULL_TO_EMPTY_GROUND);
+
+  expect(soundsPlayed()).toEqual(["creak", "creak", "twang", "whoosh"]);
+  expect(Haptics.impactAsync).toHaveBeenCalledWith("medium");
+});
+
+test("a harvest hits home with a success buzz", () => {
+  renderHunt();
+
+  dragBackAndLetGo(PULL_TO_DOE);
+  passTime(1300);
+
+  expect(soundsPlayed()).toContain("hit");
+  expect(Haptics.notificationAsync).toHaveBeenCalledWith("success");
 });

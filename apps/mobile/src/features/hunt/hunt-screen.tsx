@@ -1,18 +1,19 @@
 import type { HuntConfig } from "@bow-szn/core";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
 import { GestureDetector } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useJournal } from "@/features/journal";
+import { preloadSfx } from "@/platform/sfx";
 import { BACKGROUND } from "@/ui/theme";
 
 import { FieldCanvas } from "./field-canvas";
 import { HarvestBanner } from "./harvest-banner";
 import { HarvestCardPanel } from "./harvest-card-panel";
 import { huntConfigFor, type HuntParams } from "./hunt-config";
-import { fireEffects } from "./hunt-io";
+import { deviceIo, fireEffects } from "./hunt-io";
 import { overPanelFor } from "./hunt-over";
 import { HuntOverPanel } from "./hunt-over-panel";
 import { sceneFor } from "./hunt-scene";
@@ -33,7 +34,7 @@ type HuntRunProps = {
 function HuntRun({ config, onAgain }: HuntRunProps) {
   let journal = useJournal();
   let { state, juice, dispatch } = useHunt(config, (effects) =>
-    fireEffects(effects, { record: journal.record })
+    fireEffects(effects, deviceIo(journal.record))
   );
   let { width, height } = useWindowDimensions();
   let insets = useSafeAreaInsets();
@@ -91,6 +92,10 @@ function HuntRun({ config, onAgain }: HuntRunProps) {
 
 export function HuntScreen(params: HuntParams) {
   let [config, setConfig] = useState(() => huntConfigFor(params, Date.now()));
+
+  useEffect(() => {
+    preloadSfx();
+  }, []);
 
   return (
     <View testID="huntScreen" style={styles.screen}>
