@@ -11,8 +11,10 @@
     "build:ios:submit": "eas build --platform ios --profile production --auto-submit",
     "lint": "expo lint .",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
-    "vibecheck": "npm run lint && npm run typecheck && npm run test"
+    "test": "jest --selectProjects unit ui integration",
+    "test:snapshot": "jest --selectProjects snapshot --passWithNoTests",
+    "test:all": "jest --passWithNoTests",
+    "vibecheck": "npm run lint && npm run typecheck && npm run test:all"
   },
   "dependencies": {
     "@bow-szn/core": "*",
@@ -46,12 +48,5 @@
     "jest-expo": "~55.0.22",
     "react-test-renderer": "19.2.0",
     "typescript": "~5.9.2"
-  },
-  "jest": {
-    "preset": "jest-expo",
-    "setupFilesAfterEnv": [
-      "<rootDir>/jest.setup.js"
-    ],
-    "clearMocks": true
   }
 }
