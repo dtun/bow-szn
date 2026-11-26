@@ -1,0 +1,39 @@
+appId: host.exp.Exponent
+---
+- openLink: exp://127.0.0.1:8081
+- runFlow:
+    when:
+      visible: Open
+    commands:
+      - tapOn: Open
+- extendedWaitUntil:
+    visible:
+      id: titleScreen
+    timeout: 120000
+- runFlow:
+    when:
+      visible: Continue
+    commands:
+      - tapOn: Continue
+- takeScreenshot: skeleton-title
+- tapOn:
+    id: goHuntingBtn
+- assertVisible:
+    id: huntScreen
+- takeScreenshot: skeleton-hunt
+- swipe:
+    start: 50%, 70%
+    end: 50%, 85%
+    duration: 700
+- extendedWaitUntil:
+    visible:
+      id: shotResult
+    timeout: 5000
+- assertVisible:
+    id: shotResult
+- takeScreenshot: skeleton-result
+- tapOn:
+    id: shotResult
+- assertNotVisible:
+    id: shotResult
+- takeScreenshot: skeleton-ready-again
