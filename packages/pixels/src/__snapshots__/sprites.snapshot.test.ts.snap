@@ -1503,6 +1503,55 @@ exports[`sprite art mount-elk-bull 1`] = `
 "
 `;
 
+exports[`sprite art pencil-clump 1`] = `
+"
+....hhhhh....
+..hhHH.HHhh..
+.hH.H.H.H.hh.
+hH.H.H.H.H.Hh
+h.H.H.H.H.H.h
+.hhH.H.H.Hhh.
+...hhhhhhh...
+......h......
+......h......
+"
+`;
+
+exports[`sprite art pencil-house 1`] = `
+"
+...h...
+..hHh..
+.h.H.h.
+hhhhhhh
+h.hhh.h
+h.h.h.h
+hhhhhhh
+"
+`;
+
+exports[`sprite art pencil-peak 1`] = `
+"
+.....h.....
+....h.h....
+...h.H.h...
+..h.H.H.h..
+.h.H.H.H.h.
+hhhhhhhhhhh
+"
+`;
+
+exports[`sprite art pencil-reeds 1`] = `
+"
+....t....
+.t..t..t.
+.t..n..t.
+.n..n..n.
+.n.n.n.n.
+nn.n.n.nn
+n.nnnnn.n
+"
+`;
+
 exports[`sprite art pencil-ring 1`] = `
 "
 ....hhhhhhh....
@@ -1512,6 +1561,18 @@ h.............h
 .h...........hh
 ..hh.......hh..
 ....hhhhhhh....
+"
+`;
+
+exports[`sprite art pencil-tree 1`] = `
+"
+..hhh..
+.hH.Hh.
+hH.H.Hh
+h.H.H.h
+.hhhhh.
+...h...
+...h...
 "
 `;
 
