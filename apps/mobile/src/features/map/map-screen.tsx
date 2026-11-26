@@ -78,7 +78,7 @@ export function MapScreen() {
           label={`SEASON: ${season.toUpperCase()}`}
           accessibilityLabel={`Season, ${season}`}
           accessibilityHint="Switches to the next season"
-          testID="seasonBtn"
+          testID="mapSeasonBtn"
           tone="brown"
           size="small"
           onPress={() => updatePreferences({ season: nextSeason(season) })}

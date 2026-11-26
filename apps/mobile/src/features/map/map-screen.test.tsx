@@ -123,23 +123,23 @@ describe("season", () => {
   test("cycles early, rut, late, then back to early", () => {
     render(<MapScreen />);
 
-    expect(screen.getByTestId("seasonBtn")).toHaveTextContent("SEASON: EARLY");
+    expect(screen.getByTestId("mapSeasonBtn")).toHaveTextContent("SEASON: EARLY");
 
-    fireEvent.press(screen.getByTestId("seasonBtn"));
-    expect(screen.getByTestId("seasonBtn")).toHaveTextContent("SEASON: RUT");
+    fireEvent.press(screen.getByTestId("mapSeasonBtn"));
+    expect(screen.getByTestId("mapSeasonBtn")).toHaveTextContent("SEASON: RUT");
 
-    fireEvent.press(screen.getByTestId("seasonBtn"));
-    expect(screen.getByTestId("seasonBtn")).toHaveTextContent("SEASON: LATE");
+    fireEvent.press(screen.getByTestId("mapSeasonBtn"));
+    expect(screen.getByTestId("mapSeasonBtn")).toHaveTextContent("SEASON: LATE");
 
-    fireEvent.press(screen.getByTestId("seasonBtn"));
-    expect(screen.getByTestId("seasonBtn")).toHaveTextContent("SEASON: EARLY");
+    fireEvent.press(screen.getByTestId("mapSeasonBtn"));
+    expect(screen.getByTestId("mapSeasonBtn")).toHaveTextContent("SEASON: EARLY");
   });
 
   test("is saved, and brings the elk to High Ridge when the rut starts", () => {
     updatePreferences({ spot: "high-ridge" });
     render(<MapScreen />);
 
-    fireEvent.press(screen.getByTestId("seasonBtn"));
+    fireEvent.press(screen.getByTestId("mapSeasonBtn"));
 
     expect(readPreferences().season).toBe("rut");
     expect(screen.getByTestId("spotSpecies")).toHaveTextContent("SPECIES: ELK, WHITETAIL");
