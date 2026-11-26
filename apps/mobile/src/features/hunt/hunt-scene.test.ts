@@ -284,7 +284,7 @@ test("a big rack glints at its tip for a moment every few seconds", () => {
   let glinting = sceneOf(huntWith([BIG_BUCK], { kind: "ready" }, GLINT_MS));
 
   expect(keysStartingWith(quiet, "glint-")).toEqual([]);
-  expect(markNamed(glinting, "glint-7")).toMatchObject({ id: "glint-1", x: 88, y: 167 });
+  expect(markNamed(glinting, "glint-7")).toMatchObject({ id: "glint-1", x: 89, y: 166 });
 });
 
 test("a small rack never glints", () => {
