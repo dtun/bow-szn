@@ -35,9 +35,13 @@ describe("SPRITES", () => {
     ).toEqual([]);
   });
 
-  it("paints at least one pixel in every sprite", () => {
+  it("paints the first and last row of every sprite so it sits on its feet", () => {
+    function isBlank(row: string): boolean {
+      return row.replaceAll(TRANSPARENT, "").length === 0;
+    }
+
     expect(
-      offenders((_id, sprite) => sprite.rows.join("").replaceAll(TRANSPARENT, "").length === 0)
+      offenders((_id, sprite) => isBlank(sprite.rows[0]) || isBlank(sprite.rows[sprite.h - 1]))
     ).toEqual([]);
   });
 });

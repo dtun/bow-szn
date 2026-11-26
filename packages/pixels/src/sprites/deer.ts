@@ -40,11 +40,6 @@ const DOE_BODIES = defineSprites<DeerPose>({
     ".E...E..E...E.....",
   ],
   graze: [
-    "..................",
-    "..................",
-    "..................",
-    "..................",
-    "..................",
     "...bbbbbbbbbb.....",
     ".CBBBBBBBBBBBB....",
     ".CBBBBBBBBBBBBB...",
@@ -56,7 +51,6 @@ const DOE_BODIES = defineSprites<DeerPose>({
     "..E.E....E.E......",
   ],
   flee: [
-    "..................",
     ".............U.U..",
     ".............BBBB.",
     "C...........BBBKBB",
@@ -69,7 +63,6 @@ const DOE_BODIES = defineSprites<DeerPose>({
     "..B.U....U.B......",
     ".B.U......U.B.....",
     "E.E........E.E....",
-    "..................",
   ],
 });
 
@@ -115,8 +108,8 @@ const RACKS: Record<Exclude<DeerKind, "doe">, Rack> = {
 const HEAD_ANCHORS: Record<DeerPose, { x: number; y: number }> = {
   "walk-1": { x: 12, y: 1 },
   "walk-2": { x: 12, y: 1 },
-  flee: { x: 12, y: 2 },
-  graze: { x: 12, y: 8 },
+  flee: { x: 12, y: 1 },
+  graze: { x: 12, y: 3 },
 };
 
 const POSES: readonly DeerPose[] = ["walk-1", "walk-2", "graze", "flee"];
