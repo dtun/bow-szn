@@ -59,7 +59,26 @@ function stepPhase(state: HuntState): HuntState {
   return landArrow(state, arrow.to);
 }
 
+function clockAt(elapsedMs: number): number {
+  let clock = TUNING.clock;
+  return Math.min(clock.endMin, clock.startMin + (elapsedMs / 1000) * clock.gameMinPerSec);
+}
+
+function isDusk(state: HuntState): boolean {
+  return state.clockMin >= TUNING.clock.endMin;
+}
+
+function endAtDusk(state: HuntState): HuntState {
+  let interruptible = state.phase.kind === "ready" || state.phase.kind === "drawing";
+  return interruptible && isDusk(state)
+    ? { ...state, phase: { kind: "over", reason: "dusk" } }
+    : state;
+}
+
 function advance(state: HuntState, dtMs: number): HuntState {
+  if (state.phase.kind === "over") {
+    return state;
+  }
   let elapsedMs = state.elapsedMs + dtMs;
   let firstStep = Math.floor(state.elapsedMs / STEP_MS) + 1;
   let lastStep = Math.floor(elapsedMs / STEP_MS);
@@ -67,7 +86,7 @@ function advance(state: HuntState, dtMs: number): HuntState {
   for (let index = firstStep; index <= lastStep; index++) {
     next = stepPhase(stepWorld(next, index * STEP_MS));
   }
-  return { ...next, elapsedMs };
+  return endAtDusk({ ...next, elapsedMs, clockMin: clockAt(elapsedMs) });
 }
 
 function startDraw(state: HuntState): HuntState {
@@ -107,7 +126,16 @@ function cancelDraw(state: HuntState): HuntState {
 }
 
 function dismiss(state: HuntState): HuntState {
-  return state.phase.kind === "result" ? { ...state, phase: READY } : state;
+  if (state.phase.kind !== "result") {
+    return state;
+  }
+  if (isDusk(state)) {
+    return { ...state, phase: { kind: "over", reason: "dusk" } };
+  }
+  if (state.arrows === 0) {
+    return { ...state, phase: { kind: "over", reason: "quiver-empty" } };
+  }
+  return { ...state, phase: READY };
 }
 
 export function huntReducer(state: HuntState, event: HuntEvent): HuntState {

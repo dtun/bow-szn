@@ -1,6 +1,8 @@
 export const TUNING = {
   clock: {
     startMin: 6 * 60,
+    endMin: 10 * 60,
+    gameMinPerSec: 1,
   },
   aim: {
     deadZonePx: 8,
