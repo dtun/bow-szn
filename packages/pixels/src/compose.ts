@@ -15,6 +15,29 @@ export function defineSprites<Id extends string>(
   return sprites;
 }
 
+export function recolor(name: string, source: Sprite, char: string): Sprite {
+  return sprite(
+    name,
+    source.rows.map((row) =>
+      [...row].map((cell) => (cell === TRANSPARENT ? TRANSPARENT : char)).join("")
+    )
+  );
+}
+
+export function hstack(name: string, parts: readonly Sprite[], gap: number): Sprite {
+  let h = Math.max(...parts.map((part) => part.h));
+  let rows = Array.from({ length: h }, (_, y) =>
+    parts
+      .map((part) => (y < part.h ? part.rows[y] : TRANSPARENT.repeat(part.w)))
+      .join(TRANSPARENT.repeat(gap))
+  );
+  return sprite(name, rows);
+}
+
+export function shadowed(name: string, source: Sprite, shadow: string): Sprite {
+  return overlay(name, recolor(name, source, shadow), source, -1, -1);
+}
+
 export function overlay(name: string, base: Sprite, top: Sprite, x: number, y: number): Sprite {
   let left = Math.min(0, x);
   let upper = Math.min(0, y);

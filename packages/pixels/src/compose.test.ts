@@ -1,4 +1,4 @@
-import { defineSprites, overlay, sprite } from "./compose.ts";
+import { defineSprites, hstack, overlay, recolor, shadowed, sprite } from "./compose.ts";
 
 describe("sprite", () => {
   it("measures the grid from its rows", () => {
@@ -51,5 +51,33 @@ describe("overlay", () => {
     let result = overlay("long", base, sprite("tip", ["B"]), 4, 0);
 
     expect(result.rows).toEqual(["AAA.B", "AAA..", "AAA.."]);
+  });
+});
+
+describe("recolor", () => {
+  it("paints every opaque cell one color and leaves the clear cells", () => {
+    expect(recolor("flat", sprite("mix", ["AB.", ".CD"]), "K").rows).toEqual(["KK.", ".KK"]);
+  });
+});
+
+describe("hstack", () => {
+  it("lines the parts up left to right with the gap between them", () => {
+    let result = hstack("row", [sprite("one", ["AA", "AA"]), sprite("two", ["B"])], 2);
+
+    expect(result.rows).toEqual(["AA..B", "AA..."]);
+  });
+
+  it("pads a shorter part with clear rows below it", () => {
+    let result = hstack("row", [sprite("short", ["A"]), sprite("tall", ["B", "B", "B"])], 0);
+
+    expect(result.rows).toEqual(["AB", ".B", ".B"]);
+  });
+});
+
+describe("shadowed", () => {
+  it("drops a one-pixel shadow down and to the right and keeps the source on top", () => {
+    let result = shadowed("lit", sprite("dot", ["AA", "AA"]), "K");
+
+    expect(result.rows).toEqual(["AA.", "AAK", ".KK"]);
   });
 });
