@@ -1,6 +1,6 @@
 import type { Sound } from "./types.ts";
 import type { SoundId } from "./sounds/ids.ts";
-import { CREAK, FULL_DRAW, HIT, THUNK, TWANG, WHOOSH } from "./sounds/effects.ts";
+import { CREAK, FULL_DRAW, HIT, THUNK, TWANG, WHOOSH } from "./sounds/shot.ts";
 
 export const SOUND_SAMPLE_RATE = 22050;
 
