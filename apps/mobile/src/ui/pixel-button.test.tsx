@@ -17,3 +17,38 @@ test("is announced as a button", () => {
 
   expect(screen.getByRole("button", { name: "GO HUNTING" })).toBeOnTheScreen();
 });
+
+test("announces a spoken label and hint in place of the printed label", () => {
+  render(
+    <PixelButton
+      label="LEVEL: EASY"
+      accessibilityLabel="Level, easy"
+      accessibilityHint="Switches to the next level"
+      onPress={jest.fn()}
+      testID="levelBtn"
+    />
+  );
+
+  expect(screen.getByRole("button", { name: "Level, easy" })).toBeOnTheScreen();
+  expect(screen.getByHintText("Switches to the next level")).toBeOnTheScreen();
+});
+
+test("the tone picks the button color: red, brown, or navy", () => {
+  render(
+    <>
+      <PixelButton label="RED" onPress={jest.fn()} testID="redBtn" />
+      <PixelButton label="BROWN" tone="brown" onPress={jest.fn()} testID="brownBtn" />
+      <PixelButton label="NAVY" tone="navy" onPress={jest.fn()} testID="navyBtn" />
+    </>
+  );
+
+  expect(screen.getByTestId("redBtn")).toHaveStyle({ backgroundColor: "#e23b3b" });
+  expect(screen.getByTestId("brownBtn")).toHaveStyle({ backgroundColor: "#8b5a2f" });
+  expect(screen.getByTestId("navyBtn")).toHaveStyle({ backgroundColor: "#13214a" });
+});
+
+test("a layout style from the caller reaches the button", () => {
+  render(<PixelButton label="BACK" onPress={jest.fn()} testID="backBtn" style={{ flex: 1 }} />);
+
+  expect(screen.getByTestId("backBtn")).toHaveStyle({ flex: 1 });
+});

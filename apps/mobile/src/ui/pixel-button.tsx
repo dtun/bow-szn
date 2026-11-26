@@ -1,20 +1,58 @@
-import { Pressable, StyleSheet, Text } from "react-native";
+import { Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from "react-native";
 
-import { FONT_PIXEL, FOREGROUND, NAVY, PRIMARY } from "@/ui/theme";
+import {
+  BROWN,
+  BROWN_DARK,
+  FONT_PIXEL,
+  FOREGROUND,
+  NAVY,
+  PRIMARY,
+  PRIMARY_DARK,
+  SKY,
+} from "@/ui/theme";
+
+export type ButtonTone = "primary" | "brown" | "navy";
 
 type PixelButtonProps = {
   label: string;
   onPress: () => void;
   testID: string;
+  tone?: ButtonTone;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  style?: StyleProp<ViewStyle>;
 };
 
-export function PixelButton({ label, onPress, testID }: PixelButtonProps) {
+const TONES: Record<ButtonTone, { face: string; edge: string }> = {
+  primary: { face: PRIMARY, edge: PRIMARY_DARK },
+  brown: { face: BROWN, edge: BROWN_DARK },
+  navy: { face: NAVY, edge: SKY },
+};
+
+export function PixelButton({
+  label,
+  onPress,
+  testID,
+  tone = "primary",
+  accessibilityLabel,
+  accessibilityHint,
+  style,
+}: PixelButtonProps) {
+  let { face, edge } = TONES[tone];
+
   return (
     <Pressable
       testID={testID}
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityHint={accessibilityHint}
       onPress={onPress}
-      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        styles.button,
+        { backgroundColor: face, borderColor: edge },
+        pressed && styles.pressed,
+        style,
+      ]}
     >
       <Text style={styles.label}>{label}</Text>
     </Pressable>
@@ -25,10 +63,9 @@ const styles = StyleSheet.create({
   button: {
     paddingVertical: 14,
     paddingHorizontal: 20,
-    backgroundColor: PRIMARY,
     borderWidth: 4,
-    borderColor: NAVY,
+    borderBottomWidth: 8,
   },
-  pressed: { transform: [{ translateY: 2 }], opacity: 0.85 },
+  pressed: { transform: [{ translateY: 4 }], opacity: 0.9 },
   label: { fontFamily: FONT_PIXEL, fontSize: 14, color: FOREGROUND, textAlign: "center" },
 });
