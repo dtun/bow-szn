@@ -7,10 +7,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useJournal } from "@/features/journal";
 import { deviceSharer, type Sharer } from "@/platform/share";
 import { PixelButton } from "@/ui/pixel-button";
+import { PixelToast } from "@/ui/pixel-toast";
 import { BACKGROUND, FONT_PIXEL, FOREGROUND, NAVY, SKY } from "@/ui/theme";
 
 import { MountCard } from "./mount-card";
-import { PixelToast } from "./pixel-toast";
 import { useCardRenderer, type CardRenderer } from "./use-card-renderer";
 import { useShareMount } from "./use-share-mount";
 import { WoodWall } from "./wood-wall";
@@ -63,7 +63,9 @@ export function TrophyRoomScreen({ sharer = deviceSharer, renderCard }: TrophyRo
           </ScrollView>
         )}
       </SafeAreaView>
-      {toast === null ? null : <PixelToast message={toast} onDone={dismissToast} />}
+      {toast === null ? null : (
+        <PixelToast testID="shareToast" message={toast} onDone={dismissToast} />
+      )}
     </View>
   );
 }

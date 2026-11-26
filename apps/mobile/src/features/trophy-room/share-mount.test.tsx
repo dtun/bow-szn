@@ -5,10 +5,10 @@ import { JournalProvider } from "@/features/journal";
 import { BIG_BUCK, BULL_ELK, SEEDED_JOURNAL } from "@/features/journal/test-support/harvests";
 import { createMemoryJournalStore } from "@/platform/journal-store";
 import { FAKE_SHARE_FOLDER, createFakeSharer, type Sharer } from "@/platform/share";
+import { TOAST_MS } from "@/ui/pixel-toast";
 
 import { TrophyRoomScreen } from "./trophy-room-screen";
 import { FAILED_TOAST, UNAVAILABLE_TOAST } from "./use-share-mount";
-import { TOAST_MS } from "./pixel-toast";
 import type { CardRenderer } from "./use-card-renderer";
 
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);

@@ -6,11 +6,12 @@ import { ACCENT, FONT_PIXEL, FOREGROUND, NAVY } from "@/ui/theme";
 export const TOAST_MS = 3000;
 
 type PixelToastProps = {
+  testID: string;
   message: string;
   onDone: () => void;
 };
 
-export function PixelToast({ message, onDone }: PixelToastProps) {
+export function PixelToast({ testID, message, onDone }: PixelToastProps) {
   useEffect(() => {
     let timer = setTimeout(onDone, TOAST_MS);
     return () => clearTimeout(timer);
@@ -18,7 +19,7 @@ export function PixelToast({ message, onDone }: PixelToastProps) {
 
   return (
     <View
-      testID="shareToast"
+      testID={testID}
       accessibilityRole="alert"
       accessibilityLiveRegion="polite"
       style={styles.toast}
