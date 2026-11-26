@@ -238,28 +238,35 @@ test("a small rack never glints", () => {
   expect(keysStartingWith(scene, "glint-")).toEqual([]);
 });
 
-test("drawing back past the dead zone shows the dotted path, the reticle, and the power", () => {
+test("drawing back shows the kill zone, the dotted arc, and the reticle with its yards", () => {
   let scene = sceneOf(huntWith([], { kind: "drawing", pull: { x: 0, y: 30 }, heldMs: 0 }));
 
-  expect(keysStartingWith(scene, "aim-dot-")).toHaveLength(12);
-  expect(markNamed(scene, "aim-dot-11")).toMatchObject({ x: 89, y: 219, width: 2, height: 2 });
-  expect(markNamed(scene, "reticle-across")).toMatchObject({ x: 86, y: 220, width: 9, height: 1 });
-  expect(markNamed(scene, "reticle-down")).toMatchObject({ x: 90, y: 216, width: 1, height: 9 });
-  expect(scene.powerLabel).toBe("POWER 50%");
+  expect(keysStartingWith(scene, "arc-dot-")).toHaveLength(16);
+  expect(markNamed(scene, "reticle")).toMatchObject({ id: "reticle", x: 90, y: 225 });
+  expect(markNamed(scene, "reticle")).toHaveProperty("tint", "#ffffff");
+  expect(markNamed(scene, "zone")).toMatchObject({ x: -50, y: 150, width: 280, height: 280 });
+  expect(scene.labels.map((each) => [each.text, each.x, each.y])).toEqual([
+    ["KILL ZONE", 90, 154],
+    ["35Y", 90, 207],
+  ]);
 });
 
-test("a full draw reads 100% power", () => {
-  let scene = sceneOf(huntWith([], { kind: "drawing", pull: { x: 0, y: 90 }, heldMs: 0 }));
+test("the reticle turns red once a held draw starts to wobble", () => {
+  let steady = sceneOf(huntWith([], { kind: "drawing", pull: { x: 0, y: 60 }, heldMs: 2400 }));
+  let wobbling = sceneOf(huntWith([], { kind: "drawing", pull: { x: 0, y: 60 }, heldMs: 2600 }));
 
-  expect(scene.powerLabel).toBe("POWER 100%");
+  expect(markNamed(steady, "reticle")).toHaveProperty("tint", "#ffffff");
+  expect(markNamed(wobbling, "reticle")).toHaveProperty("tint", "#e23b3b");
 });
 
 test("a pull inside the dead zone shows no aim", () => {
   let scene = sceneOf(huntWith([], { kind: "drawing", pull: { x: 0, y: 5 }, heldMs: 0 }));
 
-  expect(keysStartingWith(scene, "aim-")).toEqual([]);
-  expect(keysStartingWith(scene, "reticle-")).toEqual([]);
-  expect(scene.powerLabel).toBe(null);
+  expect(keysStartingWith(scene, "arc-")).toEqual([]);
+  expect(keysStartingWith(scene, "reticle")).toEqual([]);
+  expect(keysStartingWith(scene, "zone")).toEqual([]);
+  expect(scene.labels).toEqual([]);
+  expect(scene.power).toBe(null);
 });
 
 test("an arrow at the top of its arc rides above its shadow, pointing up-field", () => {
@@ -277,7 +284,7 @@ test("an arrow at the top of its arc rides above its shadow, pointing up-field",
   expect(markNamed(scene, "arrow")).toMatchObject({ id: "arrow", x: 90, y: 220 });
   expect(markNamed(scene, "arrow")).toHaveProperty("rotate", 0);
   expect(keysStartingWith(scene, "arrow-trail-")).toHaveLength(3);
-  expect(scene.powerLabel).toBe(null);
+  expect(scene.power).toBe(null);
 });
 
 test("an arrow loosed to the right turns to follow its line across the field", () => {
@@ -337,5 +344,5 @@ test("an ended hunt shows no shot result and no power", () => {
   let scene = sceneOf(huntWith([], { kind: "over", reason: "dusk" }));
 
   expect(scene.resultLabel).toBe(null);
-  expect(scene.powerLabel).toBe(null);
+  expect(scene.power).toBe(null);
 });

@@ -41,7 +41,15 @@ test("opens ready to draw, with no shot result", () => {
 
   expect(screen.getByTestId("huntScreen")).toBeOnTheScreen();
   expect(screen.queryByTestId("shotResult")).not.toBeOnTheScreen();
-  expect(screen.queryByText(/POWER/)).not.toBeOnTheScreen();
+  expect(screen.queryByTestId("powerPanel")).not.toBeOnTheScreen();
+});
+
+test("the top bar opens on the spot, first light, and no tags", () => {
+  renderHunt();
+
+  expect(screen.getByText("CEDAR HOLLOW")).toBeOnTheScreen();
+  expect(screen.getByText("6:00 AM")).toBeOnTheScreen();
+  expect(screen.getByText("TAGS 0")).toBeOnTheScreen();
 });
 
 test("shows the power while the bow is drawn and clears it on release", () => {
@@ -49,11 +57,11 @@ test("shows the power while the bow is drawn and clears it on release", () => {
 
   holdBack(30);
 
-  expect(screen.getByText("POWER 50%")).toBeOnTheScreen();
+  expect(screen.getByTestId("powerPanel")).toHaveTextContent("POWER50%STEADY");
 
   letGo();
 
-  expect(screen.queryByText(/POWER/)).not.toBeOnTheScreen();
+  expect(screen.queryByTestId("powerPanel")).not.toBeOnTheScreen();
 });
 
 test("an arrow loosed at a standing doe flies, then lands as a HIT!", () => {
@@ -90,7 +98,7 @@ test("tapping the result dismisses it and the bow is ready again", () => {
 
   holdBack(30);
 
-  expect(screen.getByText("POWER 50%")).toBeOnTheScreen();
+  expect(screen.getByTestId("powerPanel")).toHaveTextContent("POWER50%STEADY");
 });
 
 test("a pull inside the dead zone shoots nothing", () => {
@@ -109,7 +117,7 @@ test("a gesture the system cancels shoots nothing", () => {
   passTime(2000);
 
   expect(screen.queryByTestId("shotResult")).not.toBeOnTheScreen();
-  expect(screen.queryByText(/POWER/)).not.toBeOnTheScreen();
+  expect(screen.queryByTestId("powerPanel")).not.toBeOnTheScreen();
 });
 
 test("MAP leaves the hunt for the county map", () => {

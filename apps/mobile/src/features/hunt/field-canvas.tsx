@@ -4,6 +4,7 @@ import {
   Group,
   Image,
   MipmapMode,
+  Oval,
   Rect,
   type SkImage,
 } from "@shopify/react-native-skia";
@@ -33,6 +34,10 @@ function MarkView({ mark }: { mark: Mark }) {
     case "rect":
       return (
         <Rect x={mark.x} y={mark.y} width={mark.width} height={mark.height} color={mark.color} />
+      );
+    case "oval":
+      return (
+        <Oval x={mark.x} y={mark.y} width={mark.width} height={mark.height} color={mark.color} />
       );
   }
 }
@@ -74,6 +79,12 @@ export function FieldCanvas({ scene }: { scene: Scene }) {
         ))}
         <LayerView image={canopy} bounds={bounds} />
         {scene.air.map((mark) => (
+          <MarkView key={mark.key} mark={mark} />
+        ))}
+        {scene.hud.marks.map((mark) => (
+          <MarkView key={mark.key} mark={mark} />
+        ))}
+        {scene.power?.marks.map((mark) => (
           <MarkView key={mark.key} mark={mark} />
         ))}
       </Group>

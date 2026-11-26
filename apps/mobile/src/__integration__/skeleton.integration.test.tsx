@@ -46,7 +46,7 @@ test("hunt, draw and release at a doe, HIT!, tap to dismiss, ready again", async
 
   holdBack(30);
 
-  expect(screen.getByText("POWER 50%")).toBeOnTheScreen();
+  expect(screen.getByTestId("powerPanel")).toHaveTextContent("POWER50%STEADY");
 });
 
 test("a hunt opened with a seed in its url plays the same whatever the clock says", async () => {

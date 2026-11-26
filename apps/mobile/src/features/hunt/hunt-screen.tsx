@@ -1,4 +1,4 @@
-import { WORLD_W, type HuntConfig } from "@bow-szn/core";
+import type { HuntConfig } from "@bow-szn/core";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
@@ -12,15 +12,12 @@ import { huntConfigFor, type HuntParams } from "./hunt-config";
 import { overPanelFor } from "./hunt-over";
 import { HuntOverPanel } from "./hunt-over-panel";
 import { sceneFor } from "./hunt-scene";
-import { toScreen } from "./hunt-view";
 import { MapButton } from "./map-button";
+import { SceneLabels } from "./scene-labels";
 import { useHunt } from "./use-hunt";
 import { usePullGesture } from "./use-pull-gesture";
 
-const LABEL_SIZE = 8;
 const RESULT_SIZE = 16;
-const POWER_LABEL_LEFT = WORLD_W - 84;
-const POWER_LABEL_RISE = 16;
 
 function leaveForMap() {
   router.dismissTo("/map");
@@ -44,10 +41,6 @@ function HuntRun({ config, onAgain }: HuntRunProps) {
   let { scale } = scene.view;
   let pull = usePullGesture(dispatch, scale);
   let over = overPanelFor(state);
-  let powerAt = toScreen(scene.view, {
-    x: POWER_LABEL_LEFT,
-    y: scene.view.safeBottom - POWER_LABEL_RISE,
-  });
 
   return (
     <>
@@ -55,16 +48,10 @@ function HuntRun({ config, onAgain }: HuntRunProps) {
         <View style={styles.fill}>
           <View style={[styles.fill, styles.inert]}>
             <FieldCanvas scene={scene} />
-            {scene.powerLabel === null ? null : (
-              <Text
-                style={[
-                  styles.label,
-                  styles.powerLabel,
-                  { left: powerAt.x, top: powerAt.y, fontSize: LABEL_SIZE * scale },
-                ]}
-              >
-                {scene.powerLabel}
-              </Text>
+            <SceneLabels labels={scene.labels} view={scene.view} />
+            <SceneLabels labels={scene.hud.labels} view={scene.view} />
+            {scene.power === null ? null : (
+              <SceneLabels labels={scene.power.labels} view={scene.view} testID="powerPanel" />
             )}
           </View>
         </View>
@@ -87,7 +74,7 @@ function HuntRun({ config, onAgain }: HuntRunProps) {
           onMap={leaveForMap}
         />
       )}
-      <MapButton view={scene.view} onPress={leaveForMap} />
+      <MapButton view={scene.view} box={scene.hud.mapButton} onPress={leaveForMap} />
     </>
   );
 }
@@ -115,7 +102,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   inert: { pointerEvents: "none" },
-  powerLabel: { position: "absolute" },
   label: {
     fontFamily: FONT_PIXEL,
     color: FOREGROUND,
