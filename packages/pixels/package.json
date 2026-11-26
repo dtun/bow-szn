@@ -9,6 +9,7 @@
     "./png": "./src/png.ts"
   },
   "scripts": {
+    "brand": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-brand.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest --selectProjects unit",
