@@ -17,3 +17,4 @@ export type {
   Voice,
   Waveform,
 } from "./types.ts";
+export { render } from "./render.ts";
