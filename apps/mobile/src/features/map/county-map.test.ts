@@ -2,7 +2,22 @@ import { SPOTS, type SpotId } from "@bow-szn/core";
 
 import { colorAt } from "@/art/test-support/color-at";
 
-import { COUNTY_COLS, COUNTY_ROWS, countyMap, spotCell, TOWNS } from "./county-map";
+import { COUNTY_COLS, COUNTY_ROWS, countyCell, countyMap, spotCell, TOWNS } from "./county-map";
+
+describe("countyCell", () => {
+  test("is the biggest whole number of pixels per cell that fits the width", () => {
+    expect(countyCell(358, 1000)).toBe(8);
+    expect(countyCell(400, 1000)).toBe(10);
+  });
+
+  test("is limited by the height when the screen is short", () => {
+    expect(countyCell(358, 330)).toBe(6);
+  });
+
+  test("never drops below four pixels, even on a tiny screen", () => {
+    expect(countyCell(100, 100)).toBe(4);
+  });
+});
 
 const WATER = "#4aa8e0";
 const SAND_BANK = "#e6d3a3";

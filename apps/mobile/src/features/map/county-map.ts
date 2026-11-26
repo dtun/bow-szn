@@ -6,6 +6,13 @@ import type { SceneLayer, SceneRect, SceneSprite } from "@/art/scene";
 export const COUNTY_COLS = 40;
 export const COUNTY_ROWS = 48;
 
+const MIN_CELL = 4;
+
+export function countyCell(availableWidth: number, availableHeight: number): number {
+  let fits = Math.floor(Math.min(availableWidth / COUNTY_COLS, availableHeight / COUNTY_ROWS));
+  return Math.max(MIN_CELL, fits);
+}
+
 export type Town = { name: string; at: Vec2 };
 
 export const TOWNS: readonly Town[] = [
