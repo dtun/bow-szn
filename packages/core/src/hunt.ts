@@ -1,5 +1,7 @@
 import { aimFromPull } from "./aim";
+import { stepAnimal } from "./animals";
 import { launchArrow } from "./arrow";
+import { createRoller } from "./rng";
 import { landArrow } from "./shot";
 import { TUNING } from "./tuning";
 import type { Animal, HuntConfig, HuntEvent, HuntPhase, HuntState, Vec2 } from "./types";
@@ -34,7 +36,15 @@ export function createHunt(config: HuntConfig): HuntState {
   };
 }
 
-function step(state: HuntState): HuntState {
+function stepAnimals(state: HuntState, nowMs: number): HuntState {
+  let roller = createRoller(state.rng);
+  let animals = state.animals.map((animal) =>
+    stepAnimal(animal, state.config, nowMs, STEP_MS, roller)
+  );
+  return { ...state, animals, rng: roller.state() };
+}
+
+function stepPhase(state: HuntState): HuntState {
   if (state.phase.kind !== "flight") {
     return state;
   }
@@ -47,10 +57,11 @@ function step(state: HuntState): HuntState {
 
 function advance(state: HuntState, dtMs: number): HuntState {
   let elapsedMs = state.elapsedMs + dtMs;
-  let steps = Math.floor(elapsedMs / STEP_MS) - Math.floor(state.elapsedMs / STEP_MS);
+  let firstStep = Math.floor(state.elapsedMs / STEP_MS) + 1;
+  let lastStep = Math.floor(elapsedMs / STEP_MS);
   let next = state;
-  for (let count = 0; count < steps; count++) {
-    next = step(next);
+  for (let index = firstStep; index <= lastStep; index++) {
+    next = stepPhase(stepAnimals(next, index * STEP_MS));
   }
   return { ...next, elapsedMs };
 }

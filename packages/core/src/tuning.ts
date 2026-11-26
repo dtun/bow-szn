@@ -18,9 +18,16 @@ export const TUNING = {
   hit: {
     nearScale: 2,
   },
+  animals: {
+    grazeMs: [2500, 6000],
+    alertMs: 1500,
+    fleeSpeedScale: 3.5,
+    meadow: { minX: 24, maxX: 156, minY: 120, maxY: 240 },
+    offFieldPx: 10,
+  },
   difficulty: {
-    easy: { arrows: 6 },
-    medium: { arrows: 5 },
-    hard: { arrows: 4 },
+    easy: { arrows: 6, speedScale: 0.85 },
+    medium: { arrows: 5, speedScale: 1 },
+    hard: { arrows: 4, speedScale: 1.2 },
   },
 } as const;
