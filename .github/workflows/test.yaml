@@ -43,10 +43,10 @@ jobs:
         uses: actions/cache@v6
         with:
           path: apps/mobile/.jest-cache
-          key: jest-matrix-${{ runner.os }}-${{ matrix.project }}-${{ hashFiles('package-lock.json', 'apps/mobile/jest.config.js') }}-${{ github.sha }}
+          key: jest-coldprobe1-${{ runner.os }}-${{ matrix.project }}-${{ hashFiles('package-lock.json', 'apps/mobile/jest.config.js') }}-${{ github.sha }}
           restore-keys: |
-            jest-matrix-${{ runner.os }}-${{ matrix.project }}-${{ hashFiles('package-lock.json', 'apps/mobile/jest.config.js') }}-
-            jest-matrix-${{ runner.os }}-${{ matrix.project }}-
+            jest-coldprobe1-${{ runner.os }}-${{ matrix.project }}-${{ hashFiles('package-lock.json', 'apps/mobile/jest.config.js') }}-
+            jest-coldprobe1-${{ runner.os }}-${{ matrix.project }}-
 
       - name: Run ${{ matrix.project }} tests
         run: npx jest --selectProjects ${{ matrix.project }}
