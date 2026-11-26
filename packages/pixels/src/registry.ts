@@ -6,6 +6,8 @@ import { FX_SPRITES } from "./sprites/fx.ts";
 import type { FxSpriteId } from "./sprites/fx.ts";
 import { HUNTER_SPRITES } from "./sprites/hunter.ts";
 import type { HunterSpriteId } from "./sprites/hunter.ts";
+import { ICON_SPRITES } from "./sprites/icons.ts";
+import type { IconSpriteId } from "./sprites/icons.ts";
 import { RABBIT_SPRITES } from "./sprites/rabbit.ts";
 import type { RabbitSpriteId } from "./sprites/rabbit.ts";
 import { TERRAIN_SPRITES } from "./sprites/terrain.ts";
@@ -21,7 +23,8 @@ export type SpriteId =
   | TurkeySpriteId
   | RabbitSpriteId
   | TerrainSpriteId
-  | FxSpriteId;
+  | FxSpriteId
+  | IconSpriteId;
 
 export const SPRITES: Record<SpriteId, Sprite> = {
   ...HUNTER_SPRITES,
@@ -31,4 +34,5 @@ export const SPRITES: Record<SpriteId, Sprite> = {
   ...RABBIT_SPRITES,
   ...TERRAIN_SPRITES,
   ...FX_SPRITES,
+  ...ICON_SPRITES,
 };

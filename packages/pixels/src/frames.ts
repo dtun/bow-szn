@@ -17,6 +17,12 @@ export const FX_FRAMES: {
   confetti: ["confetti-red", "confetti-yellow", "confetti-blue", "confetti-cream"],
 };
 
+export const WIND_FLAG_FRAMES: readonly [SpriteId, SpriteId, SpriteId] = [
+  "icon-wind-light",
+  "icon-wind-medium",
+  "icon-wind-strong",
+];
+
 export type AnimalKind = DeerKind | ElkKind | "turkey" | "rabbit";
 
 export type AnimalFrames = {
