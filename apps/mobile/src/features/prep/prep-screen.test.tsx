@@ -1,7 +1,9 @@
 import { createPrep, prepReducer, type PrepState } from "@bow-szn/core";
 import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
 
+import { updatePreferences } from "@/platform/preferences";
 import { playSfx } from "@/platform/sfx";
 
 import { PrepScreen } from "./prep-screen";
@@ -77,7 +79,30 @@ beforeEach(() => {
 
 afterEach(() => {
   jest.restoreAllMocks();
+  jest.useRealTimers();
 });
+
+function replaceSpy() {
+  return jest.spyOn(router, "replace").mockImplementation(() => undefined);
+}
+
+function useFakeTimeoutsOnly() {
+  jest.useFakeTimers({
+    doNotFake: [
+      "Date",
+      "nextTick",
+      "queueMicrotask",
+      "requestAnimationFrame",
+      "cancelAnimationFrame",
+    ],
+  });
+}
+
+function passTime(ms: number) {
+  act(() => {
+    jest.advanceTimersByTime(ms);
+  });
+}
 
 test("opens on the bench with nothing waxed yet", () => {
   startPrep();
@@ -144,4 +169,115 @@ test("every tap ticks the phone, and hits and slips sound different", () => {
   expect(Haptics.impactAsync).toHaveBeenCalledTimes(2);
   expect(Haptics.impactAsync).toHaveBeenCalledWith("light");
   expect(jest.mocked(playSfx).mock.calls).toEqual([["tap-slip"], ["tap-hit"]]);
+});
+
+describe("SKIP", () => {
+  test("starts the hunt at once with the saved spot, season, and level", () => {
+    let replace = replaceSpy();
+    updatePreferences({ spot: "high-ridge", season: "rut", difficulty: "hard" });
+    startPrep();
+
+    fireEvent.press(screen.getByTestId("skipPrepBtn"));
+
+    expect(replace).toHaveBeenCalledTimes(1);
+    expect(replace).toHaveBeenCalledWith({
+      pathname: "/hunt",
+      params: { spot: "high-ridge", season: "rut", difficulty: "hard" },
+    });
+  });
+
+  test("uses the first choices on a fresh install", () => {
+    let replace = replaceSpy();
+    startPrep();
+
+    fireEvent.press(screen.getByTestId("skipPrepBtn"));
+
+    expect(replace).toHaveBeenCalledWith({
+      pathname: "/hunt",
+      params: { spot: "cedar-hollow", season: "early", difficulty: "easy" },
+    });
+  });
+
+  test("is announced as a button", () => {
+    startPrep();
+
+    expect(screen.getByRole("button", { name: "SKIP" })).toBeOnTheScreen();
+  });
+});
+
+describe("finishing the prep", () => {
+  beforeEach(() => {
+    useFakeTimeoutsOnly();
+  });
+
+  test("the third hit buzzes success, and the first two do not", () => {
+    startPrep();
+
+    tapInTheGreen();
+    tapInTheGreen();
+    expect(Haptics.notificationAsync).not.toHaveBeenCalled();
+
+    tapInTheGreen();
+    expect(Haptics.notificationAsync).toHaveBeenCalledTimes(1);
+    expect(Haptics.notificationAsync).toHaveBeenCalledWith("success");
+  });
+
+  test("holds on WAXED UP! for a beat, then starts the hunt on its own", () => {
+    let replace = replaceSpy();
+    updatePreferences({ spot: "miller-bottoms", season: "late" });
+    startPrep();
+
+    tapInTheGreen();
+    tapInTheGreen();
+    tapInTheGreen();
+    expect(replace).not.toHaveBeenCalled();
+
+    passTime(1000);
+
+    expect(replace).toHaveBeenCalledTimes(1);
+    expect(replace).toHaveBeenCalledWith({
+      pathname: "/hunt",
+      params: { spot: "miller-bottoms", season: "late", difficulty: "easy" },
+    });
+  });
+
+  test("does not start the hunt before the third hit", () => {
+    let replace = replaceSpy();
+    startPrep();
+
+    tapInTheGreen();
+    tapInTheGreen();
+    passTime(5000);
+
+    expect(replace).not.toHaveBeenCalled();
+  });
+
+  test("extra taps while waxed up change nothing and start the hunt once", () => {
+    let replace = replaceSpy();
+    startPrep();
+    tapInTheGreen();
+    tapInTheGreen();
+    tapInTheGreen();
+
+    fireEvent(screen.getByTestId("prepTapArea"), "pressIn");
+    passTime(1000);
+
+    expect(screen.getByTestId("prepCount")).toHaveTextContent("(3/3)");
+    expect(screen.getByTestId("prepMessage")).toHaveTextContent("WAXED UP!");
+    expect(Haptics.impactAsync).toHaveBeenCalledTimes(3);
+    expect(replace).toHaveBeenCalledTimes(1);
+  });
+
+  test("leaving the screen before the beat ends cancels the automatic start", () => {
+    let replace = replaceSpy();
+    startPrep();
+    tapInTheGreen();
+    tapInTheGreen();
+    tapInTheGreen();
+
+    screen.unmount();
+    passTime(1000);
+
+    expect(replace).not.toHaveBeenCalled();
+  });
 });
