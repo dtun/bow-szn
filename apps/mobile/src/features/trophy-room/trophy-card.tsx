@@ -6,7 +6,7 @@ import { SpriteRects } from "@/art/pixel-sprite";
 
 import { mountSprite } from "./mount-sprite";
 import { plateLines } from "./plate-lines";
-import { CARD_PX, CARD_SCALE, cardLayout } from "./trophy-card-layout";
+import { CARD_PX, CARD_SCALE, SCAN_LABEL, cardLayout } from "./trophy-card-layout";
 import { PlankRects } from "./wood-wall";
 
 type TrophyCardProps = {
@@ -17,7 +17,8 @@ type TrophyCardProps = {
 export function TrophyCard({ harvest, font }: TrophyCardProps) {
   let mount = mountSprite(harvest);
   let wordmark = SPRITES["logo-wordmark"];
-  let layout = cardLayout(mount, wordmark);
+  let qr = SPRITES["qr-site"];
+  let layout = cardLayout(mount, wordmark, qr);
   let { plate } = layout;
   let lines = plateLines(harvest);
   let texts = [lines.record, lines.score, lines.spot, lines.when];
@@ -51,6 +52,14 @@ export function TrophyCard({ harvest, font }: TrophyCardProps) {
           />
         ))}
         <SpriteRects sprite={wordmark} x={layout.wordmark.x} y={layout.wordmark.y} scale={1} />
+        <SkiaText
+          x={Math.round(layout.scanLabel.centerX - font.measureText(SCAN_LABEL).width / 2)}
+          y={layout.scanLabel.baseline}
+          text={SCAN_LABEL}
+          font={font}
+          color={PALETTE.C}
+        />
+        <SpriteRects sprite={qr} x={layout.qr.x} y={layout.qr.y} scale={layout.qr.scale} />
       </Group>
     </Group>
   );

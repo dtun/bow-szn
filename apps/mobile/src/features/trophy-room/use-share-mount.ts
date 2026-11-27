@@ -1,11 +1,12 @@
 import type { Harvest } from "@bow-szn/core";
+import { QR_SITE_URL } from "@bow-szn/pixels";
 import { useCallback, useRef, useState } from "react";
 
 import type { Sharer } from "@/platform/share";
 
 import type { CardRenderer } from "./use-card-renderer";
 
-export const SITE_URL = "https://paperstreetapp.com/bow-season";
+export const SITE_URL = QR_SITE_URL;
 export const SHARE_MESSAGE = `BOW SEASON. 8-BIT BOW HUNTING. ${SITE_URL}`;
 export const FAILED_TOAST = "COULD NOT SHARE THAT MOUNT. TRY AGAIN.";
 
