@@ -10,6 +10,7 @@
   },
   "scripts": {
     "brand": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-brand.ts",
+    "icon:homescreen": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/icon-homescreen.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest --selectProjects unit",

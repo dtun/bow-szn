@@ -63,3 +63,10 @@ Props are sprites for the menus and the sighting-in range. They follow the same 
 Never edit the PNGs by hand. A snapshot test fails when a committed PNG no longer matches what the sprites render.
 
 The same script writes a labeled contact sheet of every sprite at 6x. It goes to `$CONTACT_SHEET_PATH`, or to the system temp folder when that is unset, and it is not committed.
+
+## Judging an icon
+
+Judge an icon on a home screen, not as a flat swatch. `npm run icon:homescreen` renders each icon concept inside the iOS rounded-square mask (corner radius 22.37% of the side), scaled down the way the system scales the 1024 file. It writes two PNGs that are not committed:
+
+- `$ICON_HOMESCREEN_PATH` (or `bow-season-icon-homescreen.png` in the system temp folder) shows each concept at 60 px among seven placeholder apps with labels, on a light and a dark wallpaper, then at 120 px and at 40 px (Spotlight). The shipping icon sits in a strip at the bottom for comparison.
+- The same path ending in `-1024.png` shows each concept at full size inside the mask.
