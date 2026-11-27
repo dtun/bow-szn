@@ -18,9 +18,6 @@ function frames(count: number, dtMs = 50): HuntEvent[] {
 test("a buck hit freezes the hunt for the hit-stop, then lets it run again", () => {
   let hit = stepSession(sessionOf(aboutToLand([BUCK], BUCK.pos)), { type: "tick", dtMs: 20 });
   let landedAtMs = hit.session.hunt.elapsedMs;
-
-  expect(hit.session.juice.frozenUntilMs).toBe(20 + TUNING.juice.hitStopMs);
-
   let frozen = play(hit.session, frames(2));
 
   expect(frozen.hunt.elapsedMs).toBe(landedAtMs);
@@ -32,8 +29,9 @@ test("a buck hit freezes the hunt for the hit-stop, then lets it run again", () 
 
 test("a doe hit never freezes", () => {
   let hit = stepSession(sessionOf(aboutToLand([DOE], DOE.pos)), { type: "tick", dtMs: 20 });
+  let landedAtMs = hit.session.hunt.elapsedMs;
 
-  expect(hit.session.juice.frozenUntilMs).toBe(0);
+  expect(play(hit.session, frames(1)).hunt.elapsedMs).toBe(landedAtMs + 50);
 });
 
 test("a buck's confetti and shake wait out the hit-stop", () => {

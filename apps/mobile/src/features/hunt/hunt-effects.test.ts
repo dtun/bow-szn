@@ -77,15 +77,13 @@ test("a doe harvest hits, records the harvest, and pops a snack line", () => {
     kind: "pop",
     pop: { text: "DOE!", at: DOE.pos, tone: "snack", animalId: 7 },
   });
-  expect(kinds(effects)).not.toContain("hit-stop");
 });
 
-test("a buck harvest adds the fanfare, the hit-stop, a big shake, and a pile of confetti", () => {
+test("a buck harvest adds the fanfare, a big shake, and a pile of confetti", () => {
   let prev = aboutToLand([BUCK], BUCK.pos);
   let effects = huntEffects(prev, landed(prev));
 
   expect(sounds(effects)).toEqual(["hit", "fanfare"]);
-  expect(kinds(effects)).toContain("hit-stop");
   expect(kinds(effects)).toContain("record");
   expect(effects).toContainEqual({ kind: "shake", px: 4 });
   expect(effects).toContainEqual({ kind: "confetti", at: BUCK.pos, count: 72 });

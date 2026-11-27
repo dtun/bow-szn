@@ -1,5 +1,6 @@
 import {
   createHunt,
+  TUNING,
   type Animal,
   type AnimalMode,
   type Arrow,
@@ -10,7 +11,8 @@ import {
 
 import { fieldLayout } from "./field-layout";
 import { sceneFor, type Mark, type Scene } from "./hunt-scene";
-import { createSession, type Juice } from "./hunt-session";
+import { createSession, stepSession, type Juice } from "./hunt-session";
+import { aboutToLand, BUCK } from "./test-support/landing";
 import type { Screen } from "./hunt-view";
 
 const DOE: Animal = {
@@ -37,6 +39,8 @@ const HARVEST: Harvest = {
 };
 
 const GLINT_MS = 2161;
+
+const BIG_BUCK_LANDING = aboutToLand([BUCK], BUCK.pos);
 
 const STILL: Juice = createSession({
   spot: "cedar-hollow",
@@ -463,12 +467,13 @@ test("a felled animal blinks white the moment it drops", () => {
   expect(markNamed(scene, "animal-7")).toHaveProperty("tint", "#ffffff");
 });
 
-test("the hit-stop flashes the field white", () => {
-  let frozen: Juice = { ...STILL, frozenUntilMs: 120 };
+test("a buck hit flashes the field white until the hit-stop runs out", () => {
+  let start = createSession(BIG_BUCK_LANDING.config);
+  let hit = stepSession({ ...start, hunt: BIG_BUCK_LANDING }, { type: "tick", dtMs: 20 }).session;
+  let thawed = stepSession(hit, { type: "tick", dtMs: TUNING.juice.hitStopMs }).session;
 
-  expect(
-    keysStartingWith(sceneFor(huntWith([], { kind: "ready" }), frozen, PHONE), "flash")
-  ).toEqual(["flash"]);
+  expect(keysStartingWith(sceneFor(hit.hunt, hit.juice, PHONE), "flash")).toEqual(["flash"]);
+  expect(keysStartingWith(sceneFor(thawed.hunt, thawed.juice, PHONE), "flash")).toEqual([]);
   expect(keysStartingWith(sceneOf(huntWith([], { kind: "ready" })), "flash")).toEqual([]);
 });
 

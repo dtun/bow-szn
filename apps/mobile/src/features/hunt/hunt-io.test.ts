@@ -42,7 +42,10 @@ test("leaves the juice to the screen", () => {
   let io = fakeIo();
 
   fireEffects(
-    [{ kind: "hit-stop" }, { kind: "shake", px: 4 }, { kind: "dirt", at: { x: 1, y: 2 } }],
+    [
+      { kind: "shake", px: 4 },
+      { kind: "dirt", at: { x: 1, y: 2 } },
+    ],
     io
   );
 
