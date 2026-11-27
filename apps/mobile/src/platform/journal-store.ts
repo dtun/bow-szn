@@ -87,17 +87,13 @@ function parseHarvest(value: unknown): Harvest | null {
   };
 }
 
-function parseHarvests(value: unknown): Harvest[] | null {
-  if (!Array.isArray(value)) {
-    return null;
-  }
+function parseHarvests(rows: unknown[]): Harvest[] {
   let harvests: Harvest[] = [];
-  for (let entry of value) {
-    let harvest = parseHarvest(entry);
-    if (harvest === null) {
-      return null;
+  for (let row of rows) {
+    let harvest = parseHarvest(row);
+    if (harvest !== null) {
+      harvests.push(harvest);
     }
-    harvests.push(harvest);
   }
   return harvests;
 }
@@ -135,10 +131,10 @@ function readPage(text: string): Page {
   if (!isRecord(payload) || payload.version !== JOURNAL_VERSION) {
     return unreadablePage();
   }
-  let harvests = parseHarvests(payload.harvests);
-  if (harvests === null || !Array.isArray(payload.mountedIds)) {
+  if (!Array.isArray(payload.harvests) || !Array.isArray(payload.mountedIds)) {
     return unreadablePage();
   }
+  let harvests = parseHarvests(payload.harvests);
   let mountedIds = payload.mountedIds.filter((id): id is string => typeof id === "string");
   return {
     journal: { harvests, mountedIds },

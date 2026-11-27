@@ -186,17 +186,21 @@ test.each([
   ["a version from the future", payload({ version: 2 })],
   ["harvests that are not a list", payload({ harvests: "lots" })],
   ["mounted ids that are not a list", payload({ mountedIds: "all" })],
-  ["a harvest of an unknown species", payload({ harvests: [{ ...BUCK, species: "moose" }] })],
-  ["a harvest at an unknown spot", payload({ harvests: [{ ...BUCK, spot: "nowhere" }] })],
-  ["a harvest in an unknown season", payload({ harvests: [{ ...BUCK, season: "winter" }] })],
-  ["a harvest with a negative weight", payload({ harvests: [{ ...BUCK, weightLb: -5 }] })],
-  [
-    "a harvest with a malformed rack",
-    payload({ harvests: [{ ...BUCK, antlers: { kind: "rack" } }] }),
-  ],
-  ["one good harvest beside a bad one", payload({ harvests: [BUCK, { id: "x" }] })],
 ])("%s loads as an empty journal", (_name, raw) => {
   expect(storedWith(raw).load()).toEqual({ harvests: [], mountedIds: [] });
+});
+
+test.each([
+  ["an unknown species", { ...BUCK, species: "moose" }],
+  ["an unknown spot", { ...BUCK, spot: "nowhere" }],
+  ["an unknown season", { ...BUCK, season: "winter" }],
+  ["a negative weight", { ...BUCK, weightLb: -5 }],
+  ["a malformed rack", { ...BUCK, antlers: { kind: "rack" } }],
+  ["only an id", { id: "x" }],
+  ["no fields at all", 42],
+  ["a species named constructor", { ...BUCK, species: "constructor" }],
+])("a harvest with %s is left out and the harvests beside it load", (_name, bad) => {
+  expect(storedWith(payload({ harvests: [bad, DOE] })).load().harvests).toEqual([DOE]);
 });
 
 test("a storage that throws on read loads an empty journal", () => {
@@ -270,7 +274,7 @@ function watchedStorage(entries: Record<string, string>) {
   return { storage, everythingStored, keysStored, writtenKeys };
 }
 
-test.failing("one bad harvest leaves the good ones in the journal", () => {
+test("one bad harvest leaves the good ones in the journal", () => {
   expect(storedWith(payload({ harvests: [BUCK, { id: "x" }, DOE] })).load().harvests).toEqual([
     BUCK,
     DOE,
