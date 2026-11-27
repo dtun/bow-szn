@@ -8,7 +8,7 @@ import { FAKE_SHARE_FOLDER, createFakeSharer, type Sharer } from "@/platform/sha
 import { TOAST_MS } from "@/ui/pixel-toast";
 
 import { TrophyRoomScreen } from "./trophy-room-screen";
-import { FAILED_TOAST, SHARE_MESSAGE } from "./use-share-mount";
+import { FAILED_TOAST, SHARE_MESSAGE, SITE_URL } from "./use-share-mount";
 import type { CardRenderer } from "./use-card-renderer";
 
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
@@ -57,7 +57,7 @@ test("names which mount a SHARE button shares", () => {
   );
 });
 
-test("SHARE draws a card for that buck and hands its PNG and the beta link to the share sheet", async () => {
+test("SHARE draws a card for that buck and hands its PNG and the site link to the share sheet", async () => {
   let sharer = createFakeSharer();
   let renderCard = pngCards();
   renderTrophyRoom(sharer, renderCard);
@@ -70,7 +70,8 @@ test("SHARE draws a card for that buck and hands its PNG and the beta link to th
   expect(sharer.shared).toEqual([
     { uri: `${FAKE_SHARE_FOLDER}/bow-season-big-buck.png`, bytes: PNG, message: SHARE_MESSAGE },
   ]);
-  expect(sharer.shared[0].message).toContain("https://testflight.apple.com/join/M3zeJD6U");
+  expect(sharer.shared[0].message).toContain(SITE_URL);
+  expect(sharer.shared[0].message).not.toContain("testflight");
   expect(screen.queryByTestId("shareToast")).not.toBeOnTheScreen();
 });
 

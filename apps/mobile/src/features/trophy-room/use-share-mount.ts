@@ -5,8 +5,8 @@ import type { Sharer } from "@/platform/share";
 
 import type { CardRenderer } from "./use-card-renderer";
 
-export const BETA_URL = "https://testflight.apple.com/join/M3zeJD6U";
-export const SHARE_MESSAGE = `BOW SEASON. 8-BIT BOW HUNTING. PLAY THE BETA: ${BETA_URL}`;
+export const SITE_URL = "https://dtun.github.io/bow-szn/";
+export const SHARE_MESSAGE = `BOW SEASON. 8-BIT BOW HUNTING. ${SITE_URL}`;
 export const FAILED_TOAST = "COULD NOT SHARE THAT MOUNT. TRY AGAIN.";
 
 export function useShareMount(sharer: Sharer, renderCard: CardRenderer) {
