@@ -1,22 +1,16 @@
 import {
+  SEASON_IDS,
   SPECIES,
   SPOTS,
   canMount,
   type Antlers,
   type Harvest,
   type Journal,
-  type SeasonId,
-  type SpeciesId,
-  type SpotId,
 } from "@bow-szn/core";
 import Storage from "expo-sqlite/kv-store";
 
 export const JOURNAL_KEY = "bow-season.journal";
 export const JOURNAL_VERSION = 1;
-
-const SPECIES_IDS: readonly string[] = Object.keys(SPECIES);
-const SPOT_IDS: readonly string[] = Object.keys(SPOTS);
-const SEASON_IDS: readonly string[] = ["early", "rut", "late"];
 
 export type KeyValueStorage = {
   getItem(key: string): string | null;
@@ -34,6 +28,10 @@ export function emptyJournal(): Journal {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isKeyOf<T extends object>(table: T, value: unknown): value is Extract<keyof T, string> {
+  return typeof value === "string" && Object.hasOwn(table, value);
 }
 
 function isCount(value: unknown): value is number {
@@ -59,15 +57,13 @@ function parseHarvest(value: unknown): Harvest | null {
   }
   let antlers = parseAntlers(value.antlers);
   let { id, species, weightLb, meatLb, spot, season, clockMin, shotYards } = value;
+  let seasonId = SEASON_IDS.find((candidate) => candidate === season);
   if (
     antlers === null ||
     typeof id !== "string" ||
-    typeof species !== "string" ||
-    !SPECIES_IDS.includes(species) ||
-    typeof spot !== "string" ||
-    !SPOT_IDS.includes(spot) ||
-    typeof season !== "string" ||
-    !SEASON_IDS.includes(season) ||
+    !isKeyOf(SPECIES, species) ||
+    !isKeyOf(SPOTS, spot) ||
+    seasonId === undefined ||
     !isCount(weightLb) ||
     !isCount(meatLb) ||
     !isCount(clockMin) ||
@@ -77,12 +73,12 @@ function parseHarvest(value: unknown): Harvest | null {
   }
   return {
     id,
-    species: species as SpeciesId,
+    species,
     antlers,
     weightLb,
     meatLb,
-    spot: spot as SpotId,
-    season: season as SeasonId,
+    spot,
+    season: seasonId,
     clockMin,
     shotYards,
   };
