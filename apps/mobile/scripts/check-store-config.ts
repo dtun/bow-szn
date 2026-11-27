@@ -1,5 +1,5 @@
 import config from "../store.config.json" with { type: "json" };
-import { findDisallowedEmails } from "./store-email";
+import { findDisallowedEmails } from "./store-email.ts";
 
 type Unit = "chars" | "bytes";
 
