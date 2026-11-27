@@ -45,8 +45,7 @@
           "recordAudioAndroid": false,
           "enableBackgroundPlayback": false
         }
-      ],
-      "expo-sharing"
+      ]
     ],
     "experiments": {
       "typedRoutes": true
