@@ -66,18 +66,19 @@ EAS does not turn on the Game Center capability from the `com.apple.developer.ga
 
 ### Code Quality Checks
 
-Before committing code, run the vibecheck script in each workspace you touched:
+Before committing code, run vibecheck from the root:
 
 ```bash
-cd packages/core && npm run vibecheck
-cd apps/mobile && npm run vibecheck
+npm run vibecheck
 ```
+
+It runs `vibecheck` in every workspace, so a change to `@bow-szn/core` or `@bow-szn/pixels` also runs the mobile tests that depend on it. The husky `pre-push` hook runs it too, and a push stops when it fails. Inside one workspace, `npm run vibecheck` checks only that workspace.
 
 This script runs the following checks in order:
 
 1. **Lint** (`lint`) - Checks code quality with ESLint
 2. **Type check** (`typecheck`) - Validates TypeScript types
-3. **Test** (`test:all` in `apps/mobile`, `test` in `packages/core`) - Runs every test tier
+3. **Test** - Runs every test tier the workspace has
 
 Formatting is handled automatically by a PostToolUse hook that runs Prettier after every Write/Edit operation (configured in `.claude/settings.json`). From the root, `npm run format` rewrites everything and `npm run format:check` verifies it.
 
@@ -196,4 +197,4 @@ This project uses [Conventional Commits](https://www.conventionalcommits.org/), 
 
 Each commit is structural or behavioral, never both. A structural commit (`refactor:`) leaves behavior unchanged and leaves existing tests untouched and green. A behavioral commit changes what the code does and carries the tests that prove it. When a change is awkward, tidy first in its own structural commit, then make the change.
 
-Commits are small and single-purpose. Each one leaves `npm run vibecheck` green in the workspaces it touches. Push each commit on its own so each gets its own CI run, and run `git fetch origin && git rebase origin/main` before every push. Never force-push.
+Commits are small and single-purpose. Each one leaves `npm run vibecheck` green from the root. Push each commit on its own so each gets its own CI run, and run `git fetch origin && git rebase origin/main` before every push. Never force-push.

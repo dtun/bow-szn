@@ -6,6 +6,7 @@
     "packages/*"
   ],
   "scripts": {
+    "vibecheck": "npm run vibecheck --workspaces",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "prepare": "husky || true"
