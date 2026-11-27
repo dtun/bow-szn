@@ -20,7 +20,7 @@ describe.each(ICON_CONCEPTS.map((concept) => [concept.name, concept.scene()] as 
 );
 
 describe("ICON_CONCEPTS", () => {
-  it("offers four concepts to choose from", () => {
-    expect(ICON_CONCEPTS.map((concept) => concept.id)).toEqual(["a", "b", "c", "d"]);
+  it("keeps only the buck at dawn, the concept the operator picked", () => {
+    expect(ICON_CONCEPTS.map((concept) => concept.id)).toEqual(["b"]);
   });
 });

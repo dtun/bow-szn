@@ -13,17 +13,11 @@ const GLOW_STEP: Readonly<Record<string, string>> = {
   q: "c",
   c: "O",
   O: "o",
-  n: "Z",
-  Z: "l",
-  l: "P",
-  P: "o",
 };
 
 type Grid = string[][];
 type Band = { char: string; from: number };
 type Sun = { cx: number; cy: number; r: number; glow: readonly number[] };
-type Pine = { x: number; h: number };
-type Ridge = { char: string; base: number; pines: readonly Pine[] };
 
 export type IconConcept = { id: string; name: string; scene: () => Sprite };
 
@@ -106,42 +100,6 @@ function paintSun(cells: Grid, { cx, cy, r, glow }: Sun): void {
   });
 }
 
-function pineHalfWidth(depth: number): number {
-  let half = Math.floor(depth * 0.45);
-  return depth % 3 === 0 && half >= 2 ? half - 1 : half;
-}
-
-function paintRidge(cells: Grid, { char, base, pines }: Ridge): void {
-  for (let y = base; y < cells.length; y++) {
-    cells[y].fill(char);
-  }
-  for (let { x, h } of pines) {
-    for (let depth = 0; depth < h; depth++) {
-      let y = base - h + depth;
-      let half = pineHalfWidth(depth);
-      for (let dx = -half; dx <= half; dx++) {
-        if (cells[y]?.[x + dx] !== undefined) {
-          cells[y][x + dx] = char;
-        }
-      }
-    }
-  }
-}
-
-function paintField(cells: Grid, from: number, char: string): void {
-  for (let y = from; y < cells.length; y++) {
-    cells[y].fill(char);
-  }
-}
-
-function pineRow(from: number, to: number, spacing: number, heights: readonly number[]): Pine[] {
-  let pines: Pine[] = [];
-  for (let x = from, at = 0; x <= to; x += spacing, at++) {
-    pines.push({ x, h: heights[at % heights.length] });
-  }
-  return pines;
-}
-
 function paintKnoll(cells: Grid, crest: number, char: string): void {
   cells.forEach((row, y) => {
     row.forEach((_, x) => {
@@ -184,63 +142,6 @@ function buckAtDawn(): Sprite {
   return toSprite("icon-concept-b", cells);
 }
 
-function oldRefined(): Sprite {
-  let cells = grid(CONCEPT_GRID, "O");
-  paintSky(cells, [
-    { char: "q", from: 0 },
-    { char: "c", from: 9 },
-    { char: "O", from: 19 },
-    { char: "o", from: 30 },
-  ]);
-  paintSun(cells, { cx: 47, cy: 42, r: 11, glow: [2, 4] });
-  paintRidge(cells, { char: "N", base: 54, pines: pineRow(2, 30, 6, [7, 10, 6, 9, 11]) });
-  paintField(cells, 54, "N");
-  paintField(cells, 58, "K");
-  let buck = ICON_CONCEPT_SPRITES["icon-a-buck"];
-  stamp(cells, buck, 34, 55 - buck.h);
-  let bow = ICON_CONCEPT_SPRITES["icon-a-bow"];
-  stamp(cells, bow, 4, 30 - Math.round(bow.h / 2));
-  return toSprite("icon-concept-a", cells);
-}
-
-function drawnBow(): Sprite {
-  let cells = grid(CONCEPT_GRID, "n");
-  paintSky(cells, [
-    { char: "n", from: 0 },
-    { char: "Z", from: 12 },
-    { char: "l", from: 22 },
-    { char: "P", from: 32 },
-    { char: "O", from: 41 },
-  ]);
-  paintSun(cells, { cx: 33, cy: 33, r: 15, glow: [2, 4] });
-  paintRidge(cells, { char: "N", base: 54, pines: pineRow(1, 66, 6, [6, 9, 5, 8, 10, 7]) });
-  paintField(cells, 58, "K");
-  let bow = ICON_CONCEPT_SPRITES["icon-c-bow"];
-  stamp(cells, bow, 31 - Math.round(bow.w / 2), 34 - Math.round(bow.h / 2));
-  return toSprite("icon-concept-c", cells);
-}
-
-function buckPortrait(): Sprite {
-  let cells = grid(CONCEPT_GRID, "N");
-  paintSky(cells, [
-    { char: "N", from: 0 },
-    { char: "i", from: 8 },
-    { char: "v", from: 16 },
-    { char: "r", from: 24 },
-    { char: "q", from: 32 },
-    { char: "c", from: 40 },
-    { char: "O", from: 47 },
-  ]);
-  paintSun(cells, { cx: 32, cy: 30, r: 17, glow: [2, 4] });
-  paintRidge(cells, { char: "N", base: 56, pines: pineRow(0, 66, 6, [7, 11, 8, 12, 9, 10]) });
-  let face = ICON_CONCEPT_SPRITES["icon-d-face"];
-  stamp(cells, face, 32 - Math.round(face.w / 2), CONCEPT_GRID - face.h);
-  return toSprite("icon-concept-d", cells);
-}
-
 export const ICON_CONCEPTS: readonly IconConcept[] = [
-  { id: "a", name: "A OLD REFINED", scene: oldRefined },
   { id: "b", name: "B BUCK AT DAWN", scene: buckAtDawn },
-  { id: "c", name: "C DRAWN BOW", scene: drawnBow },
-  { id: "d", name: "D BUCK PORTRAIT", scene: buckPortrait },
 ];
