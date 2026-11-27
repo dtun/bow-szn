@@ -1,4 +1,4 @@
-import { TUNING, type Animal, type Antlers, type SpeciesId, type Vec2 } from "@bow-szn/core";
+import { type Animal, type Antlers, type SpeciesId, type Vec2 } from "@bow-szn/core";
 import {
   ANIMAL_FRAMES,
   FX_FRAMES,
@@ -67,9 +67,7 @@ export function rackTip(animal: Animal, pose: AnimalPose): Vec2 {
   return { x: Math.round(animal.pos.x) + column, y: Math.round(animal.pos.y) - sprite.h + top.y };
 }
 
-export function glintFrame(elapsedMs: number, animal: Animal): SpriteId {
-  let juice = TUNING.juice;
-  let into = (elapsedMs + animal.id * juice.glintStaggerMs) % juice.glintEveryMs;
+export function glintFrame(progress: number): SpriteId {
   let frames = FX_FRAMES.glint;
-  return frames[Math.min(frames.length - 1, Math.floor((into / juice.glintMs) * frames.length))];
+  return frames[Math.min(frames.length - 1, Math.floor(progress * frames.length))];
 }

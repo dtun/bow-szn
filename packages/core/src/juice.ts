@@ -33,11 +33,16 @@ export function timeScale(state: HuntState): number {
   return buck ? TUNING.juice.slowMoRate : 1;
 }
 
-export function isGlinting(animal: Animal, elapsedMs: number): boolean {
+export function glintProgress(animal: Animal, elapsedMs: number): number | null {
   let juice = TUNING.juice;
   let bigRack = animal.antlers.kind === "rack" && animal.antlers.points >= juice.glintMinPoints;
   if (!bigRack || !isLive(animal)) {
-    return false;
+    return null;
   }
-  return (elapsedMs + animal.id * juice.glintStaggerMs) % juice.glintEveryMs < juice.glintMs;
+  let intoMs = (elapsedMs + animal.id * juice.glintStaggerMs) % juice.glintEveryMs;
+  return intoMs < juice.glintMs ? intoMs / juice.glintMs : null;
+}
+
+export function isGlinting(animal: Animal, elapsedMs: number): boolean {
+  return glintProgress(animal, elapsedMs) !== null;
 }

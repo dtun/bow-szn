@@ -1,5 +1,6 @@
 import {
   flightOutcome,
+  glintProgress,
   huntReducer,
   isGlinting,
   shotWillHit,
@@ -116,4 +117,19 @@ describe("rack glint", () => {
     );
     expect(together).toEqual([]);
   });
+});
+
+test("a glint runs from the start of its window to the end, and is absent outside it", () => {
+  function progressAt(elapsedMs: number): number | null {
+    return glintProgress(BUCK, elapsedMs);
+  }
+  let starts = Array.from({ length: TUNING.juice.glintEveryMs }, (_, ms) => ms).filter(
+    (ms) => progressAt(ms) === 0
+  );
+  expect(starts).toHaveLength(1);
+  let start = starts[0];
+  expect(progressAt(start + TUNING.juice.glintMs / 2)).toBe(0.5);
+  expect(progressAt(start + TUNING.juice.glintMs)).toBeNull();
+  expect(isGlinting(BUCK, start)).toBe(true);
+  expect(isGlinting(BUCK, start + TUNING.juice.glintMs)).toBe(false);
 });

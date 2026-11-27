@@ -1,9 +1,9 @@
 import {
   arrowAt,
   currentAim,
+  glintProgress,
   hitStopLeftMs,
   HUNTER_POS,
-  isGlinting,
   SPOTS,
   timeScale,
   TUNING,
@@ -207,10 +207,11 @@ function slowMoMarks(state: HuntState, bounds: Bounds): Mark[] {
 
 function glintMarks(animal: Animal, elapsedMs: number): Mark[] {
   let pose = animalPose(animal, elapsedMs);
-  if (pose === null || !isGlinting(animal, elapsedMs)) {
+  let progress = glintProgress(animal, elapsedMs);
+  if (pose === null || progress === null) {
     return [];
   }
-  let frame = glintFrame(elapsedMs, animal);
+  let frame = glintFrame(progress);
   let tip = rackTip(animal, pose);
   return [sprite(`glint-${animal.id}`, frame, { x: tip.x, y: tip.y + SPRITES[frame].h / 2 })];
 }
