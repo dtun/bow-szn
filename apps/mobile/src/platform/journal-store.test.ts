@@ -143,3 +143,39 @@ test("a storage that throws on write does not stop the game", () => {
   expect(() => createJournalStore(broken).save(JOURNAL)).not.toThrow();
   expect(warn).toHaveBeenCalledTimes(1);
 });
+
+function watchedStorage(raw: string) {
+  let kept = new Map([[JOURNAL_KEY, raw]]);
+  let storage: KeyValueStorage = {
+    getItem(key) {
+      return kept.get(key) ?? null;
+    },
+    setItem(key, value) {
+      kept.set(key, value);
+    },
+  };
+  function everythingStored(): string {
+    return [...kept.values()].join("\n");
+  }
+  return { storage, everythingStored };
+}
+
+test.failing("one bad harvest leaves the good ones in the journal", () => {
+  expect(storedWith(payload({ harvests: [BUCK, { id: "x" }, DOE] })).load().harvests).toEqual([
+    BUCK,
+    DOE,
+  ]);
+});
+
+test.failing.each([
+  ["text that is not JSON", "{not json"],
+  ["a version from the future", payload({ version: 2, harvests: [BUCK] })],
+  ["a harvest of an unknown species", payload({ harvests: [{ ...BUCK, species: "moose" }] })],
+])("%s is still on the device after the next save", (_name, raw) => {
+  let { storage, everythingStored } = watchedStorage(raw);
+  let store = createJournalStore(storage);
+
+  store.save({ ...store.load(), harvests: [...store.load().harvests, DOE] });
+
+  expect(everythingStored()).toContain(raw);
+});
