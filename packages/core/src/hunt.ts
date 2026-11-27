@@ -1,6 +1,7 @@
 import { aimFromPull } from "./aim";
 import { noticesDraw } from "./animals";
 import { launchArrow } from "./arrow";
+import { canMount } from "./journal";
 import { timeScale } from "./juice";
 import { createRoller } from "./rng";
 import { openingAnimals, rollSpawnDelay } from "./spawn";
@@ -59,6 +60,33 @@ function endAtDusk(state: HuntState): HuntState {
     : state;
 }
 
+export function holdsTheCard(state: HuntState): boolean {
+  return (
+    state.phase.kind === "result" &&
+    state.phase.outcome.kind === "harvest" &&
+    canMount(state.phase.outcome.harvest)
+  );
+}
+
+export function hitStopLeftMs(state: HuntState): number {
+  if (state.phase.kind !== "result" || !holdsTheCard(state)) {
+    return 0;
+  }
+  return Math.max(0, TUNING.juice.hitStopMs - state.phase.shownMs);
+}
+
+function lingers(state: HuntState): boolean {
+  return state.phase.kind === "result" && !holdsTheCard(state);
+}
+
+function hasLingered(state: HuntState): boolean {
+  return (
+    state.phase.kind === "result" &&
+    !holdsTheCard(state) &&
+    state.phase.shownMs >= TUNING.juice.resultMs
+  );
+}
+
 function showLonger(state: HuntState, dtMs: number): HuntState {
   if (state.phase.kind !== "result") {
     return state;
@@ -70,15 +98,21 @@ function advance(state: HuntState, dtMs: number): HuntState {
   if (state.phase.kind === "over") {
     return state;
   }
+  let shown = showLonger(state, dtMs);
+  if (hitStopLeftMs(shown) > 0) {
+    return shown;
+  }
   let elapsedMs = state.elapsedMs + dtMs * timeScale(state);
-  let next = showLonger(state, dtMs);
+  let next = shown;
   for (let index = stepIndexAt(state.elapsedMs) + 1; index <= stepIndexAt(elapsedMs); index++) {
     next = stepAt(next, index);
   }
-  return endAtDusk({ ...next, elapsedMs, clockMin: clockAt(elapsedMs) });
+  let ticked = endAtDusk({ ...next, elapsedMs, clockMin: clockAt(elapsedMs) });
+  return hasLingered(ticked) ? dismiss(ticked) : ticked;
 }
 
-function startDraw(state: HuntState): HuntState {
+function startDraw(from: HuntState): HuntState {
+  let state = lingers(from) ? dismiss(from) : from;
   if (state.phase.kind !== "ready" || state.arrows === 0) {
     return state;
   }

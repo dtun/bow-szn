@@ -44,7 +44,6 @@ export type HuntEffect =
   | { kind: "sound"; sound: HuntSound }
   | { kind: "haptic"; haptic: HuntHaptic }
   | { kind: "record"; harvest: Harvest }
-  | { kind: "hit-stop" }
   | { kind: "shake"; px: number }
   | { kind: "confetti"; at: Vec2; count: number }
   | { kind: "dirt"; at: Vec2 }
@@ -127,7 +126,7 @@ function harvestEffects(
   };
   return [
     sound("hit"),
-    ...(buck ? [sound("fanfare"), { kind: "hit-stop" } as const] : []),
+    ...(buck ? [sound("fanfare")] : []),
     haptic("harvest"),
     { kind: "record", harvest },
     { kind: "shake", px: buck ? juice.shakePx : juice.snackShakePx },

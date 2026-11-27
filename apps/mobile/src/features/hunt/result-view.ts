@@ -1,7 +1,7 @@
-import { TUNING, type HuntState } from "@bow-szn/core";
+import { holdsTheCard, TUNING, type HuntState } from "@bow-szn/core";
 
 import { harvestCardFor, type HarvestCard } from "./harvest-card";
-import { holdsTheCard, type Juice } from "./hunt-session";
+import type { Juice } from "./hunt-session";
 
 export type ResultView =
   | { kind: "none" }

@@ -1,6 +1,6 @@
 import {
-  canMount,
   createHunt,
+  hitStopLeftMs,
   huntReducer,
   TUNING,
   type HuntConfig,
@@ -23,7 +23,6 @@ export type ShownPop = Pop & { startMs: number };
 
 export type Juice = {
   nowMs: number;
-  frozenUntilMs: number;
   bursts: Burst[];
   pop: ShownPop | null;
 };
@@ -31,8 +30,6 @@ export type Juice = {
 export type HuntSession = { hunt: HuntState; juice: Juice };
 
 export type Stepped = { session: HuntSession; effects: HuntEffect[] };
-
-const DISMISS: HuntEvent = { type: "dismiss" };
 
 const LIFE_MS: Record<Burst["kind"], number> = {
   confetti: TUNING.juice.confettiMs,
@@ -46,7 +43,7 @@ const LIFE_MS: Record<Burst["kind"], number> = {
 export function createSession(config: HuntConfig): HuntSession {
   return {
     hunt: createHunt(config),
-    juice: { nowMs: 0, frozenUntilMs: 0, bursts: [], pop: null },
+    juice: { nowMs: 0, bursts: [], pop: null },
   };
 }
 
@@ -56,10 +53,6 @@ export function burstAge(juice: Juice, burst: Burst): number {
 
 export function burstLife(burst: Burst): number {
   return LIFE_MS[burst.kind];
-}
-
-export function isFrozen(juice: Juice): boolean {
-  return juice.nowMs < juice.frozenUntilMs;
 }
 
 function burstFor(effect: HuntEffect, nowMs: number, afterFreezeMs: number): Burst | null {
@@ -84,63 +77,27 @@ function burstFor(effect: HuntEffect, nowMs: number, afterFreezeMs: number): Bur
     case "sound":
     case "haptic":
     case "record":
-    case "hit-stop":
     case "pop":
       return null;
   }
 }
 
-function absorb(juice: Juice, effects: HuntEffect[]): Juice {
+function absorb(juice: Juice, effects: HuntEffect[], hunt: HuntState): Juice {
   let { nowMs } = juice;
-  let frozenUntilMs = effects.some((effect) => effect.kind === "hit-stop")
-    ? nowMs + TUNING.juice.hitStopMs
-    : juice.frozenUntilMs;
-  let afterFreezeMs = Math.max(nowMs, frozenUntilMs);
+  let afterFreezeMs = nowMs + hitStopLeftMs(hunt);
   let bursts = effects.flatMap((effect) => burstFor(effect, nowMs, afterFreezeMs) ?? []);
   let popped = effects.flatMap((effect) => (effect.kind === "pop" ? [effect.pop] : []));
   return {
     nowMs,
-    frozenUntilMs,
     bursts: [...juice.bursts, ...bursts],
     pop: popped.length > 0 ? { ...popped[0], startMs: nowMs } : juice.pop,
   };
 }
 
-function apply(session: HuntSession, events: HuntEvent[]): Stepped {
-  let hunt = session.hunt;
-  let effects: HuntEffect[] = [];
-  for (let event of events) {
-    let next = huntReducer(hunt, event);
-    effects.push(...huntEffects(hunt, next));
-    hunt = next;
-  }
-  return { session: { hunt, juice: absorb(session.juice, effects) }, effects };
-}
-
-function then(first: Stepped, events: HuntEvent[]): Stepped {
-  let second = apply(first.session, events);
-  return { session: second.session, effects: [...first.effects, ...second.effects] };
-}
-
-export function holdsTheCard(hunt: HuntState): boolean {
-  return (
-    hunt.phase.kind === "result" &&
-    hunt.phase.outcome.kind === "harvest" &&
-    canMount(hunt.phase.outcome.harvest)
-  );
-}
-
-export function isLingering(session: HuntSession): boolean {
-  return session.hunt.phase.kind === "result" && !holdsTheCard(session.hunt);
-}
-
-function hasLingered(session: HuntSession): boolean {
-  let pop = session.juice.pop;
-  return (
-    isLingering(session) &&
-    pop !== null &&
-    session.juice.nowMs - pop.startMs >= TUNING.juice.resultMs
-  );
+function apply(session: HuntSession, event: HuntEvent): Stepped {
+  let hunt = huntReducer(session.hunt, event);
+  let effects = huntEffects(session.hunt, hunt);
+  return { session: { hunt, juice: absorb(session.juice, effects, hunt) }, effects };
 }
 
 function settle(juice: Juice, dtMs: number): Juice {
@@ -152,21 +109,9 @@ function settle(juice: Juice, dtMs: number): Juice {
   };
 }
 
-function frame(session: HuntSession, dtMs: number): Stepped {
-  let juice = settle(session.juice, dtMs);
-  if (isFrozen(juice)) {
-    return { session: { ...session, juice }, effects: [] };
-  }
-  let ticked = apply({ ...session, juice }, [{ type: "tick", dtMs }]);
-  return hasLingered(ticked.session) ? then(ticked, [DISMISS]) : ticked;
-}
-
 export function stepSession(session: HuntSession, event: HuntEvent): Stepped {
   if (event.type === "tick") {
-    return frame(session, event.dtMs);
+    return apply({ ...session, juice: settle(session.juice, event.dtMs) }, event);
   }
-  if (event.type === "draw-start" && isLingering(session)) {
-    return apply(session, [DISMISS, event]);
-  }
-  return apply(session, [event]);
+  return apply(session, event);
 }

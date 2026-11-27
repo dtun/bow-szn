@@ -1,6 +1,7 @@
 import {
   arrowAt,
   currentAim,
+  hitStopLeftMs,
   HUNTER_POS,
   isGlinting,
   SPOTS,
@@ -21,7 +22,7 @@ import { airborneAt, headingAt } from "./arrow-path";
 import { bowMarks } from "./bow-marks";
 import { drawGauge, type DrawGauge } from "./draw-gauge";
 import { hudFor, type Hud } from "./hud";
-import { burstAge, isFrozen, type Juice } from "./hunt-session";
+import { burstAge, type Juice } from "./hunt-session";
 import { huntView, type Bounds, type HuntView, type Screen } from "./hunt-view";
 import { burstMarks, popLabel, shakeOffset } from "./juice-marks";
 import { resultFor, type ResultView } from "./result-view";
@@ -273,7 +274,7 @@ export function sceneFor(state: HuntState, juice: Juice, screen: Screen): Scene 
       ...slowMoMarks(state, view.bounds),
       ...flight,
       ...confetti,
-      ...(isFrozen(juice) ? [overlay("flash", view.bounds, FLASH)] : []),
+      ...(hitStopLeftMs(state) > 0 ? [overlay("flash", view.bounds, FLASH)] : []),
     ],
     labels: oneAtATime([
       ...(pop === null ? [] : [pop]),

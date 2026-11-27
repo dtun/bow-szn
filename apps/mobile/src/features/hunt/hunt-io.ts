@@ -40,7 +40,6 @@ export function fireEffects(effects: HuntEffect[], io: HuntIo) {
       case "record":
         io.record(effect.harvest);
         break;
-      case "hit-stop":
       case "shake":
       case "confetti":
       case "dirt":

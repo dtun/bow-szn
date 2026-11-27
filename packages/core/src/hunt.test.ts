@@ -1,4 +1,13 @@
-import { createHunt, currentAim, huntReducer, HUNTER_POS, TUNING, type HuntEvent } from "./index";
+import {
+  createHunt,
+  currentAim,
+  hitStopLeftMs,
+  holdsTheCard,
+  huntReducer,
+  HUNTER_POS,
+  TUNING,
+  type HuntEvent,
+} from "./index";
 import { CONFIG, DOE, huntWith, play, shootAt } from "./test-support/hunt-scenario";
 
 describe("createHunt", () => {
@@ -159,5 +168,58 @@ describe("the reducer", () => {
       ...shootAt({ x: 40, y: 200 }),
     ];
     expect(play(createHunt(CONFIG), events)).toEqual(play(createHunt(CONFIG), events));
+  });
+});
+
+describe("while a result shows", () => {
+  let buck = { ...DOE, antlers: { kind: "rack", points: 10 } } as const;
+  let miss = { x: 90, y: 240 };
+
+  test("a buck hit holds the hunt still for the hit-stop, then lets it run", () => {
+    let hit = play(huntWith([buck]), shootAt(buck.pos));
+    let held = play(hit, [{ type: "tick", dtMs: TUNING.juice.hitStopMs - 1 }]);
+    let thawed = play(held, [{ type: "tick", dtMs: 50 }]);
+    expect(hitStopLeftMs(hit)).toBe(TUNING.juice.hitStopMs);
+    expect(held.elapsedMs).toBe(hit.elapsedMs);
+    expect(hitStopLeftMs(thawed)).toBe(0);
+    expect(thawed.elapsedMs).toBe(hit.elapsedMs + 50);
+  });
+
+  test("a buck waits for the player instead of clearing on its own", () => {
+    let hit = play(huntWith([buck]), shootAt(buck.pos));
+    let later = play(hit, [{ type: "tick", dtMs: TUNING.juice.resultMs * 4 }]);
+    expect(holdsTheCard(later)).toBe(true);
+    expect(later.phase.kind).toBe("result");
+  });
+
+  test("a miss never holds the hunt still", () => {
+    let missed = play(huntWith([DOE]), shootAt(miss));
+    expect(hitStopLeftMs(missed)).toBe(0);
+    expect(holdsTheCard(missed)).toBe(false);
+  });
+
+  test("a miss clears itself once it has shown long enough", () => {
+    let missed = play(huntWith([DOE]), shootAt(miss));
+    let almost = play(missed, [{ type: "tick", dtMs: TUNING.juice.resultMs - 1 }]);
+    let cleared = play(almost, [{ type: "tick", dtMs: 1 }]);
+    expect(almost.phase.kind).toBe("result");
+    expect(cleared.phase).toEqual({ kind: "ready" });
+  });
+
+  test("a miss that clears with the quiver empty ends the hunt", () => {
+    let missed = play({ ...huntWith([DOE]), arrows: 1 }, shootAt(miss));
+    let cleared = play(missed, [{ type: "tick", dtMs: TUNING.juice.resultMs }]);
+    expect(cleared.phase).toEqual({ kind: "over", reason: "quiver-empty" });
+  });
+
+  test("drawing during a miss shrugs it off and starts the draw", () => {
+    let missed = play(huntWith([DOE]), shootAt(miss));
+    let drawing = huntReducer(missed, { type: "draw-start" });
+    expect(drawing.phase).toEqual({ kind: "drawing", pull: { x: 0, y: 0 }, heldMs: 0 });
+  });
+
+  test("drawing during a buck's card changes nothing", () => {
+    let hit = play(huntWith([buck]), shootAt(buck.pos));
+    expect(huntReducer(hit, { type: "draw-start" })).toBe(hit);
   });
 });
