@@ -1,4 +1,4 @@
-import * as Sharing from "expo-sharing";
+import { Share } from "react-native";
 
 import { createFakeSharer, deviceSharer, FAKE_SHARE_FOLDER } from "./share";
 
@@ -25,62 +25,55 @@ jest.mock("expo-file-system", () => {
   return { File: MockFile, Paths: { cache: { uri: "file:///cache" } } };
 });
 
-jest.mock("expo-sharing", () => ({ isAvailableAsync: jest.fn(), shareAsync: jest.fn() }));
-
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const MESSAGE = "PLAY THE BETA: https://testflight.apple.com/join/M3zeJD6U";
+const CARD = { fileName: "bow-season-42-3.png", png: PNG, message: MESSAGE };
+
+let shareSheet: jest.SpyInstance;
 
 beforeEach(() => {
   mockOrder.length = 0;
   mockWrites.length = 0;
-  jest.mocked(Sharing.shareAsync).mockImplementation(async () => {
+  shareSheet = jest.spyOn(Share, "share").mockImplementation(async () => {
     mockOrder.push("share");
+    return { action: Share.sharedAction };
   });
 });
 
-describe("the device sharer", () => {
-  test("writes the PNG into the cache folder, then opens the share sheet on that file", async () => {
-    jest.mocked(Sharing.isAvailableAsync).mockResolvedValue(true);
+afterEach(() => {
+  shareSheet.mockRestore();
+});
 
-    let result = await deviceSharer.sharePng("bow-season-42-3.png", PNG);
+describe("the device sharer", () => {
+  test("writes the PNG into the cache folder, then opens the share sheet on that file with the message", async () => {
+    let result = await deviceSharer.sharePng(CARD);
 
     expect(result).toEqual({ kind: "shared", uri: "file:///cache/bow-season-42-3.png" });
     expect(mockWrites).toEqual([{ uri: "file:///cache/bow-season-42-3.png", bytes: PNG }]);
     expect(mockOrder).toEqual(["create", "write", "share"]);
-    expect(Sharing.shareAsync).toHaveBeenCalledWith("file:///cache/bow-season-42-3.png", {
-      mimeType: "image/png",
-      UTI: "public.png",
+    expect(shareSheet).toHaveBeenCalledTimes(1);
+    expect(shareSheet).toHaveBeenCalledWith({
+      url: "file:///cache/bow-season-42-3.png",
+      message: MESSAGE,
     });
   });
 
-  test("writes nothing and opens nothing when sharing is not available", async () => {
-    jest.mocked(Sharing.isAvailableAsync).mockResolvedValue(false);
+  test("lets the failure reach the caller when the share sheet fails", async () => {
+    shareSheet.mockRejectedValue(new Error("sheet refused"));
 
-    let result = await deviceSharer.sharePng("bow-season-42-3.png", PNG);
-
-    expect(result).toEqual({ kind: "unavailable" });
-    expect(mockOrder).toEqual([]);
-    expect(Sharing.shareAsync).not.toHaveBeenCalled();
+    await expect(deviceSharer.sharePng(CARD)).rejects.toThrow("sheet refused");
   });
 });
 
 describe("the fake sharer", () => {
-  test("keeps each shared PNG under a uri that ends in the file name", async () => {
+  test("keeps each shared card under a uri that ends in the file name, with its message", async () => {
     let sharer = createFakeSharer();
 
-    let result = await sharer.sharePng("bow-season-42-3.png", PNG);
+    let result = await sharer.sharePng(CARD);
 
     expect(result).toEqual({ kind: "shared", uri: `${FAKE_SHARE_FOLDER}/bow-season-42-3.png` });
     expect(sharer.shared).toEqual([
-      { uri: `${FAKE_SHARE_FOLDER}/bow-season-42-3.png`, bytes: PNG },
+      { uri: `${FAKE_SHARE_FOLDER}/bow-season-42-3.png`, bytes: PNG, message: MESSAGE },
     ]);
-  });
-
-  test("keeps nothing when it is made unavailable", async () => {
-    let sharer = createFakeSharer(false);
-
-    let result = await sharer.sharePng("bow-season-42-3.png", PNG);
-
-    expect(result).toEqual({ kind: "unavailable" });
-    expect(sharer.shared).toEqual([]);
   });
 });

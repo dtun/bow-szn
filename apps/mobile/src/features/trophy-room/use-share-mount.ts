@@ -5,7 +5,8 @@ import type { Sharer } from "@/platform/share";
 
 import type { CardRenderer } from "./use-card-renderer";
 
-export const UNAVAILABLE_TOAST = "SHARING IS NOT AVAILABLE ON THIS DEVICE.";
+export const BETA_URL = "https://testflight.apple.com/join/M3zeJD6U";
+export const SHARE_MESSAGE = `BOW SEASON. 8-BIT BOW HUNTING. PLAY THE BETA: ${BETA_URL}`;
 export const FAILED_TOAST = "COULD NOT SHARE THAT MOUNT. TRY AGAIN.";
 
 export function useShareMount(sharer: Sharer, renderCard: CardRenderer) {
@@ -23,10 +24,11 @@ export function useShareMount(sharer: Sharer, renderCard: CardRenderer) {
     sharing.current = true;
     try {
       let png = await renderCard(harvest);
-      let result = await sharer.sharePng(`bow-season-${harvest.id}.png`, png);
-      if (result.kind === "unavailable") {
-        setToast(UNAVAILABLE_TOAST);
-      }
+      await sharer.sharePng({
+        fileName: `bow-season-${harvest.id}.png`,
+        png,
+        message: SHARE_MESSAGE,
+      });
     } catch {
       setToast(FAILED_TOAST);
     } finally {

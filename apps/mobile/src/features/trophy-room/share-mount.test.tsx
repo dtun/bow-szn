@@ -8,13 +8,21 @@ import { FAKE_SHARE_FOLDER, createFakeSharer, type Sharer } from "@/platform/sha
 import { TOAST_MS } from "@/ui/pixel-toast";
 
 import { TrophyRoomScreen } from "./trophy-room-screen";
-import { FAILED_TOAST, UNAVAILABLE_TOAST } from "./use-share-mount";
+import { FAILED_TOAST, SHARE_MESSAGE } from "./use-share-mount";
 import type { CardRenderer } from "./use-card-renderer";
 
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 function pngCards(): jest.MockedFunction<CardRenderer> {
   return jest.fn<Promise<Uint8Array>, [Harvest]>(async () => PNG);
+}
+
+function failingSharer(): Sharer {
+  return {
+    async sharePng() {
+      throw new Error("sheet refused");
+    },
+  };
 }
 
 function renderTrophyRoom(sharer: Sharer, renderCard: CardRenderer = pngCards()) {
@@ -49,7 +57,7 @@ test("names which mount a SHARE button shares", () => {
   );
 });
 
-test("SHARE draws a card for that buck and hands its PNG to the share sheet", async () => {
+test("SHARE draws a card for that buck and hands its PNG and the beta link to the share sheet", async () => {
   let sharer = createFakeSharer();
   let renderCard = pngCards();
   renderTrophyRoom(sharer, renderCard);
@@ -60,8 +68,9 @@ test("SHARE draws a card for that buck and hands its PNG to the share sheet", as
   expect(renderCard).toHaveBeenCalledTimes(1);
   expect(renderCard).toHaveBeenCalledWith(BIG_BUCK);
   expect(sharer.shared).toEqual([
-    { uri: `${FAKE_SHARE_FOLDER}/bow-season-big-buck.png`, bytes: PNG },
+    { uri: `${FAKE_SHARE_FOLDER}/bow-season-big-buck.png`, bytes: PNG, message: SHARE_MESSAGE },
   ]);
+  expect(sharer.shared[0].message).toContain("https://testflight.apple.com/join/M3zeJD6U");
   expect(screen.queryByTestId("shareToast")).not.toBeOnTheScreen();
 });
 
@@ -93,17 +102,6 @@ test("pressing SHARE twice at once opens one share sheet, and a later press open
   await waitFor(() => expect(sharer.shared).toHaveLength(2));
 });
 
-test("a toast says so when sharing is not available, and nothing is shared", async () => {
-  let sharer = createFakeSharer(false);
-  renderTrophyRoom(sharer);
-
-  fireEvent.press(screen.getByTestId("shareMountBtn-big-buck"));
-
-  expect(await screen.findByTestId("shareToast")).toHaveTextContent(UNAVAILABLE_TOAST);
-  expect(UNAVAILABLE_TOAST).toBe("SHARING IS NOT AVAILABLE ON THIS DEVICE.");
-  expect(sharer.shared).toEqual([]);
-});
-
 test("a toast asks for another try when the card cannot be drawn", async () => {
   let sharer = createFakeSharer();
   renderTrophyRoom(
@@ -121,12 +119,7 @@ test("a toast asks for another try when the card cannot be drawn", async () => {
 });
 
 test("a toast asks for another try when the share sheet fails", async () => {
-  let failing: Sharer = {
-    async sharePng() {
-      throw new Error("sheet refused");
-    },
-  };
-  renderTrophyRoom(failing);
+  renderTrophyRoom(failingSharer());
 
   fireEvent.press(screen.getByTestId("shareMountBtn-big-buck"));
 
@@ -135,7 +128,7 @@ test("a toast asks for another try when the share sheet fails", async () => {
 
 test("the toast goes away by itself", async () => {
   jest.useFakeTimers();
-  renderTrophyRoom(createFakeSharer(false));
+  renderTrophyRoom(failingSharer());
 
   fireEvent.press(screen.getByTestId("shareMountBtn-big-buck"));
   expect(await screen.findByTestId("shareToast")).toBeOnTheScreen();
