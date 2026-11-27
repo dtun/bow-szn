@@ -45,7 +45,7 @@ Every kind of code has one home. Create a folder when you first put a file in it
 
 The `@/*` alias maps to `apps/mobile/src/*`. Import with `@/features/title/title-screen`, not a relative path out of a folder.
 
-The journal is the one feature others call. Import `JournalProvider` and `useJournal` from `@/features/journal`. `useJournal()` returns `{ journal, record(harvest), mount(harvestId), showLeaderboards() }`: the hunt calls `record` when a harvest happens and `mount` from the harvest card. Both are idempotent and save to the device. `showLeaderboards()` opens Game Center's leaderboards and resolves with the player's sign-in status.
+The journal is the one feature others call. Import `JournalProvider` and `useJournal` from `@/features/journal`. `useJournal()` returns `{ journal, record(harvest), mount(harvestId), showLeaderboards() }`: the hunt calls `record` when a harvest happens and `mount` from the harvest card. Both are idempotent and save to the device. A save never writes over saved text the build cannot wholly read, because the store sets that text aside under an archive key and merges the archives back on load, as `docs/adr/0005-the-device-keeps-what-the-journal-cannot-read.md` explains. `showLeaderboards()` opens Game Center's leaderboards and resolves with the player's sign-in status.
 
 ### Dependency direction
 
