@@ -1,12 +1,10 @@
-import type { Headgear, SeasonId, Species, SpeciesId } from "./types";
+import { SEASON_IDS, type Headgear, type Species, type SpeciesId } from "./types";
 
 const ANTLERED_ODDS = {
   early: { doe: 0.55, spike: 0.25, buck: 0.2 },
   rut: { doe: 0.4, spike: 0.2, buck: 0.4 },
   late: { doe: 0.6, spike: 0.2, buck: 0.2 },
 };
-
-const ALL_SEASONS: readonly SeasonId[] = ["early", "rut", "late"];
 
 const NO_HEADGEAR: Headgear = { kind: "none" };
 
@@ -20,7 +18,7 @@ export const SPECIES: Record<SpeciesId, Species> = {
     weightLb: [110, 260],
     meatYield: 0.45,
     headgear: { kind: "antlered", odds: ANTLERED_ODDS, rackPoints: [4, 12] },
-    seasons: ALL_SEASONS,
+    seasons: SEASON_IDS,
     rarity: 5,
   },
   turkey: {
@@ -44,7 +42,7 @@ export const SPECIES: Record<SpeciesId, Species> = {
     weightLb: [2, 4],
     meatYield: 0.5,
     headgear: NO_HEADGEAR,
-    seasons: ALL_SEASONS,
+    seasons: SEASON_IDS,
     rarity: 6,
   },
   elk: {

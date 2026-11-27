@@ -5,7 +5,8 @@ export const HUNTER_POS: Vec2 = { x: 90, y: 290 };
 export type Vec2 = { x: number; y: number };
 
 export type SpeciesId = "whitetail" | "turkey" | "rabbit" | "elk";
-export type SeasonId = "early" | "rut" | "late";
+export const SEASON_IDS = ["early", "rut", "late"] as const;
+export type SeasonId = (typeof SEASON_IDS)[number];
 export type Difficulty = "easy" | "medium" | "hard";
 export type Terrain = "hardwoods" | "meadow" | "marsh" | "ridge";
 export type SpotId = "cedar-hollow" | "miller-bottoms" | "high-ridge" | "cattail-marsh";
