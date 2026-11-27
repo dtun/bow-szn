@@ -231,12 +231,12 @@ async function applyPlan(
 
 async function verifySet(
   apple: AppleUtils,
-  context: RequestContext,
-  set: AppScreenshotSet,
+  localization: AppStoreVersionLocalization,
   local: LocalFolder
 ): Promise<void> {
-  let settled = await apple.AppScreenshotSet.infoAsync(context, { id: set.id });
-  let leftover = planScreenshotSync(local.files, settled.attributes.appScreenshots.map(toRemote));
+  let settled = await findSet(localization, local.folder, apple);
+  let remote = settled === null ? [] : settled.attributes.appScreenshots.map(toRemote);
+  let leftover = planScreenshotSync(local.files, remote);
   if (leftover.length > 0) {
     throw new Error(
       `App Store Connect still differs from ${local.name} after the upload: ${leftover.map(describeStep).join(", ")}.\n${RERUN_NOTE}`
@@ -287,7 +287,7 @@ async function syncFolders(
         screenshotDisplayType: apple.ScreenshotDisplayType[local.folder.displayType],
       }));
     await applyPlan(apple, context, set, local, plan);
-    await verifySet(apple, context, set, local);
+    await verifySet(apple, localization, local);
   }
 }
 
