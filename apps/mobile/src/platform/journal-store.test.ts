@@ -35,6 +35,103 @@ const DOE: Harvest = {
 
 const JOURNAL: Journal = { harvests: [BUCK, DOE], mountedIds: ["42-3"] };
 
+const JOURNAL_1_0_TEXT = `{
+  "version": 1,
+  "harvests": [
+    {"id": "7-2", "species": "whitetail", "antlers": {"kind": "rack", "points": 10},
+     "weightLb": 214, "meatLb": 96, "spot": "miller-bottoms", "season": "rut",
+     "clockMin": 462, "shotYards": 32},
+    {"id": "7-4", "species": "whitetail", "antlers": {"kind": "spike"},
+     "weightLb": 148, "meatLb": 67, "spot": "cedar-hollow", "season": "early",
+     "clockMin": 390, "shotYards": 21},
+    {"id": "7-6", "species": "whitetail", "antlers": {"kind": "none"},
+     "weightLb": 126, "meatLb": 57, "spot": "cattail-marsh", "season": "late",
+     "clockMin": 880, "shotYards": 27},
+    {"id": "9-1", "species": "elk", "antlers": {"kind": "rack", "points": 12},
+     "weightLb": 640, "meatLb": 269, "spot": "high-ridge", "season": "rut",
+     "clockMin": 540, "shotYards": 41},
+    {"id": "9-3", "species": "turkey", "antlers": {"kind": "none"},
+     "weightLb": 18, "meatLb": 11, "spot": "cedar-hollow", "season": "early",
+     "clockMin": 410, "shotYards": 18},
+    {"id": "9-5", "species": "rabbit", "antlers": {"kind": "none"},
+     "weightLb": 3, "meatLb": 2, "spot": "cattail-marsh", "season": "late",
+     "clockMin": 700, "shotYards": 14}
+  ],
+  "mountedIds": ["7-2", "9-1"]
+}`;
+
+const JOURNAL_1_0: Journal = {
+  harvests: [
+    {
+      id: "7-2",
+      species: "whitetail",
+      antlers: { kind: "rack", points: 10 },
+      weightLb: 214,
+      meatLb: 96,
+      spot: "miller-bottoms",
+      season: "rut",
+      clockMin: 462,
+      shotYards: 32,
+    },
+    {
+      id: "7-4",
+      species: "whitetail",
+      antlers: { kind: "spike" },
+      weightLb: 148,
+      meatLb: 67,
+      spot: "cedar-hollow",
+      season: "early",
+      clockMin: 390,
+      shotYards: 21,
+    },
+    {
+      id: "7-6",
+      species: "whitetail",
+      antlers: { kind: "none" },
+      weightLb: 126,
+      meatLb: 57,
+      spot: "cattail-marsh",
+      season: "late",
+      clockMin: 880,
+      shotYards: 27,
+    },
+    {
+      id: "9-1",
+      species: "elk",
+      antlers: { kind: "rack", points: 12 },
+      weightLb: 640,
+      meatLb: 269,
+      spot: "high-ridge",
+      season: "rut",
+      clockMin: 540,
+      shotYards: 41,
+    },
+    {
+      id: "9-3",
+      species: "turkey",
+      antlers: { kind: "none" },
+      weightLb: 18,
+      meatLb: 11,
+      spot: "cedar-hollow",
+      season: "early",
+      clockMin: 410,
+      shotYards: 18,
+    },
+    {
+      id: "9-5",
+      species: "rabbit",
+      antlers: { kind: "none" },
+      weightLb: 3,
+      meatLb: 2,
+      spot: "cattail-marsh",
+      season: "late",
+      clockMin: 700,
+      shotYards: 14,
+    },
+  ],
+  mountedIds: ["7-2", "9-1"],
+};
+
 function payload(overrides: Record<string, unknown>): string {
   return JSON.stringify({ version: 1, harvests: [BUCK], mountedIds: [], ...overrides });
 }
@@ -60,6 +157,10 @@ test("a storage with nothing in it loads an empty journal", () => {
     harvests: [],
     mountedIds: [],
   });
+});
+
+test("a 1.0 journal holding every species, spot, season, and antler kind loads exactly", () => {
+  expect(storedWith(JOURNAL_1_0_TEXT).load()).toEqual(JOURNAL_1_0);
 });
 
 test("saving writes the version next to the harvests and the mounted ids", () => {
