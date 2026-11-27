@@ -1,64 +1,87 @@
-import { blank, disc, hstack, overlay, shadowed, sprite } from "./compose.ts";
+import { blank, hstack, overlay, scaled, shadowed, sprite } from "./compose.ts";
+import { dawn } from "./dawn.ts";
+import type { Dawn } from "./dawn.ts";
 import { SPRITES } from "./registry.ts";
 import type { Sprite } from "./types.ts";
 
-export const ICON_GRID = 32;
-export const SPLASH_GRID = 64;
+export const ICON_GRID = 64;
+export const SPLASH_GRID = 128;
 export const FAVICON_GRID = 16;
-
-const ADAPTIVE_GRID = 64;
 
 type Cell = { x: number; y: number };
 
-const ICON_SUN_RADIUS = ICON_GRID / 2 - 0.5;
-const ICON_BUCK_AT: Cell = { x: 5, y: 4 };
-const FAVICON_SUN_RADIUS = FAVICON_GRID / 2 - 0.5;
-const ADAPTIVE_SUN_RADIUS = 17.5;
-const ADAPTIVE_BUCK_AT: Cell = { x: 21, y: 20 };
+export const ICON_BUCK_AT: Cell = { x: 13, y: 18 };
 
-function centered(outer: number, inner: number): number {
-  return Math.floor((outer - inner) / 2);
-}
+const ICON_DAWN: Dawn = {
+  size: ICON_GRID,
+  bands: [
+    { char: "N", from: 0 },
+    { char: "i", from: 7 },
+    { char: "v", from: 14 },
+    { char: "r", from: 20 },
+    { char: "q", from: 26 },
+    { char: "c", from: 32 },
+    { char: "O", from: 38 },
+    { char: "o", from: 44 },
+  ],
+  dither: true,
+  sun: { cx: 32, cy: 34, r: 20, rim: 3, glow: [2, 4] },
+  canopy: { base: 51, char: "v", phase: 0.6 },
+  knoll: { crest: 53, spread: 9, char: "K" },
+};
 
-function sunWithBuck(name: string, field: Sprite, radius: number, buck: Sprite, at: Cell): Sprite {
-  let center = (field.w - 1) / 2;
-  let sun = disc("sun", field.w, center, center, radius, "O");
-  return overlay(name, overlay(name, field, sun, 0, 0), buck, at.x, at.y);
-}
+const FAVICON_DAWN: Dawn = {
+  size: FAVICON_GRID,
+  bands: [
+    { char: "N", from: 0 },
+    { char: "v", from: 4 },
+    { char: "q", from: 7 },
+    { char: "O", from: 10 },
+  ],
+  dither: false,
+  sun: { cx: 8, cy: 8.5, r: 7, rim: 1, glow: [] },
+  canopy: null,
+  knoll: { crest: 14, spread: 3, char: "K" },
+};
+
+const FAVICON_BUCK_AT: Cell = { x: 2, y: 3 };
 
 export function iconScene(): Sprite {
-  return sunWithBuck(
+  return overlay(
     "icon",
-    blank("icon", ICON_GRID, ICON_GRID, "N"),
-    ICON_SUN_RADIUS,
+    dawn("icon", ICON_DAWN),
     SPRITES["brand-icon-buck"],
-    ICON_BUCK_AT
+    ICON_BUCK_AT.x,
+    ICON_BUCK_AT.y
   );
 }
 
 export function adaptiveBackgroundScene(): Sprite {
-  return blank("adaptive-background", ICON_GRID, ICON_GRID, "N");
+  return dawn("adaptive-background", ICON_DAWN);
 }
 
 export function adaptiveForegroundScene(): Sprite {
-  return sunWithBuck(
+  return overlay(
     "adaptive-foreground",
-    blank("adaptive-foreground", ADAPTIVE_GRID, ADAPTIVE_GRID),
-    ADAPTIVE_SUN_RADIUS,
+    blank("adaptive-foreground", ICON_GRID, ICON_GRID),
     SPRITES["brand-icon-buck"],
-    ADAPTIVE_BUCK_AT
+    ICON_BUCK_AT.x,
+    ICON_BUCK_AT.y
   );
 }
 
 export function faviconScene(): Sprite {
-  let buck = SPRITES["brand-icon-buck-mini"];
-  return sunWithBuck(
+  return overlay(
     "favicon",
-    blank("favicon", FAVICON_GRID, FAVICON_GRID, "N"),
-    FAVICON_SUN_RADIUS,
-    buck,
-    { x: centered(FAVICON_GRID, buck.w), y: centered(FAVICON_GRID, buck.h) }
+    dawn("favicon", FAVICON_DAWN),
+    SPRITES["brand-icon-buck-mini"],
+    FAVICON_BUCK_AT.x,
+    FAVICON_BUCK_AT.y
   );
+}
+
+function centered(outer: number, inner: number): number {
+  return Math.floor((outer - inner) / 2);
 }
 
 const BADGE_RING = 1;
@@ -81,13 +104,15 @@ function badge(source: Sprite): Sprite {
   );
 }
 
+const WORDMARK_SCALE = 2;
+
 function wordLine(name: string, letters: readonly Sprite[]): Sprite {
-  return shadowed(name, hstack(name, letters, 1), "R");
+  return scaled(name, shadowed(name, hstack(name, letters, 1), "R"), WORDMARK_SCALE);
 }
 
-const SPLASH_BADGE_Y = 3;
-const SPLASH_BOW_Y = 39;
-const SPLASH_SEASON_Y = 50;
+const SPLASH_BADGE_Y = 6;
+const SPLASH_BOW_Y = 78;
+const SPLASH_SEASON_Y = 100;
 
 export function splashScene(): Sprite {
   let bow = wordLine("bow", [SPRITES["logo-b"], SPRITES["logo-o"], SPRITES["logo-w"]]);

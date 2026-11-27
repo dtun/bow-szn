@@ -23,48 +23,40 @@ describe("brand sprites", () => {
     expect(SPRITES["brand-treeline"].w).toBe(32);
   });
 
-  it("paints the icon buck and its mini twin as navy silhouettes", () => {
-    expect(colorsOf("brand-icon-buck")).toEqual(["N"]);
-    expect(colorsOf("brand-icon-buck-mini")).toEqual(["N"]);
-  });
-
-  it("draws every tine tip and hoof of the icon buck at least two cells wide so they survive 60 px", () => {
-    let { rows } = SPRITES["brand-icon-buck"];
-
-    for (let row of [rows[0], rows[rows.length - 1]]) {
-      let runs = row.split(".").filter((run) => run.length > 0);
-
-      expect(runs.filter((run) => run.length < 2)).toEqual([]);
-    }
+  it("paints the mini buck as one dark silhouette for the favicon", () => {
+    expect(colorsOf("brand-icon-buck-mini")).toEqual(["K"]);
   });
 
   describe("the icon buck", () => {
     let { rows } = SPRITES["brand-icon-buck"];
+    let prongRows = rows.slice(0, 6);
 
     function runs(row: string): string[] {
       return row.split(".").filter((run) => run.length > 0);
     }
 
-    function painted(row: string): number {
-      return row.replaceAll(".", "").length;
+    function gaps(row: string): number[] {
+      return row
+        .replace(/^\.+|\.+$/g, "")
+        .split(/[^.]+/)
+        .filter((gap) => gap.length > 0)
+        .map((gap) => gap.length);
     }
 
-    let firstBodyRow = rows.findIndex((row) => painted(row) >= 15);
-
-    it("splits its rack into at least three tines with a cell of sun between each", () => {
-      expect(Math.max(...rows.slice(0, 6).map((row) => runs(row).length))).toBeGreaterThanOrEqual(
-        3
-      );
+    it("shades the buck with a dark outline, a brown ramp, a sunlit rim, a pale throat, and bone", () => {
+      expect(colorsOf("brand-icon-buck")).toEqual(["E", "K", "L", "O", "U", "a"]);
     });
 
-    it("holds the neck to well under the width of the body slab", () => {
-      expect(painted(rows[firstBodyRow - 1])).toBeLessThanOrEqual(
-        0.6 * painted(rows[firstBodyRow])
-      );
+    it("raises six prongs from its rack", () => {
+      expect(Math.max(...prongRows.map((row) => runs(row).length))).toBe(6);
     });
 
-    it("shows a tail rising above the rump", () => {
-      expect(rows[firstBodyRow - 1].slice(0, 4)).toContain("N");
+    it("leaves at least two cells of sun between neighboring prongs so they stay apart at 60 px", () => {
+      expect(prongRows.flatMap(gaps).filter((gap) => gap < 2)).toEqual([]);
+    });
+
+    it("stands on four hooves", () => {
+      expect(runs(rows[rows.length - 1])).toHaveLength(4);
     });
   });
 });

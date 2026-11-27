@@ -52,13 +52,15 @@ Props are sprites for the menus and the sighting-in range. They follow the same 
 
 `npm run brand` in this package, or `node packages/pixels/scripts/generate-brand.ts` from the repo root, composes the scenes in `src/brand.ts` and writes them to `apps/mobile/assets/brand/`.
 
-| File                      | Size      | Color type    |
-| ------------------------- | --------- | ------------- |
-| `icon.png`                | 1024x1024 | RGB, no alpha |
-| `splash.png`              | 1024x1024 | RGB           |
-| `adaptive-foreground.png` | 1024x1024 | RGBA          |
-| `adaptive-background.png` | 1024x1024 | RGB           |
-| `favicon.png`             | 48x48     | RGB           |
+| File                      | Size      | Color type    | Grid          |
+| ------------------------- | --------- | ------------- | ------------- |
+| `icon.png`                | 1024x1024 | RGB, no alpha | 64 cells, x16 |
+| `splash.png`              | 1024x1024 | RGB           | 128 cells, x8 |
+| `adaptive-foreground.png` | 1024x1024 | RGBA          | 64 cells, x16 |
+| `adaptive-background.png` | 1024x1024 | RGB           | 64 cells, x16 |
+| `favicon.png`             | 48x48     | RGB           | 16 cells, x3  |
+
+The icon is a buck at dawn. `src/dawn.ts` paints the backdrop: sky bands stepped from navy to amber with dithered edges, a low sun whose glow rings lift the sky one shade per ring, a far canopy, and a dark knoll. `brand-icon-buck` stands on the knoll inside the sun. Its rack keeps two cells of sun between prongs so it still reads at 60 px. The adaptive background is the backdrop alone and the adaptive foreground is the buck alone in the same place, so the pair stacks into the icon. The splash crops the icon to a cream-ringed badge above the wordmark. The favicon is the same dawn at 16 cells with `brand-icon-buck-mini`.
 
 Never edit the PNGs by hand. A snapshot test fails when a committed PNG no longer matches what the sprites render.
 
@@ -66,7 +68,9 @@ The same script writes a labeled contact sheet of every sprite at 6x. It goes to
 
 ## Judging an icon
 
-Judge an icon on a home screen, not as a flat swatch. `npm run icon:homescreen` renders each icon concept inside the iOS rounded-square mask (corner radius 22.37% of the side), scaled down the way the system scales the 1024 file. It writes two PNGs that are not committed:
+Judge an icon on a home screen, not as a flat swatch. `npm run icon:homescreen` renders the icon inside the iOS rounded-square mask (corner radius 22.37% of the side), scaled down by area the way the system scales the 1024 file. It writes two PNGs that are not committed:
 
-- `$ICON_HOMESCREEN_PATH` (or `bow-season-icon-homescreen.png` in the system temp folder) shows each concept at 60 px among seven placeholder apps with labels, on a light and a dark wallpaper, then at 120 px and at 40 px (Spotlight). The shipping icon sits in a strip at the bottom for comparison.
-- The same path ending in `-1024.png` shows each concept at full size inside the mask.
+- `$ICON_HOMESCREEN_PATH` (or `bow-season-icon-homescreen.png` in the system temp folder) shows the icon at 60 px among seven placeholder apps with labels, on a light and a dark wallpaper, then at 120 px and at 40 px (Spotlight).
+- The same path ending in `-1024.png` shows the icon at full size inside the mask.
+
+To weigh a redesign, add entries to the `entries` list in `scripts/icon-homescreen.ts` and each one gets its own column.

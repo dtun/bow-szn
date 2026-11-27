@@ -3,7 +3,6 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { iconScene } from "../src/brand.ts";
-import { ICON_CONCEPTS } from "../src/icon-concepts.ts";
 import { PALETTE, rasterize } from "../src/index.ts";
 import type { Raster, Sprite } from "../src/index.ts";
 import { encodePng } from "../src/png.ts";
@@ -342,11 +341,10 @@ function sizeStrip(
 
 type Entry = { name: string; scene: Sprite };
 
-function renderSheet(entries: readonly Entry[], reference: Entry): Raster {
+function renderSheet(entries: readonly Entry[]): Raster {
   let width = entries.length * PANEL_W + (entries.length + 1) * GAP;
   let stripTop = HEADING_H + GAP + WALLPAPERS.length * (PANEL_H + GAP);
-  let referenceTop = stripTop + STRIP_H + GAP;
-  let height = referenceTop + HEADING_H + STRIP_H + GAP;
+  let height = stripTop + STRIP_H + GAP;
   let sheet = canvas(width, height, SHEET_COLOR);
   entries.forEach(({ name, scene }, column) => {
     let full = rasterize(scene, PALETTE, ICON_SIZE / scene.w);
@@ -358,9 +356,6 @@ function renderSheet(entries: readonly Entry[], reference: Entry): Raster {
     });
     sizeStrip(sheet, full, [120, 40], left, stripTop, PANEL_W, STRIP_H);
   });
-  let full = rasterize(reference.scene, PALETTE, ICON_SIZE / reference.scene.w);
-  drawText(sheet, reference.name, GAP, referenceTop + GAP, 3, SHEET_INK);
-  sizeStrip(sheet, full, [120, 60, 40], GAP, referenceTop + HEADING_H, PANEL_W * 2, STRIP_H);
   return sheet;
 }
 
@@ -383,8 +378,8 @@ function renderFullSize(entries: readonly Entry[]): Raster {
 
 let outPath = process.env.ICON_HOMESCREEN_PATH ?? join(tmpdir(), "bow-season-icon-homescreen.png");
 let fullPath = outPath.replace(/\.png$/, "-1024.png");
-let entries = ICON_CONCEPTS.map(({ name, scene }) => ({ name, scene: scene() }));
-let sheet = renderSheet(entries, { name: "SHIPPING NOW", scene: iconScene() });
+let entries: Entry[] = [{ name: "APP ICON", scene: iconScene() }];
+let sheet = renderSheet(entries);
 writeFileSync(outPath, encodePng(sheet.width, sheet.height, sheet.rgba, { alpha: false }));
 console.log(`wrote ${outPath}`);
 let big = renderFullSize(entries);

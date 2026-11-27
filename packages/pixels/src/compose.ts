@@ -66,6 +66,15 @@ export function hstack(name: string, parts: readonly Sprite[], gap: number): Spr
   return sprite(name, rows);
 }
 
+export function scaled(name: string, source: Sprite, factor: number): Sprite {
+  return sprite(
+    name,
+    source.rows.flatMap((row) =>
+      Array.from({ length: factor }, () => [...row].map((cell) => cell.repeat(factor)).join(""))
+    )
+  );
+}
+
 export function shadowed(name: string, source: Sprite, shadow: string): Sprite {
   return overlay(name, recolor(name, source, shadow), source, -1, -1);
 }
