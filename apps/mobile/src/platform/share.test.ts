@@ -26,7 +26,7 @@ jest.mock("expo-file-system", () => {
 });
 
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-const MESSAGE = "BOW SEASON. 8-BIT BOW HUNTING. https://dtun.github.io/bow-szn/";
+const MESSAGE = "BOW SEASON. 8-BIT BOW HUNTING. https://paperstreetapp.com/bow-season";
 const CARD = { fileName: "bow-season-42-3.png", png: PNG, message: MESSAGE };
 
 let shareSheet: jest.SpyInstance;

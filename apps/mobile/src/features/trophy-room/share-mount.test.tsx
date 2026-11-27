@@ -70,6 +70,7 @@ test("SHARE draws a card for that buck and hands its PNG and the site link to th
   expect(sharer.shared).toEqual([
     { uri: `${FAKE_SHARE_FOLDER}/bow-season-big-buck.png`, bytes: PNG, message: SHARE_MESSAGE },
   ]);
+  expect(SITE_URL).toBe("https://paperstreetapp.com/bow-season");
   expect(sharer.shared[0].message).toContain(SITE_URL);
   expect(sharer.shared[0].message).not.toContain("testflight");
   expect(screen.queryByTestId("shareToast")).not.toBeOnTheScreen();

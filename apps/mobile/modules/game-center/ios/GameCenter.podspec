@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary        = 'Game Center sign-in, score submission, and leaderboards for Bow Season'
   s.description    = 'Game Center sign-in, score submission, and leaderboards for Bow Season'
   s.author         = 'Bow Season'
-  s.homepage       = 'https://dtun.github.io/bow-szn/'
+  s.homepage       = 'https://paperstreetapp.com/bow-season'
   s.license        = { type: 'Proprietary' }
   s.platforms      = { :ios => '15.1' }
   s.swift_version  = '5.9'

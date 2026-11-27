@@ -5,7 +5,7 @@ import type { Sharer } from "@/platform/share";
 
 import type { CardRenderer } from "./use-card-renderer";
 
-export const SITE_URL = "https://dtun.github.io/bow-szn/";
+export const SITE_URL = "https://paperstreetapp.com/bow-season";
 export const SHARE_MESSAGE = `BOW SEASON. 8-BIT BOW HUNTING. ${SITE_URL}`;
 export const FAILED_TOAST = "COULD NOT SHARE THAT MOUNT. TRY AGAIN.";
 
