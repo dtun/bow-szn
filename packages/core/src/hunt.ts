@@ -59,12 +59,19 @@ function endAtDusk(state: HuntState): HuntState {
     : state;
 }
 
+function showLonger(state: HuntState, dtMs: number): HuntState {
+  if (state.phase.kind !== "result") {
+    return state;
+  }
+  return { ...state, phase: { ...state.phase, shownMs: state.phase.shownMs + dtMs } };
+}
+
 function advance(state: HuntState, dtMs: number): HuntState {
   if (state.phase.kind === "over") {
     return state;
   }
   let elapsedMs = state.elapsedMs + dtMs * timeScale(state);
-  let next = state;
+  let next = showLonger(state, dtMs);
   for (let index = stepIndexAt(state.elapsedMs) + 1; index <= stepIndexAt(elapsedMs); index++) {
     next = stepAt(next, index);
   }

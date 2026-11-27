@@ -97,7 +97,7 @@ export type HuntPhase =
   | { kind: "ready" }
   | { kind: "drawing"; pull: Vec2; heldMs: number }
   | { kind: "flight"; arrow: Arrow }
-  | { kind: "result"; outcome: ShotOutcome }
+  | { kind: "result"; outcome: ShotOutcome; shownMs: number }
   | { kind: "over"; reason: "dusk" | "quiver-empty" };
 
 export type HuntConfig = {

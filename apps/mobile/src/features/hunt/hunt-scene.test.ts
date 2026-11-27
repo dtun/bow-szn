@@ -432,7 +432,11 @@ test("a result floats its pop line over the spot, as the shot result", () => {
     ...STILL,
     pop: { text: "DOE!", at: { x: 90, y: 200 }, tone: "snack", animalId: 7, startMs: 0 },
   };
-  let result = huntWith([], { kind: "result", outcome: { kind: "harvest", harvest: HARVEST } });
+  let result = huntWith([], {
+    kind: "result",
+    outcome: { kind: "harvest", harvest: HARVEST },
+    shownMs: 0,
+  });
 
   expect(sceneFor(result, juice, PHONE).labels).toContainEqual({
     key: "pop",
@@ -567,7 +571,7 @@ test.each([
     ...STILL,
     pop: { ...line, at: { x: 90, y: 150 }, animalId: null, startMs: 0 },
   };
-  let hunt = huntWith([], { kind: "result", outcome: { kind: "miss", near: false } });
+  let hunt = huntWith([], { kind: "result", outcome: { kind: "miss", near: false }, shownMs: 0 });
   let scene = sceneFor(hunt, juice, PHONE);
   let pop = scene.labels.find((each) => each.key === "pop");
 
@@ -607,7 +611,11 @@ test("a pop line wins over an alert ! it would cover", () => {
       startMs: 0,
     },
   };
-  let hunt = huntWith([alert], { kind: "result", outcome: { kind: "miss", near: false } });
+  let hunt = huntWith([alert], {
+    kind: "result",
+    outcome: { kind: "miss", near: false },
+    shownMs: 0,
+  });
 
   expect(bang.text).toBe("!");
   expect(texts(sceneFor(hunt, juice, PHONE))).toEqual(["WHIFF!"]);

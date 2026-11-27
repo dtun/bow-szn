@@ -19,7 +19,7 @@ const DOE: Harvest = {
 const BUCK: Harvest = { ...DOE, antlers: { kind: "rack", points: 8 }, weightLb: 184, meatLb: 83 };
 
 function harvested(harvest: Harvest): HuntState {
-  return huntWith([], { kind: "result", outcome: { kind: "harvest", harvest } });
+  return huntWith([], { kind: "result", outcome: { kind: "harvest", harvest }, shownMs: 0 });
 }
 
 function landedAgo(ms: number): Juice {
@@ -55,7 +55,7 @@ test("then the card slams in from above and settles in place", () => {
 });
 
 test("a miss shows neither", () => {
-  let missed = huntWith([], { kind: "result", outcome: { kind: "miss", near: false } });
+  let missed = huntWith([], { kind: "result", outcome: { kind: "miss", near: false }, shownMs: 0 });
 
   expect(resultFor(missed, landedAgo(0))).toEqual({ kind: "none" });
 });

@@ -41,7 +41,7 @@ export function landArrow(state: HuntState, landing: Vec2): HuntState {
   });
   if (struck === null) {
     let outcome: ShotOutcome = { kind: "miss", near: near !== null };
-    return { ...state, animals, phase: { kind: "result", outcome } };
+    return { ...state, animals, phase: { kind: "result", outcome, shownMs: 0 } };
   }
   let roller = createRoller(state.rng);
   let harvest = buildHarvest(state, struck, landing, roller);
@@ -50,6 +50,6 @@ export function landArrow(state: HuntState, landing: Vec2): HuntState {
     rng: roller.state(),
     animals,
     harvests: [...state.harvests, harvest],
-    phase: { kind: "result", outcome: { kind: "harvest", harvest } },
+    phase: { kind: "result", outcome: { kind: "harvest", harvest }, shownMs: 0 },
   };
 }

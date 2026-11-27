@@ -106,13 +106,30 @@ describe("the shot", () => {
 
   test("a landing far from every animal is a plain miss", () => {
     let after = play(huntWith([DOE]), shootAt({ x: 90, y: 240 }));
-    expect(after.phase).toEqual({ kind: "result", outcome: { kind: "miss", near: false } });
+    expect(after.phase).toEqual({
+      kind: "result",
+      outcome: { kind: "miss", near: false },
+      shownMs: 0,
+    });
     expect(after.harvests).toEqual([]);
   });
 
   test("a landing outside the hit zone but within twice its radius is close", () => {
     let after = play(huntWith([DOE]), shootAt({ x: DOE.pos.x + 10, y: DOE.pos.y }));
-    expect(after.phase).toEqual({ kind: "result", outcome: { kind: "miss", near: true } });
+    expect(after.phase).toEqual({
+      kind: "result",
+      outcome: { kind: "miss", near: true },
+      shownMs: 0,
+    });
+  });
+
+  test("a result counts how long it has been showing", () => {
+    let missed = play(huntWith([DOE]), shootAt({ x: 90, y: 240 }));
+    let after = play(missed, [
+      { type: "tick", dtMs: 50 },
+      { type: "tick", dtMs: 30 },
+    ]);
+    expect(after.phase).toEqual({ ...missed.phase, shownMs: 80 });
   });
 
   test("dismissing the result returns to ready with one arrow spent", () => {
