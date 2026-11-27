@@ -2,7 +2,8 @@ import {
   SEASON_IDS,
   SPECIES,
   SPOTS,
-  canMount,
+  mount,
+  recordHarvest,
   type Antlers,
   type Harvest,
   type Journal,
@@ -21,6 +22,8 @@ export type JournalStore = {
   load(): Journal;
   save(journal: Journal): void;
 };
+
+type Page = { journal: Journal; whole: boolean };
 
 export function emptyJournal(): Journal {
   return { harvests: [], mountedIds: [] };
@@ -99,41 +102,51 @@ function parseHarvests(value: unknown): Harvest[] | null {
   return harvests;
 }
 
-function mountableIds(harvests: Harvest[], mountedIds: unknown): string[] {
-  if (!Array.isArray(mountedIds)) {
-    return [];
+function sameJson(a: unknown, b: unknown): boolean {
+  if (Array.isArray(a) || Array.isArray(b)) {
+    return (
+      Array.isArray(a) &&
+      Array.isArray(b) &&
+      a.length === b.length &&
+      a.every((item, index) => sameJson(item, b[index]))
+    );
   }
-  let mountable = harvests.filter(canMount).map((harvest) => harvest.id);
-  let ids: string[] = [];
-  for (let id of mountedIds) {
-    if (mountable.includes(id) && !ids.includes(id)) {
-      ids.push(id);
-    }
+  if (isRecord(a) && isRecord(b)) {
+    let keys = Object.keys(a);
+    return (
+      keys.length === Object.keys(b).length &&
+      keys.every((key) => Object.hasOwn(b, key) && sameJson(a[key], b[key]))
+    );
   }
-  return ids;
+  return a === b;
 }
 
-function parseJournal(raw: string | null): Journal {
-  if (raw === null) {
-    return emptyJournal();
-  }
+function unreadablePage(): Page {
+  return { journal: emptyJournal(), whole: false };
+}
+
+function readPage(text: string): Page {
   let payload: unknown;
   try {
-    payload = JSON.parse(raw);
+    payload = JSON.parse(text);
   } catch {
-    return emptyJournal();
+    return unreadablePage();
   }
   if (!isRecord(payload) || payload.version !== JOURNAL_VERSION) {
-    return emptyJournal();
+    return unreadablePage();
   }
   let harvests = parseHarvests(payload.harvests);
-  if (harvests === null) {
-    return emptyJournal();
+  if (harvests === null || !Array.isArray(payload.mountedIds)) {
+    return unreadablePage();
   }
-  return { harvests, mountedIds: mountableIds(harvests, payload.mountedIds) };
+  let mountedIds = payload.mountedIds.filter((id): id is string => typeof id === "string");
+  return {
+    journal: { harvests, mountedIds },
+    whole: sameJson(payload, { version: JOURNAL_VERSION, harvests, mountedIds }),
+  };
 }
 
-function serializeJournal(journal: Journal): string {
+function writePage(journal: Journal): string {
   return JSON.stringify({
     version: JOURNAL_VERSION,
     harvests: journal.harvests,
@@ -141,18 +154,60 @@ function serializeJournal(journal: Journal): string {
   });
 }
 
+function absorb(journal: Journal, other: Journal): Journal {
+  return other.mountedIds.reduce(mount, other.harvests.reduce(recordHarvest, journal));
+}
+
+function holdsEverything(journal: Journal, text: string): boolean {
+  let page = readPage(text);
+  return page.whole && absorb(journal, page.journal) === journal;
+}
+
+function archiveKey(position: number): string {
+  return `${JOURNAL_KEY}.archive.${position}`;
+}
+
+function archivedTexts(storage: KeyValueStorage): string[] {
+  let texts: string[] = [];
+  let text = storage.getItem(archiveKey(1));
+  while (text !== null) {
+    texts.push(text);
+    text = storage.getItem(archiveKey(texts.length + 1));
+  }
+  return texts;
+}
+
+function setAside(storage: KeyValueStorage, text: string): void {
+  let archived = archivedTexts(storage);
+  if (!archived.includes(text)) {
+    storage.setItem(archiveKey(archived.length + 1), text);
+  }
+}
+
 export function createJournalStore(storage: KeyValueStorage): JournalStore {
   return {
     load() {
       try {
-        return parseJournal(storage.getItem(JOURNAL_KEY));
+        let texts = archivedTexts(storage);
+        let current = storage.getItem(JOURNAL_KEY);
+        if (current !== null) {
+          texts.push(current);
+        }
+        return texts.reduce(
+          (journal, text) => absorb(journal, readPage(text).journal),
+          emptyJournal()
+        );
       } catch {
         return emptyJournal();
       }
     },
     save(journal) {
       try {
-        storage.setItem(JOURNAL_KEY, serializeJournal(journal));
+        let current = storage.getItem(JOURNAL_KEY);
+        if (current !== null && !holdsEverything(journal, current)) {
+          setAside(storage, current);
+        }
+        storage.setItem(JOURNAL_KEY, writePage(journal));
       } catch (error) {
         console.warn("The journal could not be saved.", error);
       }
@@ -184,5 +239,5 @@ export function createMemoryStorage(entries: Record<string, string> = {}): KeyVa
 }
 
 export function createMemoryJournalStore(journal: Journal = emptyJournal()): JournalStore {
-  return createJournalStore(createMemoryStorage({ [JOURNAL_KEY]: serializeJournal(journal) }));
+  return createJournalStore(createMemoryStorage({ [JOURNAL_KEY]: writePage(journal) }));
 }
