@@ -12,6 +12,7 @@
     "brand": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-brand.ts",
     "icon:homescreen": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/icon-homescreen.ts",
     "lint": "eslint .",
+    "qr": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-qr.ts",
     "typecheck": "tsc --noEmit",
     "test": "jest --selectProjects unit",
     "test:snapshot": "jest --selectProjects snapshot",
@@ -20,7 +21,10 @@
   "devDependencies": {
     "@types/jest": "29.5.14",
     "@types/node": "^25.3.5",
+    "@types/qrcode": "^1.5.6",
     "jest": "~29.7.0",
+    "jsqr": "^1.4.0",
+    "qrcode": "^1.5.4",
     "ts-jest": "^29.4.0",
     "typescript": "~5.9.2"
   }

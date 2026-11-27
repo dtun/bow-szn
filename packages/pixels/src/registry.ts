@@ -16,6 +16,8 @@ import { MOUNT_SPRITES } from "./sprites/mounts.ts";
 import type { MountSpriteId } from "./sprites/mounts.ts";
 import { PLAT_MAP_SPRITES } from "./sprites/plat-map.ts";
 import type { PlatMapSpriteId } from "./sprites/plat-map.ts";
+import { QR_SPRITES } from "./sprites/qr.ts";
+import type { QrSpriteId } from "./sprites/qr.ts";
 import { RABBIT_SPRITES } from "./sprites/rabbit.ts";
 import type { RabbitSpriteId } from "./sprites/rabbit.ts";
 import { SIGHT_IN_SPRITES } from "./sprites/sight-in.ts";
@@ -45,6 +47,7 @@ export type SpriteId =
   | IconSpriteId
   | MountSpriteId
   | LogoSpriteId
+  | QrSpriteId
   | BrandSpriteId;
 
 export const SPRITES: Record<SpriteId, Sprite> = {
@@ -62,5 +65,6 @@ export const SPRITES: Record<SpriteId, Sprite> = {
   ...ICON_SPRITES,
   ...MOUNT_SPRITES,
   ...LOGO_SPRITES,
+  ...QR_SPRITES,
   ...BRAND_SPRITES,
 };

@@ -30,6 +30,15 @@ Props are sprites for the menus and the sighting-in range. They follow the same 
 - `sign-point-left` and `sign-point-right` are 13-pixel-tall arrow tips for a wooden trail sign. The board's body is drawn beside them. `sign-nail` and `sign-knot` dress a board.
 - `stamp-frame` is the inked double border of a rubber stamp, 30 by 16, with notched corners and a little wear. The screen sets text inside it.
 - `sight-pin` is the swaying aim dot. Its center pixel is red and is the point that counts.
+- `qr-site` is a scannable QR code for `QR_SITE_URL`. See the next section.
+
+## QR code
+
+`qr-site` is 37 by 37: a 29-module code inside a 4-module quiet zone. Dark modules are `S` and light modules, quiet zone included, are `C`, so it scans on the wood wall. Draw it at a whole number of pixels per module. Never resample, tint, or crop it.
+
+`QR_SITE_URL` in `src/qr-site-url.ts` is the link the code carries. `npm run qr` in this package encodes it with the `qrcode` dev dependency at error correction level M and writes `src/sprites/qr.ts`. To change the link, edit the constant, run the script, and commit both. Never edit the rows by hand.
+
+Two tests keep the art and the link in step. One regenerates the rows from `QR_SITE_URL` and expects the committed ones. The other draws the sprite at 3 and 4 pixels per module and decodes it with the `jsqr` dev dependency, expecting the link back.
 
 ## Conventions
 
