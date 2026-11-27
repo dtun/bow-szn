@@ -2,7 +2,7 @@
 
 Run these from `apps/mobile`.
 
-- `npm run store:check` checks `store.config.json` against the App Store's length limits and fetches every URL in it.
+- `npm run store:check` checks `store.config.json` against the App Store's length limits and fetches every URL in it. It fails on any email address in the config or the fetched pages, except the public support address `support@paperstreetapp.com` (`SUPPORT_EMAIL` in `scripts/store-email.ts`), so a personal address such as the Apple ID stays out of public pages.
 - `npm run store:screenshots` replaces the en-US screenshots on the app's editable App Store Connect version with the PNGs in `store/screenshots/`. Add `-- --dry-run` to print the plan and change nothing.
 
 Each folder under `store/screenshots/` holds PNGs named `NN-name.png`, and the numbers set the order. The folder name picks the App Store display type and the exact size. `iphone-6.9` holds 1320x2868 PNGs for `APP_IPHONE_67`. To support another size, add a row to the table in `scripts/store-screenshots/display-types.ts`. The script checks every PNG's size, name, and count before it contacts Apple. `--dir <folder>` reads screenshots from another folder.

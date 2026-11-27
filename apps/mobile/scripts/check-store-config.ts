@@ -1,4 +1,5 @@
 import config from "../store.config.json" with { type: "json" };
+import { findDisallowedEmails } from "./store-email";
 
 type Unit = "chars" | "bytes";
 
@@ -12,8 +13,6 @@ const LIMITS = [
   { field: "description", max: 4000, unit: "chars" },
   { field: "releaseNotes", max: 4000, unit: "chars" },
 ] as const;
-
-const EMAIL = /[^\s@"]+@[^\s@"]+\.[a-z]{2,}/gi;
 
 const URL_PREFIX = /^[a-z][a-z0-9+.-]*:\/\//i;
 
@@ -56,7 +55,7 @@ function checkKeywordSpacing(): Result[] {
 }
 
 function checkNoEmail(source: string, text: string): Result {
-  let found = text.match(EMAIL) ?? [];
+  let found = findDisallowedEmails(text);
   return {
     ok: found.length === 0,
     label: `${source} has no email address${found.length === 0 ? "" : `: ${found.join(", ")}`}`,
