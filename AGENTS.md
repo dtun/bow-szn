@@ -23,25 +23,27 @@ When a why is worth keeping, encode it in a name, a type, or a test. A decision 
 The repo splits game logic from presentation. The rationale is in `docs/adr/0001-pure-core-skia-render.md`.
 
 - **`packages/core`** (`@bow-szn/core`) is pure TypeScript game logic. It never imports React, React Native, Expo, Skia, or the app. State changes go through reducers shaped `(state, event) => state`. Time arrives as `dtMs` on a `tick` event, randomness is a seed carried in state, and nothing in core reads a clock or calls `Math.random`.
+- **`packages/pixels`** (`@bow-szn/pixels`) holds all the art as data: a palette, sprites as character grids, and the frame tables that name which sprites an animation cycles through. The app draws the grids with Skia, and the brand scripts write the same grids to PNG. It imports no other workspace. See `packages/pixels/README.md`.
+- **`packages/sound`** (`@bow-szn/sound`) holds the sound effects and jingles as data, with a pure renderer and a script that writes them to WAV files in `apps/mobile/assets/sound/`. The app plays the WAV files and does not import the package. See `packages/sound/README.md`.
 - **`apps/mobile`** (`@bow-szn/mobile`) renders and handles input. It drives the frame loop, turns touches into events, and draws state with Skia. It holds no game rules.
 - **`packages/core/src/types.ts`** is the shared contract: the world is a 180x320 logical portrait field in world pixels, and every type the two sides exchange lives there. Change it deliberately, in its own commit.
 
-The core ships as source. `main` and `types` point at `src/index.ts`, and there is no build step. Metro and Jest compile it directly.
+Every package ships as source. `main` and `types` point at `src/index.ts`, and there is no build step. Metro and Jest compile it directly.
 
 ### Mobile layout
 
 Every kind of code has one home. Create a folder when you first put a file in it. Do not add placeholder files.
 
-| Path                                  | Holds                                                              |
-| ------------------------------------- | ------------------------------------------------------------------ |
-| `apps/mobile/app/`                    | Expo Router routes. Thin: a route imports a screen and exports it. |
-| `apps/mobile/src/features/<feature>/` | One folder per feature: `title`, `map`, `prep`, `hunt`, `journal`. |
-| `apps/mobile/src/ui/`                 | Shared UI primitives and the theme.                                |
-| `apps/mobile/src/art/`                | Pixel art and sprites.                                             |
-| `apps/mobile/src/platform/`           | Device adapters: storage, haptics, audio, Game Center.             |
-| `apps/mobile/src/__integration__/`    | Multi-screen flows through the real router.                        |
-| `apps/mobile/__mocks__/`              | Jest manual mocks for packages.                                    |
-| `apps/mobile/modules/<module>/`       | Local native modules. `game-center` is Swift, iOS only.            |
+| Path                                  | Holds                                                                             |
+| ------------------------------------- | --------------------------------------------------------------------------------- |
+| `apps/mobile/app/`                    | Expo Router routes. Thin: a route imports a screen and exports it.                |
+| `apps/mobile/src/features/<feature>/` | One folder per feature: `title`, `map`, `prep`, `hunt`, `journal`, `trophy-room`. |
+| `apps/mobile/src/ui/`                 | Shared UI primitives and the theme.                                               |
+| `apps/mobile/src/art/`                | Skia components that draw `@bow-szn/pixels` sprites and backdrops.                |
+| `apps/mobile/src/platform/`           | Device adapters: storage, haptics, audio, Game Center.                            |
+| `apps/mobile/src/__integration__/`    | Multi-screen flows through the real router.                                       |
+| `apps/mobile/__mocks__/`              | Jest manual mocks for packages.                                                   |
+| `apps/mobile/modules/<module>/`       | Local native modules. `game-center` is Swift, iOS only.                           |
 
 The `@/*` alias maps to `apps/mobile/src/*`. Import with `@/features/title/title-screen`, not a relative path out of a folder.
 
@@ -50,11 +52,11 @@ The journal is the one feature others call. Import `JournalProvider` and `useJou
 ### Dependency direction
 
 ```
-app -> features -> ui, art, platform -> @bow-szn/core
+app -> features -> ui, art, platform -> @bow-szn/core, @bow-szn/pixels
 ```
 
 - A route in `app/` imports a feature's screen and nothing else.
-- A feature imports `ui`, `art`, `platform`, and `@bow-szn/core`. A feature does not import another feature's internals.
+- A feature imports `ui`, `art`, `platform`, `@bow-szn/core`, and `@bow-szn/pixels`. A feature does not import another feature's internals.
 - `ui`, `art`, and `platform` never import a feature. ESLint enforces this with `no-restricted-imports`.
 - `@bow-szn/core` imports nothing from the app, React, React Native, Expo, or Skia. ESLint enforces this with `no-restricted-imports`.
 
@@ -92,8 +94,10 @@ This project uses npm workspaces. The root `package.json` defines workspaces at 
 
 - **`apps/mobile/`** - Expo React Native app (`@bow-szn/mobile`)
 - **`packages/core/`** - Pure game logic and the shared contract (`@bow-szn/core`)
+- **`packages/pixels/`** - Art as data: palette, sprites, and frames (`@bow-szn/pixels`)
+- **`packages/sound/`** - Sound effects as data, rendered to WAV (`@bow-szn/sound`)
 
-Shared devDeps (prettier, eslint and its configs, husky, commitlint) live at the root. Workspace-specific deps live in each workspace. One `package-lock.json` at the root covers both.
+Shared devDeps (prettier, eslint and its configs, husky, commitlint) live at the root. Workspace-specific deps live in each workspace. One `package-lock.json` at the root covers them all.
 
 The native `ios/` and `android/` folders are generated by Expo prebuild and ignored. Change native config in `apps/mobile/app.json`, not in those folders.
 
